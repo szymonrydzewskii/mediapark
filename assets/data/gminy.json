@@ -1,0 +1,69 @@
+{
+  "gminy": [
+    {
+      "id" : "1",
+      "nazwa": "Gmina Warszawa",
+      "herb": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/POL_Warszawa_COA.svg/250px-POL_Warszawa_COA.svg.png"
+    },
+    {
+      "id" : "2",
+      "nazwa": "Gmina Kraków",
+      "herb": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/POL_Krak%C3%B3w_COA.svg/250px-POL_Krak%C3%B3w_COA.svg.png"
+    },
+    {
+      "id" : "3",
+      "nazwa": "Gmina Wrocław",
+      "herb": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/07/Herb_wroclaw.svg/250px-Herb_wroclaw.svg.png"
+    },
+    {
+      "id" : "4",
+      "nazwa": "Gmina Gdańsk",
+      "herb": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/POL_Gda%C5%84sk_COA.svg/250px-POL_Gda%C5%84sk_COA.svg.png"
+    },
+    {
+      "id" : "5",
+      "nazwa": "Gmina Poznań",
+      "herb": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/POL_Pozna%C5%84_COA.svg/250px-POL_Pozna%C5%84_COA.svg.png"
+    },
+    {
+      "id" : "6",
+      "nazwa": "Gmina Szczecin",
+      "herb": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/POL_Szczecin_COA.svg/250px-POL_Szczecin_COA.svg.png"
+    },
+    {
+      "id" : "7",
+      "nazwa": "Gmina Lublin",
+      "herb": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/POL_Lublin_COA_1.svg/250px-POL_Lublin_COA_1.svg.png"
+    },
+    {
+      "id" : "8",
+      "nazwa": "Gmina Białystok",
+      "herb": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/POL_Bia%C5%82ystok_COA.svg/250px-POL_Bia%C5%82ystok_COA.svg.png"
+    },
+    {
+      "id" : "9",
+      "nazwa": "Gmina Katowice",
+      "herb": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cc/Katowice_Herb.svg/250px-Katowice_Herb.svg.png"
+    },
+    {
+      "id" : "10",
+      "nazwa": "Gmina Rzeszów",
+      "herb": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2d/POL_Rzesz%C3%B3w_COA.svg/250px-POL_Rzesz%C3%B3w_COA.svg.png"
+    },
+    {
+      "id" : "11",
+      "nazwa": "Gmina Toruń",
+      "herb": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/POL_Toru%C5%84_COA.svg/250px-POL_Toru%C5%84_COA.svg.png"
+    },
+    {
+      "id" : "12",
+      "nazwa": "Gmina Olsztyn",
+      "herb": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/92/POL_Olsztyn_COA.svg/250px-POL_Olsztyn_COA.svg.png"
+    },
+    {
+      "id" : "13",
+      "nazwa": "Gmina Zielona Góra",
+      "herb": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/POL_Zielona_G%C3%B3ra_COA.svg/250px-POL_Zielona_G%C3%B3ra_COA.svg.png"
+    }
+  ]
+}
