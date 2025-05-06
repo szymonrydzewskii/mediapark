@@ -5,6 +5,7 @@ class Samorzad {
   final String id;
   final String nazwa;
   final String herb;
+
   final bool konsultacje;
 
   Samorzad({required this.id, required this.nazwa, required this.herb, required this.konsultacje});

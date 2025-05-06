@@ -2,7 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:mediapark/preferences_helper.dart';
 import 'package:mediapark/samorzad_service.dart';
 import 'package:google_fonts/google_fonts.dart';
+<<<<<<< HEAD
 import 'package:mediapark/main_window.dart';
+=======
+import 'package:mediapark/selected_samorzady.dart';
+>>>>>>> ea4c2708a84cf12032b2ff5ba854d472391106a3
 
 class SelectingSamorzad extends StatefulWidget {
   const SelectingSamorzad({super.key});
@@ -67,7 +71,12 @@ class _SelectingSamorzadState extends State<SelectingSamorzad> {
       Navigator.push(
         context,
         MaterialPageRoute(
+<<<<<<< HEAD
           builder: (context) => MainWindow(wybraneSamorzady: wybraneObiekty),
+=======
+          builder:
+              (context) => SelectedSamorzady(wybraneSamorzady: wybraneObiekty),
+>>>>>>> ea4c2708a84cf12032b2ff5ba854d472391106a3
         ),
       );
     }
@@ -105,7 +114,11 @@ class _SelectingSamorzadState extends State<SelectingSamorzad> {
           Expanded(
             child:
                 filtrowaneSamorzady.isEmpty
+<<<<<<< HEAD
                     ? Center(child: CircularProgressIndicator(year2023: true),)
+=======
+                    ? Center(child: Text("Brak samorządów do wyświetlenia"))
+>>>>>>> ea4c2708a84cf12032b2ff5ba854d472391106a3
                     : SingleChildScrollView(
                       physics: ClampingScrollPhysics(),
                       child: Column(
