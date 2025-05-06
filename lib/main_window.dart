@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:mediapark/samorzad_service.dart';
 import 'package:mediapark/selecting_samorzad.dart';
+import 'package:mediapark/widgets/boxy/kalendarz_box.dart';
+import 'dart:math';
+import 'package:mediapark/widgets/boxy/konsultacje_box.dart';
+import 'package:mediapark/widgets/boxy/ogloszenia_box.dart';
 
 class MainWindow extends StatefulWidget {
   final Set<Samorzad> wybraneSamorzady;
@@ -41,7 +45,22 @@ class _MainWindowState extends State<MainWindow> {
   Widget build(BuildContext context) {
     const appBarColor = Color.fromARGB(255, 45, 45, 45);
     final lista = widget.wybraneSamorzady.toList();
-    final panelHeight = (lista.length * 70.0).clamp(0, 370);
+    final panelHeight = min(max(lista.length, 4) * 70.0, 370);
+
+
+    // final moduly = {
+    //   'konsultacje' : aktywnySamorzad?.konsultacje ?? false,
+    //   'kalendarz' : aktywnySamorzad?.kalendarz ?? false,
+    //   'ogloszenia' : aktywnySamorzad?.ogloszenia ?? false
+    // };
+
+    // final widgetMap = { 
+    //   'konsultacje' : const KonsultacjeBox(),
+    //   'kalendarz' : const KalendarzBox(),
+    //   'ogloszenia' : const OgloszeniaBox()
+    // };
+
+    // final aktywneModuly = moduly.entries.where((entry) => entry.value == true).map((entry) => widgetMap[entry.key]!).toList();
 
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 22, 22, 22),
@@ -113,30 +132,15 @@ class _MainWindowState extends State<MainWindow> {
                 ],
               ),
               // konsultacje box
-              Align(
-                alignment: Alignment.topLeft,
-                child: Container(
-                  child: aktywnySamorzad?.konsultacje == true ? 
-                    Padding(
-                      padding: const EdgeInsets.all(10),
-                      child: Container(
-                        width: 200,
-                        height: 200,
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(begin: Alignment.topRight, end: Alignment.bottomLeft)),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: const Text(
-                          'KONSULTACJE',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ): const SizedBox.shrink(),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(2),
+                  child: GridView.count(
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 10,
+                    mainAxisSpacing: 10,
+                    // children: aktywneModuly,
+                  ),
                 ),
               ),
             ],

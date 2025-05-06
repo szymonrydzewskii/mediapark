@@ -5,32 +5,37 @@ class Samorzad {
   final String id;
   final String nazwa;
   final String herb;
+  // final bool konsultacje;
+  // final bool kalendarz;
+  // final bool ogloszenia;
 
-  final bool konsultacje;
-
-  Samorzad({required this.id, required this.nazwa, required this.herb, required this.konsultacje});
+  Samorzad({required this.id, required this.nazwa, required this.herb,
+  //  required this.konsultacje, required this.kalendarz, required this.ogloszenia
+   });
 
   factory Samorzad.fromJson(Map<String, dynamic> json){
     return Samorzad(
         id: json['id_institution'].toString(), 
         nazwa: json['name'], 
         herb: json['logo'],
-        konsultacje: json['konsultacje']
+        // konsultacje: json['konsultacje'],
+        // kalendarz : json['kalendarz'],
+        // ogloszenia : json['ogloszenia']
       );
   }
 }
 
 Future<List<Samorzad>> loadSamorzad() async {
 
-  final url = 'http://192.168.0.112:3000/gminy';
-  // final url = 'https://api.wdialogu.pl/v1/instytucje/lista';
-  // const token = 'SiulsrtVRSlrRZVKL1jV17tmGibpHlXMkCScv33OjJQFA2dDApVOWCUPqjXRTsxA';
+  // final url = 'http://172.17.59.188:3000/gminy';
+  final url = 'https://api.wdialogu.pl/v1/instytucje/lista';
+  const token = 'SiulsrtVRSlrRZVKL1jV17tmGibpHlXMkCScv33OjJQFA2dDApVOWCUPqjXRTsxA';
   final response = await http.get(
       Uri.parse(url),
-      // headers: {
-      //   'Authorization' : 'Bearer $token',
-      //   'Accept' : 'application/json'
-      // }
+      headers: {
+        'Authorization' : 'Bearer $token',
+        'Accept' : 'application/json'
+      }
     );
 
   if (response.statusCode == 200) {

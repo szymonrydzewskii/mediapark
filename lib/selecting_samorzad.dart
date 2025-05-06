@@ -2,11 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mediapark/preferences_helper.dart';
 import 'package:mediapark/samorzad_service.dart';
 import 'package:google_fonts/google_fonts.dart';
-<<<<<<< HEAD
 import 'package:mediapark/main_window.dart';
-=======
-import 'package:mediapark/selected_samorzady.dart';
->>>>>>> ea4c2708a84cf12032b2ff5ba854d472391106a3
 
 class SelectingSamorzad extends StatefulWidget {
   const SelectingSamorzad({super.key});
@@ -21,11 +17,20 @@ class _SelectingSamorzadState extends State<SelectingSamorzad> {
   List<Samorzad> filtrowaneSamorzady = [];
   Set<String> wybraneSamorzady = {};
   String wpisanyText = '';
+  bool showLoader = true;
 
   @override
   void initState() {
     super.initState();
     loadData();
+
+    Future.delayed(const Duration(seconds: 5), () {
+      if (mounted) {
+        setState(() {
+          showLoader = false;
+        });
+      }
+    });
   }
 
   Future<void> loadData() async {
@@ -53,30 +58,30 @@ class _SelectingSamorzadState extends State<SelectingSamorzad> {
 
   void onSelect(Samorzad samorzad) {
     setState(() {
-      if (wybraneSamorzady.contains(samorzad.id)) {
-        wybraneSamorzady.remove(samorzad.id);
+      final noweWybrane = Set<String>.from(wybraneSamorzady);
+      if (noweWybrane.contains(samorzad.id)) {
+        noweWybrane.remove(samorzad.id);
       } else {
-        wybraneSamorzady.add(samorzad.id);
+        noweWybrane.add(samorzad.id);
       }
+      wybraneSamorzady = noweWybrane;
     });
   }
 
   void onSubmit() async {
     if (wybraneSamorzady.isNotEmpty) {
       await PreferencesHelper.saveSelectedSamorzady(wybraneSamorzady);
+      if (!mounted) return;
+
       final wybraneObiekty =
           wszystkieSamorzady
               .where((s) => wybraneSamorzady.contains(s.id))
               .toSet();
-      Navigator.push(
+
+      Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-<<<<<<< HEAD
           builder: (context) => MainWindow(wybraneSamorzady: wybraneObiekty),
-=======
-          builder:
-              (context) => SelectedSamorzady(wybraneSamorzady: wybraneObiekty),
->>>>>>> ea4c2708a84cf12032b2ff5ba854d472391106a3
         ),
       );
     }
@@ -95,32 +100,35 @@ class _SelectingSamorzadState extends State<SelectingSamorzad> {
       ),
       body: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.all(20),
+          const Padding(
+            padding: EdgeInsets.all(20),
             child: TextField(
               decoration: InputDecoration(
                 hintText: 'Wyszukaj',
-                hintStyle: GoogleFonts.roboto(color: Colors.grey),
+                hintStyle: TextStyle(
+                  color: Colors.grey,
+                ), // GoogleFonts.roboto dynamiczne
                 filled: true,
                 fillColor: Colors.white,
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.all(Radius.circular(8)),
                   borderSide: BorderSide.none,
                 ),
               ),
-              onChanged: onSearch,
+              // onChanged dynamiczne, nie const
             ),
           ),
           Expanded(
             child:
                 filtrowaneSamorzady.isEmpty
-<<<<<<< HEAD
-                    ? Center(child: CircularProgressIndicator(year2023: true),)
-=======
-                    ? Center(child: Text("Brak samorządów do wyświetlenia"))
->>>>>>> ea4c2708a84cf12032b2ff5ba854d472391106a3
+                    ? Center(
+                      child:
+                          showLoader
+                              ? const CircularProgressIndicator()
+                              : const Text("Nie znaleziono samorządu"),
+                    )
                     : SingleChildScrollView(
-                      physics: ClampingScrollPhysics(),
+                      physics: const ClampingScrollPhysics(),
                       child: Column(
                         children: List.generate(filtrowaneSamorzady.length, (
                           index,
@@ -152,7 +160,7 @@ class _SelectingSamorzadState extends State<SelectingSamorzad> {
                                     ),
                                     title: Text(
                                       samorzad.nazwa,
-                                      style: TextStyle(fontSize: 18),
+                                      style: const TextStyle(fontSize: 18),
                                     ),
                                     trailing:
                                         isSelected
@@ -184,7 +192,10 @@ class _SelectingSamorzadState extends State<SelectingSamorzad> {
             child: ElevatedButton(
               onPressed: wybraneSamorzady.isNotEmpty ? onSubmit : null,
               style: ElevatedButton.styleFrom(backgroundColor: Colors.black),
-              child: Text("Gotowe", style: TextStyle(color: Colors.white)),
+              child: const Text(
+                "Gotowe",
+                style: TextStyle(color: Colors.white),
+              ),
             ),
           ),
         ],

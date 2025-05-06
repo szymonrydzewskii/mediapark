@@ -4,79 +4,105 @@
       "id_institution": "1",
       "name": "Gmina Warszawa",
       "logo": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/POL_Warszawa_COA.svg/250px-POL_Warszawa_COA.svg.png",
-      "konsultacje": true
+      "konsultacje": true,
+      "kalendarz": true,
+      "ogloszenia": false
     },
     {
       "id_institution": "2",
       "name": "Gmina Kraków",
       "logo": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/POL_Krak%C3%B3w_COA.svg/250px-POL_Krak%C3%B3w_COA.svg.png",
-      "konsultacje": false
+      "konsultacje": false,
+      "kalendarz": true,
+      "ogloszenia": true
     },
     {
       "id_institution": "3",
       "name": "Gmina Wrocław",
       "logo": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/07/Herb_wroclaw.svg/250px-Herb_wroclaw.svg.png",
-      "konsultacje": true
+      "konsultacje": true,
+      "kalendarz": false,
+      "ogloszenia": true
     },
     {
       "id_institution": "4",
       "name": "Gmina Gdańsk",
       "logo": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/POL_Gda%C5%84sk_COA.svg/250px-POL_Gda%C5%84sk_COA.svg.png",
-      "konsultacje": false
+      "konsultacje": false,
+      "kalendarz": false,
+      "ogloszenia": false
     },
     {
       "id_institution": "5",
       "name": "Gmina Poznań",
       "logo": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/POL_Pozna%C5%84_COA.svg/250px-POL_Pozna%C5%84_COA.svg.png",
-      "konsultacje": true
+      "konsultacje": true,
+      "kalendarz": true,
+      "ogloszenia": true
     },
     {
       "id_institution": "6",
       "name": "Gmina Szczecin",
       "logo": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/POL_Szczecin_COA.svg/250px-POL_Szczecin_COA.svg.png",
-      "konsultacje": false
+      "konsultacje": false,
+      "kalendarz": false,
+      "ogloszenia": true
     },
     {
       "id_institution": "7",
       "name": "Gmina Lublin",
       "logo": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/POL_Lublin_COA_1.svg/250px-POL_Lublin_COA_1.svg.png",
-      "konsultacje": true
+      "konsultacje": true,
+      "kalendarz": true,
+      "ogloszenia": false
     },
     {
       "id_institution": "8",
       "name": "Gmina Białystok",
       "logo": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/POL_Bia%C5%82ystok_COA.svg/250px-POL_Bia%C5%82ystok_COA.svg.png",
-      "konsultacje": false
+      "konsultacje": false,
+      "kalendarz": true,
+      "ogloszenia": false
     },
     {
       "id_institution": "9",
       "name": "Gmina Katowice",
       "logo": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cc/Katowice_Herb.svg/250px-Katowice_Herb.svg.png",
-      "konsultacje": true
+      "konsultacje": true,
+      "kalendarz": false,
+      "ogloszenia": true
     },
     {
       "id_institution": "10",
       "name": "Gmina Rzeszów",
       "logo": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2d/POL_Rzesz%C3%B3w_COA.svg/250px-POL_Rzesz%C3%B3w_COA.svg.png",
-      "konsultacje": false
+      "konsultacje": false,
+      "kalendarz": false,
+      "ogloszenia": false
     },
     {
       "id_institution": "11",
       "name": "Gmina Toruń",
       "logo": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/POL_Toru%C5%84_COA.svg/250px-POL_Toru%C5%84_COA.svg.png",
-      "konsultacje": true
+      "konsultacje": true,
+      "kalendarz": true,
+      "ogloszenia": true
     },
     {
       "id_institution": "12",
       "name": "Gmina Olsztyn",
       "logo": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/92/POL_Olsztyn_COA.svg/250px-POL_Olsztyn_COA.svg.png",
-      "konsultacje": false
+      "konsultacje": false,
+      "kalendarz": false,
+      "ogloszenia": true
     },
     {
       "id_institution": "13",
       "name": "Gmina Zielona Góra",
       "logo": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/POL_Zielona_G%C3%B3ra_COA.svg/250px-POL_Zielona_G%C3%B3ra_COA.svg.png",
-      "konsultacje": true
+      "konsultacje": true,
+      "kalendarz": true,
+      "ogloszenia": false
     }
   ]
 }
