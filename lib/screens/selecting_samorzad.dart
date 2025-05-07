@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:mediapark/preferences_helper.dart';
-import 'package:mediapark/samorzad_service.dart';
+import 'package:mediapark/widgets/adaptive_asset_image.dart';
+import 'package:mediapark/helpers/preferences_helper.dart';
+import 'package:mediapark/services/samorzad_service.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:mediapark/main_window.dart';
+import 'package:mediapark/screens/main_window.dart';
 
 class SelectingSamorzad extends StatefulWidget {
   const SelectingSamorzad({super.key});
@@ -100,14 +101,14 @@ class _SelectingSamorzadState extends State<SelectingSamorzad> {
       ),
       body: Column(
         children: [
-          const Padding(
+          Padding(
             padding: EdgeInsets.all(20),
             child: TextField(
               decoration: InputDecoration(
                 hintText: 'Wyszukaj',
                 hintStyle: TextStyle(
                   color: Colors.grey,
-                ), // GoogleFonts.roboto dynamiczne
+                ),
                 filled: true,
                 fillColor: Colors.white,
                 border: OutlineInputBorder(
@@ -115,7 +116,7 @@ class _SelectingSamorzadState extends State<SelectingSamorzad> {
                   borderSide: BorderSide.none,
                 ),
               ),
-              // onChanged dynamiczne, nie const
+              onChanged: onSearch,
             ),
           ),
           Expanded(
@@ -153,8 +154,8 @@ class _SelectingSamorzadState extends State<SelectingSamorzad> {
                                     vertical: 5,
                                   ),
                                   child: ListTile(
-                                    leading: Image.network(
-                                      samorzad.herb,
+                                    leading: AdaptiveNetworkImage(
+                                      url: samorzad.herb,
                                       width: 40,
                                       height: 40,
                                     ),

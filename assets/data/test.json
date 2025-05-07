@@ -1,0 +1,97 @@
+{
+    "test": [
+        {
+            "name": "Sopot Demo"
+        },
+        {
+            "address": "Urząd Waszej Gminy\nul. Urzędowa 1\n10-000 Twoja Gmina"
+        },
+        {
+            "phone": "798 680 838"
+        },
+        {
+            "email": "bok@media-park.pl"
+        },
+        {
+            "extra_phone": ""
+        },
+        {
+            "extra_email": ""
+        },
+        {
+            "map": {
+                "lat": 54.4413218,
+                "lng": 18.5639038,
+                "zoom": 14
+            }
+        },
+        {
+            "logo": "https://api.wdialogu.pl/institutions/demo/herb.svg"
+        },
+        {
+            "website": {
+                "main": "",
+                "bip": ""
+            }
+        },
+        {
+            "modules": [
+                {
+                    "type": "link",
+                    "alias": "prezentacja-budzetu",
+                    "url": "https://demo.wdialogu.pl/prezentacja-budzetu/"
+                },
+                {
+                    "type": "link",
+                    "alias": "zgloszenia",
+                    "url": "https://demo.wdialogu.pl/zgloszenia"
+                },
+                {
+                    "type": "link",
+                    "alias": "konsultacje-spoleczne",
+                    "url": "https://demo.wdialogu.pl/konsultacje"
+                },
+                {
+                    "type": "link",
+                    "alias": "budzet-obywatelski",
+                    "url": "https://sopot.budzetobywatelski.pl/"
+                },
+                {
+                    "type": "link",
+                    "alias": "plebiscyt",
+                    "url": "https://demo.plebiscyt.org/"
+                },
+                {
+                    "type": "link",
+                    "alias": "sygnalista",
+                    "url": "http://demo.sygnalizuj.pl/"
+                },
+                {
+                    "type": "link",
+                    "alias": "mapa-inwestycji",
+                    "url": "https://demo.wdialogu.pl/inwestycje"
+                },
+                {
+                    "type": "link",
+                    "alias": "facebook",
+                    "url": "https://www.facebook.com/MiastoSopot"
+                },
+                {
+                    "type": "link",
+                    "alias": "youtube",
+                    "url": "https://www.youtube.com/@Miasto_Sopot"
+                },
+                {
+                    "type": "link",
+                    "alias": "instagram",
+                    "url": "https://www.instagram.com/miasto_sopot/"
+                },
+                {
+                    "type": "link",
+                    "alias": "portal-x",
+                    "url": "https://x.com/cityofsopot?lang=pl"
+                }
+            ]
+        }
+    ]
+}

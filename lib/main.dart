@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mediapark/selecting_samorzad.dart';
+import 'package:mediapark/screens/selecting_samorzad.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 void main() {
