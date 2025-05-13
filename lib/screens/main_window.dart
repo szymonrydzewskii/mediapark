@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:mediapark/models/samorzad.dart';
+import 'package:mediapark/models/samorzad_details.dart';
 import 'package:mediapark/widgets/adaptive_asset_image.dart';
 import 'package:mediapark/services/samorzad_details_service.dart';
-import 'package:mediapark/services/samorzad_service.dart';
 import 'package:mediapark/screens/selecting_samorzad.dart';
+import 'package:mediapark/widgets/custom_appbar.dart';
 import 'package:mediapark/widgets/moduly_box_builder.dart';
 import 'dart:math';
 
@@ -139,7 +141,7 @@ class _MainWindowState extends State<MainWindow> {
   }
 
   void otworzWybieranie(BuildContext context) {
-    Navigator.push(
+    Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => SelectingSamorzad()),
     );
@@ -147,7 +149,6 @@ class _MainWindowState extends State<MainWindow> {
 
   @override
   Widget build(BuildContext context) {
-    const appBarColor = Color.fromARGB(255, 45, 45, 45);
     final lista = widget.wybraneSamorzady.toList();
     final panelHeight = min(max(lista.length, 4) * 70.0, 370);
 
@@ -172,68 +173,10 @@ class _MainWindowState extends State<MainWindow> {
           //główny ekran
           Column(
             children: [
-              AppBar(
-                backgroundColor: appBarColor,
-                automaticallyImplyLeading: false,
-                title: Row(
-                  children: [
-                    GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          showPanel = !showPanel;
-                        });
-                      },
-                      child:
-                          aktywnySamorzad != null
-                              ? Container(
-                                width: 36,
-                                height: 36,
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(5),
-                                  child: AdaptiveNetworkImage(
-                                    url: aktywnySamorzad!.herb,
-                                    width: 40,
-                                    height: 40,
-                                  ),
-                                ),
-                              )
-                              : Icon(
-                                Icons.account_balance,
-                                color: Colors.white,
-                              ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        aktywnySamorzad?.nazwa ?? '',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
-                ),
-                actions: [
-                  Center(
-                    child: Ink(
-                      height: 40,
-                      decoration: const ShapeDecoration(
-                        color: Colors.white,
-                        shape: CircleBorder(),
-                      ),
-                      child: IconButton(
-                        onPressed: onSettingsClick,
-                        icon: const Icon(Icons.settings, color: appBarColor),
-                      ),
-                    ),
-                  ),
-                ],
+              CustomAppBar(
+                active: aktywnySamorzad!,
+                onLogoTap: () => setState(() => showPanel = !showPanel),
+                onSettings: onSettingsClick,
               ),
               // konsultacje box
               Expanded(
@@ -250,6 +193,7 @@ class _MainWindowState extends State<MainWindow> {
                             mainAxisSpacing: 10,
                             children: buildModulyBoxy(
                               context,
+                              aktywnySamorzad!,
                               szczegolyInstytucji!.modules,
                             ),
                           ),

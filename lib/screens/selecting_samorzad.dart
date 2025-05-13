@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mediapark/models/samorzad.dart';
 import 'package:mediapark/widgets/adaptive_asset_image.dart';
 import 'package:mediapark/helpers/preferences_helper.dart';
 import 'package:mediapark/services/samorzad_service.dart';

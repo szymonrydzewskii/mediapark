@@ -1,14 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:mediapark/models/samorzad.dart';
+import 'package:mediapark/models/samorzad_details.dart';
 import 'package:mediapark/widgets/adaptive_asset_image.dart';
-import 'package:mediapark/widgets/diagnostic_widget.dart';
-import 'package:mediapark/services/samorzad_details_service.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:url_launcher/url_launcher_string.dart';
+import 'package:mediapark/widgets/custom_appbar.dart';
+
 
 class MoreLinksPage extends StatelessWidget {
   final List<SamorzadModule> modules;
+  final Samorzad aktywnySamorzad;
 
-  const MoreLinksPage({super.key, required this.modules});
+  const MoreLinksPage({
+    super.key,
+    required this.modules,
+    required this.aktywnySamorzad,
+  });
+
 
   @override
   Widget build(BuildContext context) {
@@ -18,18 +25,18 @@ class MoreLinksPage extends StatelessWidget {
       try {
         await launchUrlString(cleanedUrl, mode: LaunchMode.externalApplication);
       } catch (e) {
-        print("Nie można otworzyć $cleanedUrl");
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Nie można otworzyć linku: $cleanedUrl")),
         );
       }
     }
-
+    
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 22, 22, 22),
-      appBar: AppBar(
-        title: const Text("Linki zewnętrzne"),
-        backgroundColor: const Color.fromARGB(255, 45, 45, 45),
+      appBar: CustomAppBar(
+        active: aktywnySamorzad,
+        onLogoTap: () => () {},
+        onSettings: () => pokazUstawienia(context)
       ),
       body: GridView.count(
         crossAxisCount: 2,
@@ -44,7 +51,6 @@ class MoreLinksPage extends StatelessWidget {
                 padding: const EdgeInsets.all(10),
                 child: GestureDetector(
                   onTap: () {
-                    print("Kliknięto link: ${modul.url}");
                     openUrlExternally(modul.url);
                   },
                   child: Container(
@@ -62,9 +68,7 @@ class MoreLinksPage extends StatelessWidget {
                         SizedBox(
                           width: 50,
                           height: 50,
-                          child: AdaptiveAssetImage(
-                            basePath: iconPath,
-                          ),
+                          child: AdaptiveAssetImage(basePath: iconPath),
                         ),
                         const SizedBox(height: 10),
                         Text(
@@ -75,17 +79,6 @@ class MoreLinksPage extends StatelessWidget {
                             fontWeight: FontWeight.bold,
                             color: Colors.white,
                           ),
-                        ),
-                        ElevatedButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const DiagnosticWidget(),
-                              ),
-                            );
-                          },
-                          child: const Text("Uruchom diagnostykę"),
                         ),
                       ],
                     ),
