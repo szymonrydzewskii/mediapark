@@ -31,7 +31,13 @@ class BudzetObywatelskiDetailsScreen extends StatelessWidget {
                   if (details.mainPhotoUrl != null)
                     Image.network(details.mainPhotoUrl!),
                   const SizedBox(height: 12),
-                  Text(details.name, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                  Text(
+                    details.name,
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                   const SizedBox(height: 8),
                   if (details.projectStatusValue != null)
                     Text("Status: ${details.projectStatusValue}"),
@@ -43,10 +49,19 @@ class BudzetObywatelskiDetailsScreen extends StatelessWidget {
                     Text("Edycja: ${details.projectEditionValue}"),
                   const SizedBox(height: 12),
                   if (details.longDescValue != null)
-                    Html(data: details.longDescValue!.replaceAll('&nbsp;', ' ').replaceAll('\r\n', '\n')),
+                    Html(
+                      data: details.longDescValue!
+                          .replaceAll('&nbsp;', ' ')
+                          .replaceAll('\r\n', '\n'),
+                    ),
                   const SizedBox(height: 12),
                   if (details.additionalDataValue != null)
-                    Html(data: details.additionalDataValue!.replaceAll('&nbsp;', ' ')),
+                    Html(
+                      data: details.additionalDataValue!.replaceAll(
+                        '&nbsp;',
+                        ' ',
+                      ),
+                    ),
                 ],
               ),
             );

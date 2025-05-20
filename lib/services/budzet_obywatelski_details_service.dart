@@ -1,10 +1,11 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/budzet_obywatelski_details.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 Future<BudzetObywatelskiDetails> fetchProjektDetails(int idProject) async {
   final url = 'https://gminy.budzet-obywatelski.eu/mobile-app-api/v1/i/201/projekt/$idProject';
-  const token = 'oXZrwOEvhEwBiLMMujzJfaLDSZakQr5IZ9XCap4cmASclvBsjEMhdRLttBiv7IRy';
+  final token = dotenv.env['API_TOKEN_BUDZET'];
 
   final res = await http.get(
     Uri.parse(url),

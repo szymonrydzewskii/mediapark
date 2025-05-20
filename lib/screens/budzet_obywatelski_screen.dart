@@ -31,10 +31,7 @@ class BudzetObywatelskiScreen extends StatelessWidget {
               itemCount: projekty.length,
               itemBuilder: (context, index) {
                 final projekt = projekty[index];
-                return _buildProjektCard(
-                  context,
-                  projekt,
-                );
+                return _buildProjektCard(context, projekt);
               },
             );
           }

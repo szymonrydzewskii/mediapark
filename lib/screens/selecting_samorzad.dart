@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mediapark/animations/fade_in_up.dart';
 import 'package:mediapark/models/samorzad.dart';
 import 'package:mediapark/widgets/adaptive_asset_image.dart';
 import 'package:mediapark/helpers/preferences_helper.dart';
@@ -79,12 +80,13 @@ class _SelectingSamorzadState extends State<SelectingSamorzad> {
           wszystkieSamorzady
               .where((s) => wybraneSamorzady.contains(s.id))
               .toSet();
-
-      Navigator.pushReplacement(
+              
+      Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(
           builder: (context) => MainWindow(wybraneSamorzady: wybraneObiekty),
         ),
+        (route) => false
       );
     }
   }
@@ -107,9 +109,7 @@ class _SelectingSamorzadState extends State<SelectingSamorzad> {
             child: TextField(
               decoration: InputDecoration(
                 hintText: 'Wyszukaj',
-                hintStyle: TextStyle(
-                  color: Colors.grey,
-                ),
+                hintStyle: TextStyle(color: Colors.grey),
                 filled: true,
                 fillColor: Colors.white,
                 border: OutlineInputBorder(
@@ -139,43 +139,46 @@ class _SelectingSamorzadState extends State<SelectingSamorzad> {
                           final isSelected = wybraneSamorzady.contains(
                             samorzad.id,
                           );
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 10,
-                            ),
-                            child: Material(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(10),
-                              child: InkWell(
+                          return FadeInUpWidget(
+                            delay: Duration(milliseconds: index * 100),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 10,
+                              ),
+                              child: Material(
+                                color: Colors.white,
                                 borderRadius: BorderRadius.circular(10),
-                                onTap: () => onSelect(samorzad),
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 5,
-                                  ),
-                                  child: ListTile(
-                                    leading: AdaptiveNetworkImage(
-                                      url: samorzad.herb,
-                                      width: 40,
-                                      height: 40,
+                                child: InkWell(
+                                  borderRadius: BorderRadius.circular(10),
+                                  onTap: () => onSelect(samorzad),
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 5,
                                     ),
-                                    title: Text(
-                                      samorzad.nazwa,
-                                      style: const TextStyle(fontSize: 18),
+                                    child: ListTile(
+                                      leading: AdaptiveNetworkImage(
+                                        url: samorzad.herb,
+                                        width: 40,
+                                        height: 40,
+                                      ),
+                                      title: Text(
+                                        samorzad.nazwa,
+                                        style: const TextStyle(fontSize: 18),
+                                      ),
+                                      trailing:
+                                          isSelected
+                                              ? const Icon(
+                                                Icons.check,
+                                                color: Color.fromARGB(
+                                                  255,
+                                                  0,
+                                                  145,
+                                                  0,
+                                                ),
+                                              )
+                                              : null,
                                     ),
-                                    trailing:
-                                        isSelected
-                                            ? const Icon(
-                                              Icons.check,
-                                              color: Color.fromARGB(
-                                                255,
-                                                0,
-                                                145,
-                                                0,
-                                              ),
-                                            )
-                                            : null,
                                   ),
                                 ),
                               ),

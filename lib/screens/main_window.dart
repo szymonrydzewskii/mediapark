@@ -17,7 +17,10 @@ class MainWindow extends StatefulWidget {
   State<MainWindow> createState() => _MainWindowState();
 }
 
-class _MainWindowState extends State<MainWindow> {
+class _MainWindowState extends State<MainWindow>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _panelController;
+  late final Animation<double> _panelAnimation;
   Samorzad? aktywnySamorzad;
   bool showPanel = false;
   SamorzadSzczegoly? szczegolyInstytucji;
@@ -28,6 +31,21 @@ class _MainWindowState extends State<MainWindow> {
     super.initState();
     aktywnySamorzad = widget.wybraneSamorzady.first;
     onHerbClick(widget.wybraneSamorzady.first);
+
+    _panelController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 250),
+    );
+    _panelAnimation = CurvedAnimation(
+      parent: _panelController,
+      curve: Curves.easeOut,
+    );
+  }
+
+  @override
+  void dispose() {
+    _panelController.dispose();
+    super.dispose();
   }
 
   void onSettingsClick() {
@@ -45,10 +63,9 @@ class _MainWindowState extends State<MainWindow> {
           padding: EdgeInsets.only(top: 16, left: 16, right: 16),
           child: Stack(
             children: [
-              // Główna zawartość
               ListView(
                 children: [
-                  SizedBox(height: 40), // miejsce na przycisk Zamknij
+                  SizedBox(height: 40),
                   Text(
                     'Ustawienia',
                     style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
@@ -81,8 +98,6 @@ class _MainWindowState extends State<MainWindow> {
                   _buildOptionTile('Użytkownik', 'Jan Kowalski'),
                 ],
               ),
-
-              // Przyciski na górze (Zamknij)
               Positioned(
                 right: 0,
                 top: 0,
@@ -141,7 +156,7 @@ class _MainWindowState extends State<MainWindow> {
   }
 
   void otworzWybieranie(BuildContext context) {
-    Navigator.pushReplacement(
+    Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => SelectingSamorzad()),
     );
@@ -175,89 +190,129 @@ class _MainWindowState extends State<MainWindow> {
             children: [
               CustomAppBar(
                 active: aktywnySamorzad!,
-                onLogoTap: () => setState(() => showPanel = !showPanel),
+                onLogoTap: () {
+                  setState(() {
+                    showPanel = !showPanel;
+                  });
+
+                  if (showPanel) {
+                    _panelController.forward();
+                  } else {
+                    _panelController.reverse();
+                  }
+                },
                 onSettings: onSettingsClick,
               ),
               // konsultacje box
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.all(2),
-                  child:
-                      loadingSzczegoly
-                          ? const Center(child: CircularProgressIndicator())
-                          : szczegolyInstytucji == null
-                          ? const Center(child: Text("Brak danych"))
-                          : GridView.count(
-                            crossAxisCount: 2,
-                            crossAxisSpacing: 10,
-                            mainAxisSpacing: 10,
-                            children: buildModulyBoxy(
-                              context,
-                              aktywnySamorzad!,
-                              szczegolyInstytucji!.modules,
+                  child: AnimatedSwitcher(
+                    duration: Duration(milliseconds: 300),
+                    child:
+                        loadingSzczegoly
+                            ? const Center(child: CircularProgressIndicator())
+                            : szczegolyInstytucji == null
+                            ? const Center(child: Text("Brak danych"))
+                            : GridView.count(
+                              key: const PageStorageKey('moduly_grid'),
+                              crossAxisCount: 2,
+                              crossAxisSpacing: 10,
+                              mainAxisSpacing: 10,
+                              children: buildModulyBoxy(
+                                context,
+                                aktywnySamorzad!,
+                                szczegolyInstytucji!.modules,
+                              ),
                             ),
-                          ),
+                  ),
                 ),
               ),
             ],
           ),
           // panel przełączania samorządów
           if (showPanel)
-            Positioned(
-              top: kToolbarHeight,
-              left: 15,
-              right: 15,
-              child: Material(
-                elevation: 6,
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(15),
-                child: Container(
-                  constraints: BoxConstraints(
-                    maxHeight: panelHeight.toDouble(),
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Expanded(
-                        child: ListView.builder(
-                          padding: EdgeInsets.zero,
-                          itemCount: lista.length,
-                          itemBuilder: (context, index) {
-                            final samorzad = lista[index];
-                            return ListTile(
-                              leading: AdaptiveNetworkImage(
-                                url: samorzad.herb,
-                                width: 30,
-                                height: 30,
+            Positioned.fill(
+              child: GestureDetector(
+                onTap: () async {
+                  await _panelController.reverse();
+                  setState(() => showPanel = false);
+                },
+                behavior: HitTestBehavior.translucent,
+                child: Container(), // pusta warstwa "kliknięcia"
+              ),
+            ),
+          Positioned(
+            top: kToolbarHeight,
+            left: 15,
+            right: 15,
+            child: FadeTransition(
+              opacity: _panelAnimation,
+              child: SlideTransition(
+                position: _panelAnimation.drive(
+                  Tween<Offset>(begin: const Offset(0, -0.1), end: Offset.zero),
+                ),
+                child: IgnorePointer(
+                  ignoring: !showPanel,
+                  child: Material(
+                    elevation: 6,
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(15),
+                    child: Container(
+                      constraints: BoxConstraints(
+                        maxHeight: panelHeight.toDouble(),
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Expanded(
+                            child: ListView.builder(
+                              padding: EdgeInsets.zero,
+                              itemCount: lista.length,
+                              itemBuilder: (context, index) {
+                                final samorzad = lista[index];
+                                return ListTile(
+                                  leading: AdaptiveNetworkImage(
+                                    url: samorzad.herb,
+                                    width: 30,
+                                    height: 30,
+                                  ),
+                                  title: Text(samorzad.nazwa),
+                                  onTap: () async {
+                                    setState(() => showPanel = false);
+                                    await _panelController.reverse();
+                                    onHerbClick(samorzad);
+                                  },
+                                );
+                              },
+                            ),
+                          ),
+                          const Divider(height: 1),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 8),
+                            child: ElevatedButton(
+                              onPressed: () {
+                                setState(() => showPanel = false);
+                                _panelController.reverse();
+                                otworzWybieranie(context);
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.white,
                               ),
-                              title: Text(samorzad.nazwa),
-                              onTap: () => onHerbClick(samorzad),
-                            );
-                          },
-                        ),
-                      ),
-                      const Divider(height: 1),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 8),
-                        child: ElevatedButton(
-                          onPressed: () {
-                            setState(() => showPanel = false);
-                            otworzWybieranie(context);
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.white,
+                              child: const Text(
+                                "Pokaż wszystkie",
+                                style: TextStyle(color: Colors.black),
+                              ),
+                            ),
                           ),
-                          child: const Text(
-                            "Pokaż wszystkie",
-                            style: TextStyle(color: Colors.black),
-                          ),
-                        ),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
                 ),
               ),
             ),
+          ),
         ],
       ),
     );
