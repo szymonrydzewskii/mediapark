@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:mediapark/animations/slide_fade_route.dart';
 import 'package:mediapark/models/samorzad.dart';
 import 'package:mediapark/models/samorzad_details.dart';
+import 'package:mediapark/screens/settings_screen.dart';
 import 'package:mediapark/widgets/adaptive_asset_image.dart';
 import 'package:mediapark/services/samorzad_details_service.dart';
 import 'package:mediapark/screens/selecting_samorzad.dart';
@@ -25,6 +27,7 @@ class _MainWindowState extends State<MainWindow>
   bool showPanel = false;
   SamorzadSzczegoly? szczegolyInstytucji;
   bool loadingSzczegoly = false;
+  static const backgroundColor = Color(0xFFCCE9F2);
 
   @override
   void initState() {
@@ -49,91 +52,7 @@ class _MainWindowState extends State<MainWindow>
   }
 
   void onSettingsClick() {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (ctx) {
-        return Container(
-          height: MediaQuery.of(ctx).size.height - 150,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-          ),
-          padding: EdgeInsets.only(top: 16, left: 16, right: 16),
-          child: Stack(
-            children: [
-              ListView(
-                children: [
-                  SizedBox(height: 40),
-                  Text(
-                    'Ustawienia',
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                  ),
-                  SizedBox(height: 4),
-                  Text(
-                    'O APLIKACJI',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey[600],
-                      letterSpacing: 1.2,
-                    ),
-                  ),
-                  SizedBox(height: 16),
-                  _buildOptionTile('Wersja', '1.0.0'),
-                  _buildOptionTile(
-                    'Regulamin',
-                    '',
-                    onTap: () {
-                      // np. navigator do strony regulaminu
-                    },
-                  ),
-                  _buildOptionTile(
-                    'Polityka prywatności',
-                    '',
-                    onTap: () {
-                      // otwarcie Privacy Policy
-                    },
-                  ),
-                  _buildOptionTile('Użytkownik', 'Jan Kowalski'),
-                ],
-              ),
-              Positioned(
-                right: 0,
-                top: 0,
-                child: TextButton(
-                  onPressed: () => Navigator.of(ctx).pop(),
-                  child: Text(
-                    'Zamknij',
-                    style: TextStyle(fontSize: 16, color: Colors.blue),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildOptionTile(
-    String title,
-    String subtitle, {
-    VoidCallback? onTap,
-  }) {
-    return ListTile(
-      contentPadding: EdgeInsets.zero,
-      title: Text(title, style: TextStyle(fontSize: 16)),
-      subtitle:
-          subtitle.isNotEmpty
-              ? Text(
-                subtitle,
-                style: TextStyle(fontSize: 14, color: Colors.grey[700]),
-              )
-              : null,
-      trailing: onTap != null ? Icon(Icons.chevron_right) : null,
-      onTap: onTap,
-    );
+    Navigator.of(context).push(slideFadeRouteTo(const SettingsScreen()));
   }
 
   void onHerbClick(Samorzad samorzad) async {
@@ -182,27 +101,55 @@ class _MainWindowState extends State<MainWindow>
     // final aktywneModuly = moduly.entries.where((entry) => entry.value == true).map((entry) => widgetMap[entry.key]!).toList();
 
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 22, 22, 22),
+      backgroundColor: backgroundColor,
       body: Stack(
         children: [
           //główny ekran
           Column(
             children: [
-              CustomAppBar(
-                active: aktywnySamorzad!,
-                onLogoTap: () {
-                  setState(() {
-                    showPanel = !showPanel;
-                  });
+              // CustomAppBar(
+              //   active: aktywnySamorzad!,
+              //   onLogoTap: () {
+              //     setState(() {
+              //       showPanel = !showPanel;
+              //     });
 
-                  if (showPanel) {
-                    _panelController.forward();
-                  } else {
-                    _panelController.reverse();
-                  }
-                },
-                onSettings: onSettingsClick,
+              //     if (showPanel) {
+              //       _panelController.forward();
+              //     } else {
+              //       _panelController.reverse();
+              //     }
+              //   },
+              //   onSettings: onSettingsClick,
+              // ),
+              Padding(
+                padding: const EdgeInsets.all(8),
+                child: AppBar(
+                  elevation: 0,
+                  forceMaterialTransparency: true,
+                  backgroundColor: backgroundColor,
+                  centerTitle: true,
+                  title: Padding(
+                    padding: const EdgeInsets.only(top: 20),
+                    child: Text(
+                      aktywnySamorzad?.nazwa ?? '',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 35,
+                        color: Colors.black,
+                        height: 0.5,
+                      ),
+                    ),
+                  ),
+                  actions: [
+                    IconButton(
+                      onPressed: onSettingsClick,
+                      icon: Icon(Icons.settings, color: Colors.black),
+                    ),
+                  ],
+                ),
               ),
+
               // konsultacje box
               Expanded(
                 child: Padding(

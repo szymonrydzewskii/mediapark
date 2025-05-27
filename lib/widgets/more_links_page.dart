@@ -59,11 +59,7 @@ class MoreLinksPage extends StatelessWidget {
                     },
                     child: Container(
                       decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [Colors.deepPurple, Colors.pink],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
+                        color: Color(0xFFB5D7E4),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Column(

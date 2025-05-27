@@ -1,32 +1,29 @@
-import 'package:mediapark/models/konsultacje.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import '../models/konsultacje.dart';
 
-Future<List<Konsultacje>> fetchKonsultacje() async {
-  const url = 'https://test.wdialogu.pl/v1/i/10/konsultacje/lista';
-  const token = 'oXZrwOEvhEwBiLMMujzJfaLDSZakQr5IZ9XCap4cmASclvBsjEMhdRLttBiv7IRy';
+class KonsultacjeService {
+  static const String _baseUrl = 'https://test.wdialogu.pl/v1/i/10/konsultacje/lista';
 
-  final res = await http.get(Uri.parse(url), headers: {
-    'Authorization': 'Bearer $token',
-    'Accept': 'application/json',
-  });
+  Future<Map<String, List<Konsultacje>>> fetchKonsultacje() async {
+    final response = await http.get(Uri.parse(_baseUrl));
 
-  if (res.statusCode == 200) {
-    final json = jsonDecode(res.body);
-    final List<Konsultacje> all = [];
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
 
-    for (final status in ['planned', 'active', 'finished']) {
-      if (json[status] != null) {
-        all.addAll(
-          (json[status] as List)
-              .map((e) => Konsultacje.fromJson(e, status))
-              .toList(),
-        );
-      }
+      return {
+        'planned': (data['planned'] as List)
+            .map((item) => Konsultacje.fromJson(item))
+            .toList(),
+        'active': (data['active'] as List)
+            .map((item) => Konsultacje.fromJson(item))
+            .toList(),
+        'finished': (data['finished'] as List)
+            .map((item) => Konsultacje.fromJson(item))
+            .toList(),
+      };
+    } else {
+      throw Exception('Nie udało się pobrać konsultacji');
     }
-
-    return all;
-  } else {
-    throw Exception('Błąd ładowania konsultacji');
   }
 }

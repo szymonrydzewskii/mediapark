@@ -4,6 +4,7 @@ import 'package:mediapark/models/samorzad_details.dart';
 import 'package:mediapark/screens/budzet_obywatelski_screen.dart';
 import 'package:mediapark/widgets/adaptive_asset_image.dart';
 import 'package:mediapark/widgets/webview_page.dart';
+import 'package:mediapark/screens/konsultacje_screen.dart';
 
 class ModulTile extends StatelessWidget {
   final SamorzadModule modul;
@@ -18,24 +19,20 @@ class ModulTile extends StatelessWidget {
 
     return GestureDetector(
       onTap: () {
-        final page = alias == 'budzet-obywatelski'
-            ? BudzetObywatelskiScreen(modul: modul)
-            : WebViewPage(url: modul.url, title: title);
+        final page =
+            alias == 'budzet-obywatelski'
+                ? BudzetObywatelskiScreen(modul: modul)
+                : alias == 'konsultacje-spoleczne'
+                ? const KonsultacjeScreen()
+                : WebViewPage(url: modul.url, title: title);
 
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => page),
-        );
+        Navigator.push(context, MaterialPageRoute(builder: (context) => page));
       },
       child: Padding(
         padding: const EdgeInsets.all(10),
         child: Container(
           decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Colors.deepPurple, Colors.pink],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
+            color: Color(0xFFD6F4FE),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Column(
@@ -53,7 +50,7 @@ class ModulTile extends StatelessWidget {
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                  color: Colors.black,
                 ),
               ),
             ],

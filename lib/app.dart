@@ -3,20 +3,21 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:mediapark/helpers/preferences_helper.dart';
 import 'package:mediapark/screens/main_window.dart';
 import 'package:mediapark/screens/selecting_samorzad.dart';
+import 'package:mediapark/screens/welcome_screen.dart';
 import 'package:mediapark/services/samorzad_service.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   Future<Widget> resolveStartScreen() async {
-    final wybraneIds = await PreferencesHelper.getSelectedSamorzady();
-    if (wybraneIds.isNotEmpty) {
-      final wszystkie = await loadSamorzad();
-      final wybrane = wszystkie.where((s) => wybraneIds.contains(s.id)).toSet();
-      return MainWindow(wybraneSamorzady: wybrane);
-    } else {
-      return const SelectingSamorzad();
-    }
+    // final wybraneIds = await PreferencesHelper.getSelectedSamorzady();
+    // if (wybraneIds.isNotEmpty) {
+    //   final wszystkie = await loadSamorzad();
+    //   final wybrane = wszystkie.where((s) => wybraneIds.contains(s.id)).toSet();
+    //   return MainWindow(wybraneSamorzady: wybrane);
+    // } else {
+      return const WelcomeScreen();
+    // }
   }
 
   @override

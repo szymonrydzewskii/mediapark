@@ -15,7 +15,7 @@ class SelectingSamorzad extends StatefulWidget {
 }
 
 class _SelectingSamorzadState extends State<SelectingSamorzad> {
-  static const backgroundColor = Color.fromARGB(255, 246, 246, 246);
+  static const backgroundColor = Color(0xFFCCE9F2);
   List<Samorzad> wszystkieSamorzady = [];
   List<Samorzad> filtrowaneSamorzady = [];
   Set<String> wybraneSamorzady = {};
@@ -80,13 +80,13 @@ class _SelectingSamorzadState extends State<SelectingSamorzad> {
           wszystkieSamorzady
               .where((s) => wybraneSamorzady.contains(s.id))
               .toSet();
-              
+
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(
           builder: (context) => MainWindow(wybraneSamorzady: wybraneObiekty),
         ),
-        (route) => false
+        (route) => false,
       );
     }
   }
@@ -95,12 +95,14 @@ class _SelectingSamorzadState extends State<SelectingSamorzad> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: backgroundColor,
-      appBar: AppBar(
-        elevation: 0,
-        forceMaterialTransparency: true,
-        backgroundColor: backgroundColor,
-        centerTitle: true,
-        title: Text("Wybór samorządów", style: GoogleFonts.kanit(fontSize: 30)),
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(28),
+        child: AppBar(
+          elevation: 0,
+          forceMaterialTransparency: true,
+          backgroundColor: backgroundColor,
+          centerTitle: true
+        ),
       ),
       body: Column(
         children: [
@@ -108,12 +110,13 @@ class _SelectingSamorzadState extends State<SelectingSamorzad> {
             padding: EdgeInsets.all(20),
             child: TextField(
               decoration: InputDecoration(
-                hintText: 'Wyszukaj',
-                hintStyle: TextStyle(color: Colors.grey),
+                hintText: 'Szukaj',
+                hintStyle: TextStyle(color: Color.fromARGB(255, 80, 93, 97)),
                 filled: true,
-                fillColor: Colors.white,
+                fillColor: Color(0xFFB5D7E4),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(8)),
+                  borderRadius: BorderRadius.all(Radius.circular(50)),
                   borderSide: BorderSide.none,
                 ),
               ),
@@ -148,7 +151,7 @@ class _SelectingSamorzadState extends State<SelectingSamorzad> {
                               ),
                               child: Material(
                                 color: Colors.white,
-                                borderRadius: BorderRadius.circular(10),
+                                borderRadius: BorderRadius.circular(18),
                                 child: InkWell(
                                   borderRadius: BorderRadius.circular(10),
                                   onTap: () => onSelect(samorzad),
