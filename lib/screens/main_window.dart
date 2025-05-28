@@ -141,12 +141,12 @@ class _MainWindowState extends State<MainWindow>
                       ),
                     ),
                   ),
-                  actions: [
-                    IconButton(
-                      onPressed: onSettingsClick,
-                      icon: Icon(Icons.settings, color: Colors.black),
-                    ),
-                  ],
+                  // actions: [
+                  //   IconButton(
+                  //     onPressed: onSettingsClick,
+                  //     icon: Icon(Icons.settings, color: Colors.black),
+                  //   ),
+                  // ],
                 ),
               ),
 
@@ -166,15 +166,19 @@ class _MainWindowState extends State<MainWindow>
                               crossAxisCount: 2,
                               crossAxisSpacing: 10,
                               mainAxisSpacing: 10,
-                              children: buildModulyBoxy(
+                              children: [
+                                ...buildModulyBoxy(
                                 context,
                                 aktywnySamorzad!,
                                 szczegolyInstytucji!.modules,
                               ),
+                              SizedBox()
+                              ]
                             ),
                   ),
                 ),
               ),
+              
             ],
           ),
           // panel przełączania samorządów

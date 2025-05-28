@@ -14,7 +14,14 @@ class BudzetObywatelskiScreen extends StatelessWidget {
     const String idInstytucji = '201';
 
     return Scaffold(
-      appBar: AppBar(title: Text(modul.alias.toUpperCase())),
+      backgroundColor: Color(0xFFCCE9F2),
+      appBar: AppBar(
+        elevation: 0,
+        forceMaterialTransparency: true,
+        backgroundColor: Color(0xFFCCE9F2),
+        centerTitle: true,
+      ),
+      // AppBar(title: Text(modul.alias.toUpperCase())),
       body: FutureBuilder<List<BudzetObywatelski>>(
         future: fetchProjekty(idInstytucji),
         builder: (context, snapshot) {
@@ -41,100 +48,111 @@ class BudzetObywatelskiScreen extends StatelessWidget {
   }
 
   Widget _buildProjektCard(BuildContext context, BudzetObywatelski projekt) {
+    String shorterDescription(String desc) =>
+        desc.length > 300 ? '${desc.substring(0, 200)}...' : desc;
+
     return Card(
+      color: const Color(0xFFD6F4FE),
       elevation: 4,
       margin: const EdgeInsets.symmetric(vertical: 8),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // zielony label
-            Container(
-              padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-              decoration: BoxDecoration(
-                color: Colors.green[100],
-                borderRadius: BorderRadius.circular(5),
-              ),
-              child: Text(
-                projekt.statusName.toUpperCase(),
-                style: TextStyle(
-                  color: Colors.green[800],
-                  fontWeight: FontWeight.bold,
-                  fontSize: 12,
-                ),
-              ),
-            ),
-            const SizedBox(height: 8),
-            // tytuł
-            Text(
-              projekt.name,
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            // rodzaj
-            if (projekt.typeVisible)
-              Row(
-                children: [
-                  const Text(
-                    "Rodzaj: ",
-                    style: TextStyle(fontWeight: FontWeight.bold),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(18), // dopasowany do Card
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder:
+                  (_) => BudzetObywatelskiDetailsScreen(
+                    projectId: projekt.idProject,
                   ),
-                  Text(projekt.typeValue),
-                ],
-              ),
-            // osiedle
-            if (projekt.quartersVisible && projekt.quartersValue.isNotEmpty)
-              Row(
-                children: [
-                  const Text(
-                    "Osiedle: ",
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  Text(projekt.quartersValue),
-                ],
-              ),
-            // koszt
-            if (projekt.costVisible)
-              Row(
-                children: [
-                  const Text(
-                    "Koszt: ",
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  Text(projekt.costValue.replaceAll('&nbsp;', ' ')),
-                ],
-              ),
-            const SizedBox(height: 8),
-            // opis
-            Text(
-              projekt.shortDescription.replaceAll('\r\n', '\n'),
-              textAlign: TextAlign.justify,
             ),
-            const SizedBox(height: 10),
-            // przycisk
-            Align(
-              alignment: Alignment.centerLeft,
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder:
-                          (context) => BudzetObywatelskiDetailsScreen(
-                            projectId: projekt.idProject,
-                          ),
+          );
+        },
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 4,
+                        horizontal: 8,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.green[800],
+                        borderRadius: BorderRadius.circular(50),
+                      ),
+                      child: Text(
+                        projekt.statusName,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                        ),
+                      ),
                     ),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green[700],
+                    const SizedBox(height: 8),
+                    Text(
+                      projekt.name,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    if (projekt.typeVisible)
+                      Row(
+                        children: [
+                          const Text(
+                            "Rodzaj: ",
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          Text(projekt.typeValue),
+                        ],
+                      ),
+                    if (projekt.quartersVisible &&
+                        projekt.quartersValue.isNotEmpty)
+                      Row(
+                        children: [
+                          const Text(
+                            "Osiedle: ",
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          Text(projekt.quartersValue),
+                        ],
+                      ),
+                    if (projekt.costVisible)
+                      Row(
+                        children: [
+                          const Text(
+                            "Koszt: ",
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          Text(projekt.costValue.replaceAll('&nbsp;', ' ')),
+                        ],
+                      ),
+                    const SizedBox(height: 8),
+                    Text(
+                      shorterDescription(
+                        projekt.shortDescription.replaceAll('\r\n', '\n'),
+                      ),
+                      textAlign: TextAlign.justify,
+                    ),
+                  ],
                 ),
-                child: const Text("Zobacz szczegóły"),
               ),
-            ),
-          ],
+              const Icon(
+                Icons.arrow_forward_ios,
+                size: 18,
+                color: Colors.black,
+              ),
+            ],
+          ),
         ),
       ),
     );

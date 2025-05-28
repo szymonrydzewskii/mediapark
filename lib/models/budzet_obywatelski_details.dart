@@ -2,7 +2,7 @@ class BudzetObywatelskiDetails {
   final String name;
   final String? mainPhotoUrl;
   final String? longDescValue;
-  final String? additionalDataValue;
+  final List<Map<String, dynamic>>? additionalDataValue;
   final String? projectStatusValue;
   final String? projectEditionValue;
   final String? projectEstimatedCostValue;
@@ -23,8 +23,12 @@ class BudzetObywatelskiDetails {
     return BudzetObywatelskiDetails(
       name: json['name'] ?? '',
       mainPhotoUrl: json['main_photo_url'],
-      longDescValue: json['long_desc_value'],
-      additionalDataValue: json['additional_data_value'],
+      longDescValue: json['long_desc_value']?.toString(),
+      additionalDataValue: (json['additional_data_value'] is List)
+          ? (json['additional_data_value'] as List)
+              .whereType<Map<String, dynamic>>()
+              .toList()
+          : null,
       projectStatusValue: json['project_status_value'],
       projectEditionValue: json['project_edition_value'],
       projectEstimatedCostValue: json['project_estimated_cost_value'],

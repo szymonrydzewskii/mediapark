@@ -25,7 +25,10 @@ class _WebViewPageState extends State<WebViewPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(widget.title)),
+      appBar: AppBar(
+        // forceMaterialTransparency: true,
+        backgroundColor: Colors.white,
+      ),
       body: WebViewWidget(controller: _controller),
     );
   }

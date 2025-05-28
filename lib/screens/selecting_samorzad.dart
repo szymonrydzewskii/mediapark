@@ -6,6 +6,7 @@ import 'package:mediapark/helpers/preferences_helper.dart';
 import 'package:mediapark/services/samorzad_service.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mediapark/screens/main_window.dart';
+import 'package:mediapark/widgets/bottom_nav_bar.dart';
 
 class SelectingSamorzad extends StatefulWidget {
   const SelectingSamorzad({super.key});
@@ -84,7 +85,13 @@ class _SelectingSamorzadState extends State<SelectingSamorzad> {
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(
-          builder: (context) => MainWindow(wybraneSamorzady: wybraneObiekty),
+          builder:
+              (context) => BottomNavBar(
+                aktywnySamorzad:
+                    wybraneObiekty.first, // ← przekazujemy pierwszy wybrany
+                wybraneSamorzady:
+                    wybraneObiekty, // ← przekazujemy cały Set<Samorzad>
+              ),
         ),
         (route) => false,
       );
@@ -101,7 +108,7 @@ class _SelectingSamorzadState extends State<SelectingSamorzad> {
           elevation: 0,
           forceMaterialTransparency: true,
           backgroundColor: backgroundColor,
-          centerTitle: true
+          centerTitle: true,
         ),
       ),
       body: Column(
@@ -114,7 +121,10 @@ class _SelectingSamorzadState extends State<SelectingSamorzad> {
                 hintStyle: TextStyle(color: Color.fromARGB(255, 80, 93, 97)),
                 filled: true,
                 fillColor: Color(0xFFB5D7E4),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 14,
+                ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.all(Radius.circular(50)),
                   borderSide: BorderSide.none,

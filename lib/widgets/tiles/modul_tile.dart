@@ -14,7 +14,7 @@ class ModulTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final alias = modul.alias.toLowerCase();
-    final iconPath = 'assets/icons/$alias.jpg';
+    final iconPath = 'assets/icons/$alias';
     final title = alias.replaceAll('-', ' ').toUpperCase().trim();
 
     return GestureDetector(
@@ -33,14 +33,14 @@ class ModulTile extends StatelessWidget {
         child: Container(
           decoration: BoxDecoration(
             color: Color(0xFFD6F4FE),
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(25),
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               SizedBox(
-                width: 50,
-                height: 50,
+                width: 80,
+                height: 80,
                 child: AdaptiveAssetImage(basePath: iconPath),
               ),
               const SizedBox(height: 10),

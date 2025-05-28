@@ -34,11 +34,11 @@ class MoreTile extends StatelessWidget {
         child: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [Colors.grey[800]!, Colors.grey[600]!],
+              colors: [Colors.lightBlue[50]!, Colors.lightBlue[100]!],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(25),
           ),
           child: const Center(
             child: Text(
@@ -46,7 +46,7 @@ class MoreTile extends StatelessWidget {
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
-                color: Colors.white,
+                color: Colors.black,
               ),
             ),
           ),

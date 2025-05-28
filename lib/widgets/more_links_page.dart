@@ -31,11 +31,35 @@ class MoreLinksPage extends StatelessWidget {
     }
 
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 22, 22, 22),
-      appBar: CustomAppBar(
-        active: aktywnySamorzad,
-        onLogoTap: () => () {},
-        onSettings: () => pokazUstawienia(context),
+      backgroundColor: const Color(0xFFCCE9F2),
+      // appBar: CustomAppBar(
+      //   active: aktywnySamorzad,
+      //   onLogoTap: () => () {},
+      //   onSettings: () => pokazUstawienia(context),
+      // ),
+      appBar: AppBar(
+        elevation: 0,
+        forceMaterialTransparency: true,
+        backgroundColor: const Color(0xFFCCE9F2),
+        centerTitle: true,
+        title: Padding(
+          padding: const EdgeInsets.only(top: 20),
+          child: Text(
+            aktywnySamorzad?.nazwa ?? '',
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 35,
+              color: Colors.black,
+              height: 0.5,
+            ),
+          ),
+        ),
+        // actions: [
+        //   IconButton(
+        //     onPressed: onSettingsClick,
+        //     icon: Icon(Icons.settings, color: Colors.black),
+        //   ),
+        // ],
       ),
       body: GridView.count(
         padding: const EdgeInsets.all(10),
@@ -47,7 +71,7 @@ class MoreLinksPage extends StatelessWidget {
               final index = entry.key;
               final modul = entry.value;
               final alias = modul.alias.toLowerCase();
-              final iconPath = 'assets/icons/$alias.jpg';
+              final iconPath = 'assets/icons/$alias';
 
               return FadeInUpWidget(
                 delay: Duration(milliseconds: index * 100),
@@ -59,8 +83,8 @@ class MoreLinksPage extends StatelessWidget {
                     },
                     child: Container(
                       decoration: BoxDecoration(
-                        color: Color(0xFFB5D7E4),
-                        borderRadius: BorderRadius.circular(12),
+                        color: Color(0xFFD6F4FE),
+                        borderRadius: BorderRadius.circular(25),
                       ),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -77,7 +101,7 @@ class MoreLinksPage extends StatelessWidget {
                             style: const TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.bold,
-                              color: Colors.white,
+                              color: Colors.black,
                             ),
                           ),
                         ],

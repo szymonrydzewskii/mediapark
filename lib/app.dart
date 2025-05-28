@@ -5,6 +5,7 @@ import 'package:mediapark/screens/main_window.dart';
 import 'package:mediapark/screens/selecting_samorzad.dart';
 import 'package:mediapark/screens/welcome_screen.dart';
 import 'package:mediapark/services/samorzad_service.dart';
+import 'package:mediapark/widgets/bottom_nav_bar.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});

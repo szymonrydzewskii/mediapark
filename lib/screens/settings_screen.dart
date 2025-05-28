@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:mediapark/widgets/adaptive_asset_image.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -35,10 +36,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SvgPicture.asset(
-                    'assets/icons/notification.svg', // do zrobienia
-                    width: 48,
-                    height: 48,
+                  Padding(
+                    padding: const EdgeInsets.only(left: 10),
+                    child: AdaptiveAssetImage(
+                      basePath: 'assets/icons/notifications',
+                      width: 48,
+                      height: 48,
+                    ),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
