@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:mediapark/models/samorzad.dart';
 import 'package:mediapark/models/samorzad_details.dart';
 import 'package:mediapark/services/samorzad_details_service.dart';
-import '../models/samorzad.dart';
 import 'adaptive_asset_image.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final Samorzad active;
   final VoidCallback onLogoTap;
   final VoidCallback onSettings;
   final Color backgroundColor;
-  
 
   const CustomAppBar({
     super.key,
@@ -20,40 +20,43 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   });
 
   @override
-  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
-
+  Size get preferredSize => Size.fromHeight(kToolbarHeight.h);
 
   @override
   Widget build(BuildContext context) {
     return AppBar(
       iconTheme: const IconThemeData(color: Colors.white),
       backgroundColor: backgroundColor,
-      // automaticallyImplyLeading: true,
       title: Row(
         children: [
           GestureDetector(
             onTap: onLogoTap,
             child: Container(
-              width: 36, height: 36,
+              width: 36.w,
+              height: 36.h,
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(20.r),
               ),
               child: Padding(
-                padding: const EdgeInsets.all(5),
+                padding: EdgeInsets.all(5.w),
                 child: AdaptiveNetworkImage(
                   url: active.herb,
-                  width: 40,
-                  height: 40,
+                  width: 40.w,
+                  height: 40.h,
                 ),
               ),
             ),
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: 12.w),
           Expanded(
             child: Text(
               active.nazwa,
-              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 16.sp,
+              ),
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -61,7 +64,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       ),
       actions: [
         Ink(
-          height: 40,
+          height: 40.h,
           decoration: const ShapeDecoration(
             color: Colors.white,
             shape: CircleBorder(),
@@ -99,31 +102,31 @@ void pokazUstawienia(BuildContext context) {
     backgroundColor: Colors.transparent,
     builder: (ctx) {
       return Container(
-        height: MediaQuery.of(ctx).size.height - 150,
-        decoration: const BoxDecoration(
+        height: MediaQuery.of(ctx).size.height - 150.h,
+        decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(16.r)),
         ),
-        padding: const EdgeInsets.only(top: 16, left: 16, right: 16),
+        padding: EdgeInsets.only(top: 16.h, left: 16.w, right: 16.w),
         child: Stack(
           children: [
             ListView(
               children: [
-                const SizedBox(height: 40),
-                const Text(
+                SizedBox(height: 40.h),
+                Text(
                   'Ustawienia',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 24.sp, fontWeight: FontWeight.bold),
                 ),
-                SizedBox(height: 4),
+                SizedBox(height: 4.h),
                 Text(
                   'O APLIKACJI',
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: 12.sp,
                     color: Colors.grey[600],
                     letterSpacing: 1.2,
                   ),
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: 16.h),
                 buildOptionTile('Wersja', '1.0.0'),
                 buildOptionTile('Regulamin', '', onTap: () {
                   // TODO: Dodaj nawigację
@@ -139,9 +142,9 @@ void pokazUstawienia(BuildContext context) {
               top: 0,
               child: TextButton(
                 onPressed: () => Navigator.of(ctx).pop(),
-                child: const Text(
+                child: Text(
                   'Zamknij',
-                  style: TextStyle(fontSize: 16, color: Colors.blue),
+                  style: TextStyle(fontSize: 16.sp, color: Colors.blue),
                 ),
               ),
             ),
@@ -155,11 +158,11 @@ void pokazUstawienia(BuildContext context) {
 Widget buildOptionTile(String title, String subtitle, {VoidCallback? onTap}) {
   return ListTile(
     contentPadding: EdgeInsets.zero,
-    title: Text(title, style: const TextStyle(fontSize: 16)),
+    title: Text(title, style: TextStyle(fontSize: 16.sp)),
     subtitle: subtitle.isNotEmpty
         ? Text(
             subtitle,
-            style: TextStyle(fontSize: 14, color: Colors.grey[700]),
+            style: TextStyle(fontSize: 14.sp, color: Colors.grey[700]),
           )
         : null,
     trailing: onTap != null ? const Icon(Icons.chevron_right) : null,

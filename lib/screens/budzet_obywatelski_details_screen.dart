@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_html/flutter_html.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mediapark/widgets/adaptive_asset_image.dart';
 import '../models/budzet_obywatelski_details.dart';
 import '../services/budzet_obywatelski_details_service.dart';
@@ -43,34 +43,34 @@ class BudzetObywatelskiDetailsScreen extends StatelessWidget {
           } else {
             final details = snapshot.data!;
             return ListView(
-              padding: const EdgeInsets.all(16),
+              padding: EdgeInsets.all(16.w),
               children: [
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       details.name,
-                      style: const TextStyle(
-                        fontSize: 18,
+                      style: TextStyle(
+                        fontSize: 18.sp,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    const SizedBox(height: 12),
+                    SizedBox(height: 12.h),
                     if (details.mainPhotoUrl != null)
                       ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(12.r),
                         child: Container(
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(50),
+                            borderRadius: BorderRadius.circular(50.r),
                           ),
                           child: AdaptiveAssetImage(
                             basePath: 'assets/icons/city',
-                            height: 200,
-                            width: 200,
+                            height: 200.h,
+                            width: 200.w,
                           ),
                         ),
                       ),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8.h),
                     if (details.projectStatusValue != null)
                       _buildRow("Status:", details.projectStatusValue!),
                     if (details.typeValue != null)
@@ -85,47 +85,45 @@ class BudzetObywatelskiDetailsScreen extends StatelessWidget {
                       ),
                     if (details.projectEditionValue != null)
                       _buildRow("Edycja:", details.projectEditionValue!),
-                    const SizedBox(height: 12),
+                    SizedBox(height: 12.h),
                     if (details.longDescValue != null)
                       Text(
                         _stripHtml(details.longDescValue!),
-                        style: const TextStyle(fontSize: 14),
+                        style: TextStyle(fontSize: 14.sp),
                         textAlign: TextAlign.justify,
                       ),
-                    const SizedBox(height: 12),
+                    SizedBox(height: 12.h),
                     if (details.additionalDataValue != null)
                       if (details.additionalDataValue is List)
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          children:
-                              (details.additionalDataValue as List).map<Widget>((
-                                item,
-                              ) {
-                                final label = item['label'] ?? '';
-                                final value = item['value'] ?? '';
-                                return Padding(
-                                  padding: const EdgeInsets.only(bottom: 4),
-                                  child: Text(
-                                    '${_stripHtml(label.toString())}: ${_stripHtml(value.toString())}',
-                                    style: const TextStyle(fontSize: 14),
-                                  ),
-                                );
-                              }).toList(),
+                          children: (details.additionalDataValue as List)
+                              .map<Widget>((item) {
+                            final label = item['label'] ?? '';
+                            final value = item['value'] ?? '';
+                            return Padding(
+                              padding: EdgeInsets.only(bottom: 4.h),
+                              child: Text(
+                                '${_stripHtml(label.toString())}: ${_stripHtml(value.toString())}',
+                                style: TextStyle(fontSize: 14.sp),
+                              ),
+                            );
+                          }).toList(),
                         )
                       else if (details.additionalDataValue is Map)
                         Padding(
-                          padding: const EdgeInsets.only(top: 12),
+                          padding: EdgeInsets.only(top: 12.h),
                           child: Text(
                             details.additionalDataValue.toString(),
-                            style: const TextStyle(fontSize: 14),
+                            style: TextStyle(fontSize: 14.sp),
                           ),
                         )
                       else
                         Padding(
-                          padding: const EdgeInsets.only(top: 12),
+                          padding: EdgeInsets.only(top: 12.h),
                           child: Text(
                             _stripHtml(details.additionalDataValue.toString()),
-                            style: const TextStyle(fontSize: 14),
+                            style: TextStyle(fontSize: 14.sp),
                           ),
                         ),
                   ],
@@ -140,16 +138,16 @@ class BudzetObywatelskiDetailsScreen extends StatelessWidget {
 
   Widget _buildRow(String label, String value) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 4),
+      padding: EdgeInsets.only(bottom: 4.h),
       child: Row(
         children: [
-          Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
-          const SizedBox(width: 4),
+          Text(label, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14.sp)),
+          SizedBox(width: 4.w),
           Expanded(
             child: Text(
               value,
               softWrap: true,
-              style: const TextStyle(fontSize: 14),
+              style: TextStyle(fontSize: 14.sp),
             ),
           ),
         ],

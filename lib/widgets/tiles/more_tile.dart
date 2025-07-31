@@ -1,15 +1,20 @@
 // lib/widgets/tiles/more_tile.dart
 import 'package:flutter/material.dart';
-import 'package:mediapark/models/samorzad.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:mediapark/models/samorzad_details.dart';
 import 'package:mediapark/widgets/more_links_page.dart';
 import 'package:mediapark/animations/slide_fade_route.dart';
 
 class MoreTile extends StatelessWidget {
-  final Samorzad aktywnySamorzad;
+  final SamorzadSzczegoly aktywnySamorzad;
   final List<SamorzadModule> zewnetrzne;
 
-  const MoreTile({super.key, required this.aktywnySamorzad, required this.zewnetrzne});
+  const MoreTile({
+    super.key,
+    required this.aktywnySamorzad,
+    required this.zewnetrzne,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +35,7 @@ class MoreTile extends StatelessWidget {
         }
       },
       child: Padding(
-        padding: const EdgeInsets.all(10),
+        padding: EdgeInsets.all(10.w),
         child: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -38,13 +43,13 @@ class MoreTile extends StatelessWidget {
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
-            borderRadius: BorderRadius.circular(25),
+            borderRadius: BorderRadius.circular(25.r),
           ),
-          child: const Center(
+          child: Center(
             child: Text(
               'WIĘCEJ',
-              style: TextStyle(
-                fontSize: 16,
+              style: GoogleFonts.poppins(
+                fontSize: 16.sp,
                 fontWeight: FontWeight.bold,
                 color: Colors.black,
               ),

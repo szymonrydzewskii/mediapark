@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mediapark/screens/main_window.dart';
 import 'package:mediapark/screens/settings_screen.dart';
 import 'package:mediapark/screens/selecting_samorzad.dart';
 import 'package:mediapark/models/samorzad.dart';
-import 'package:mediapark/helpers/preferences_helper.dart';
 import 'package:mediapark/widgets/adaptive_asset_image.dart';
 
 class BottomNavBar extends StatefulWidget {
@@ -58,18 +58,18 @@ class _BottomNavBarState extends State<BottomNavBar> {
           Align(
             alignment: Alignment.bottomCenter,
             child: Padding(
-              padding: const EdgeInsets.only(bottom: 24),
+              padding: EdgeInsets.only(bottom: 24.h),
               child: Container(
-                height: 70,
-                margin: const EdgeInsets.symmetric(horizontal: 40),
+                height: 70.h,
+                margin: EdgeInsets.symmetric(horizontal: 40.w),
                 decoration: BoxDecoration(
                   color: const Color.fromARGB(255, 46, 46, 46),
-                  borderRadius: BorderRadius.circular(35),
+                  borderRadius: BorderRadius.circular(35.r),
                   boxShadow: [
                     BoxShadow(
-                      color: Color(0xFFCCE9F2),
-                      blurRadius: 10,
-                      offset: const Offset(0, 50),
+                      color: const Color(0xFFCCE9F2),
+                      blurRadius: 10.r,
+                      offset: Offset(0, 50.h),
                     ),
                   ],
                 ),
@@ -78,21 +78,18 @@ class _BottomNavBarState extends State<BottomNavBar> {
                   children: [
                     // Przesuwające się podświetlenie
                     AnimatedAlign(
-                      alignment:
-                          selectedIndex == 0
-                              ? Alignment.centerLeft
-                              : Alignment.centerRight,
+                      alignment: selectedIndex == 0
+                          ? Alignment.centerLeft
+                          : Alignment.centerRight,
                       duration: const Duration(milliseconds: 300),
                       curve: Curves.easeInOut,
                       child: Container(
-                        width:
-                            (MediaQuery.of(context).size.width - 80) /
-                            2, // szerokość połowy navbara
-                        height: 56,
-                        margin: const EdgeInsets.symmetric(horizontal: 6),
+                        width: (MediaQuery.of(context).size.width - 80.w) / 2,
+                        height: 56.h,
+                        margin: EdgeInsets.symmetric(horizontal: 6.w),
                         decoration: BoxDecoration(
                           color: const Color.fromARGB(255, 66, 66, 66),
-                          borderRadius: BorderRadius.circular(30),
+                          borderRadius: BorderRadius.circular(30.r),
                         ),
                       ),
                     ),
@@ -105,8 +102,8 @@ class _BottomNavBarState extends State<BottomNavBar> {
                           index: 0,
                           icon: AdaptiveAssetImage(
                             basePath: 'assets/icons/home',
-                            height: 25,
-                            width: 25,
+                            height: 25.h,
+                            width: 25.w,
                           ),
                           label: aktywnaGmina.nazwa,
                           onTap: () {
@@ -121,8 +118,8 @@ class _BottomNavBarState extends State<BottomNavBar> {
                           index: 1,
                           icon: AdaptiveAssetImage(
                             basePath: 'assets/icons/settings',
-                            height: 25,
-                            width: 25,
+                            height: 25.h,
+                            width: 25.w,
                           ),
                           label: 'Ustawienia',
                           onTap: () => _onItemTapped(1),
@@ -152,19 +149,18 @@ class _BottomNavBarState extends State<BottomNavBar> {
       flex: isSelected ? 2 : 1,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(30),
+        borderRadius: BorderRadius.circular(30.r),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 300),
           curve: Curves.easeInOut,
-          height: 56,
-          margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
-          padding: const EdgeInsets.symmetric(horizontal: 12),
+          height: 56.h,
+          margin: EdgeInsets.symmetric(vertical: 8.h, horizontal: 6.w),
+          padding: EdgeInsets.symmetric(horizontal: 12.w),
           decoration: BoxDecoration(
-            color:
-                isSelected
-                    ? const Color.fromARGB(255, 66, 66, 66)
-                    : Colors.transparent,
-            borderRadius: BorderRadius.circular(30),
+            color: isSelected
+                ? const Color.fromARGB(255, 66, 66, 66)
+                : Colors.transparent,
+            borderRadius: BorderRadius.circular(30.r),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -172,10 +168,10 @@ class _BottomNavBarState extends State<BottomNavBar> {
               icon,
               if (isSelected)
                 Padding(
-                  padding: const EdgeInsets.only(left: 6),
+                  padding: EdgeInsets.only(left: 6.w),
                   child: Text(
                     label,
-                    style: const TextStyle(fontSize: 13, color: Colors.white),
+                    style: TextStyle(fontSize: 13.sp, color: Colors.white),
                     overflow: TextOverflow.ellipsis,
                     maxLines: 1,
                   ),

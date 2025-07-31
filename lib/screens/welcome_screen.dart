@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mediapark/animations/slide_fade_route.dart';
 import 'package:mediapark/helpers/dashed_border_painter.dart';
 import 'package:mediapark/screens/selecting_samorzad.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../widgets/adaptive_asset_image.dart';
 
 class WelcomeScreen extends StatefulWidget {
@@ -35,7 +38,8 @@ class _WelcomeScreenState extends State<WelcomeScreen>
       duration: const Duration(seconds: 2),
     )..repeat(reverse: true);
 
-    _scaleAnimation = Tween<double>(begin: 1, end: 1.5).animate(
+    // odległości między którymi się powiększa i pomniejsza kółko
+    _scaleAnimation = Tween<double>(begin: 1.5, end: 1.8).animate(
       CurvedAnimation(parent: _scaleController, curve: Curves.easeInOut),
     );
 
@@ -46,6 +50,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
 
     _controller.forward();
 
+    //prędkość obrotu kresek
     _rotationController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 4),
@@ -56,7 +61,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
       duration: const Duration(milliseconds: 800),
     )..repeat(reverse: true);
 
-    _bounceAnimation = Tween<double>(begin: 0, end: 10).animate(
+    _bounceAnimation = Tween<double>(begin: 0, end: 10.h).animate(
       CurvedAnimation(parent: _bounceController, curve: Curves.easeInOut),
     );
   }
@@ -66,56 +71,49 @@ class _WelcomeScreenState extends State<WelcomeScreen>
     _controller.dispose();
     _rotationController.dispose();
     _scaleController.dispose();
+    _bounceController.dispose();
     super.dispose();
   }
 
   void _goToNextScreen() {
-    Navigator.of(context).push(slideFadeRouteTo(const SelectingSamorzad()));
+    Navigator.of(context).pushReplacement(slideFadeRouteTo(const SelectingSamorzad()));
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFCCE9F2),
+      backgroundColor: const Color(0xFFBCE1EB),
       body: SafeArea(
         child: Stack(
           children: [
             Column(
               children: [
-                const SizedBox(height: 100),
+                SizedBox(height: 95.h),
                 Center(
                   child: AdaptiveAssetImage(
-                    basePath: 'assets/icons/wdialogu',
-                    width: 180,
-                    height: 40,
+                    basePath: 'assets/icons/logo_wdialogu',
+                    width: 80.w,
+                    height: 82.h,
                   ),
                 ),
-                const SizedBox(height: 60),
+                SizedBox(height: 73.h),
                 Expanded(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const SizedBox(height: 40),
-                      const Text(
-                        'Wybierz',
-                        style: TextStyle(
-                          fontSize: 36,
+                      SizedBox(height: 40.h),
+                      Text(
+                        'Wybierz\nsamorząd',
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.poppins(
+                          fontSize: 32.sp,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      const Text(
-                        'swój samorząd',
-                        style: TextStyle(
-                          fontSize: 20,
-                          color: Colors.black87,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
+                      SizedBox(height: 50.h),
                       Stack(
                         alignment: Alignment.center,
                         children: [
-                          // Przerywana obwódka z animacjami obrotu i skalowania
                           AnimatedBuilder(
                             animation: Listenable.merge([
                               _rotationController,
@@ -123,10 +121,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                             ]),
                             builder: (_, child) {
                               return Transform.rotate(
-                                angle:
-                                    _rotationController.value *
-                                    2 *
-                                    3.141592653589793,
+                                angle: _rotationController.value * 2 * 3.1416,
                                 child: Transform.scale(
                                   scale: _scaleAnimation.value,
                                   child: child,
@@ -135,52 +130,49 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                             },
                             child: CustomPaint(
                               painter: DashedBorderPainter(color: Colors.white),
-                              size: const Size(120, 120),
+                              size: Size(120.w, 120.h),
                             ),
                           ),
-                          // Właściwy przycisk
                           GestureDetector(
                             onTap: _goToNextScreen,
                             child: Container(
-                              width: 72,
-                              height: 72,
+                              width: 85.w,
+                              height: 85.h,
                               decoration: const BoxDecoration(
                                 color: Colors.black,
                                 shape: BoxShape.circle,
                               ),
-                              child: const Center(
-                                child: Icon(
-                                  Icons.add,
-                                  color: Colors.white,
-                                  size: 32,
+                              child: Center(
+                                child: SvgPicture.asset(
+                                  'assets/icons/plus.svg',
+                                  width: 80.w,
+                                  height: 80.w, 
                                 ),
                               ),
                             ),
                           ),
                         ],
                       ),
-
                       const Spacer(),
                     ],
                   ),
                 ),
               ],
             ),
-
             Positioned(
-              bottom: -120,
-              left: 140,
+              bottom: -130.h,
+              left: 140.w,
               right: 0,
               child: SlideTransition(
                 position: _slideAnimation,
                 child: Transform.scale(
                   scale: 1.8,
                   child: SizedBox(
-                    width: MediaQuery.of(context).size.width,
+                    width: 1.sw,
                     child: AdaptiveAssetImage(
                       basePath: 'assets/icons/city',
-                      width: MediaQuery.of(context).size.width,
-                      height: 520,
+                      width: 1.sw,
+                      height: 520.h,
                     ),
                   ),
                 ),

@@ -2,15 +2,23 @@ class SamorzadModule {
   final String type;
   final String url;
   final String alias;
+  final String idInstytucji; // ← dodane
 
-  SamorzadModule({required this.type, required this.url, required this.alias});
+  SamorzadModule({
+    required this.type,
+    required this.url,
+    required this.alias,
+    required this.idInstytucji,
+  });
 
   factory SamorzadModule.fromJson(Map<String, dynamic> json) => SamorzadModule(
         type: json['type'] ?? '',
         url: json['url'] ?? '',
         alias: json['alias'] ?? '',
+        idInstytucji: json['id_bo_institution']?.toString() ?? '', // ← dodane
       );
 }
+
 
 class SamorzadSzczegoly {
   final String name;
@@ -23,6 +31,8 @@ class SamorzadSzczegoly {
   final String logo;
   final List<SamorzadModule> modules;
 
+  final int idBoInstitution; // ← NOWE POLE
+
   SamorzadSzczegoly({
     required this.name,
     required this.address,
@@ -33,9 +43,11 @@ class SamorzadSzczegoly {
     required this.mapZoom,
     required this.logo,
     required this.modules,
+    required this.idBoInstitution, // ← dodaj tutaj
   });
 
-  factory SamorzadSzczegoly.fromJson(Map<String, dynamic> json) => SamorzadSzczegoly(
+  factory SamorzadSzczegoly.fromJson(Map<String, dynamic> json) =>
+      SamorzadSzczegoly(
         name: json['name'] ?? '',
         address: json['address'] ?? '',
         phone: json['phone'] ?? '',
@@ -47,5 +59,6 @@ class SamorzadSzczegoly {
         modules: (json['modules'] as List<dynamic>? ?? [])
             .map((m) => SamorzadModule.fromJson(m))
             .toList(),
+        idBoInstitution: json['id_bo_institution'] ?? 0, // ← tutaj z JSONa
       );
 }

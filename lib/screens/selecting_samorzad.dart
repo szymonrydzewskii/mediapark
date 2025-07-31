@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:mediapark/animations/fade_in_up.dart';
 import 'package:mediapark/models/samorzad.dart';
 import 'package:mediapark/widgets/adaptive_asset_image.dart';
 import 'package:mediapark/helpers/preferences_helper.dart';
 import 'package:mediapark/services/samorzad_service.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:mediapark/screens/main_window.dart';
 import 'package:mediapark/widgets/bottom_nav_bar.dart';
 
 class SelectingSamorzad extends StatefulWidget {
@@ -16,12 +17,13 @@ class SelectingSamorzad extends StatefulWidget {
 }
 
 class _SelectingSamorzadState extends State<SelectingSamorzad> {
-  static const backgroundColor = Color(0xFFCCE9F2);
+  static const backgroundColor = Color(0xFFBCE1EB);
   List<Samorzad> wszystkieSamorzady = [];
   List<Samorzad> filtrowaneSamorzady = [];
   Set<String> wybraneSamorzady = {};
   String wpisanyText = '';
   bool showLoader = true;
+  bool dataLoaded = false;
 
   @override
   void initState() {
@@ -40,11 +42,18 @@ class _SelectingSamorzadState extends State<SelectingSamorzad> {
   Future<void> loadData() async {
     final samorzady = await loadSamorzad();
     final zapisaneId = await PreferencesHelper.getSelectedSamorzady();
+    if (!mounted) return;
     setState(() {
       wszystkieSamorzady = samorzady;
       filtrowaneSamorzady = samorzady;
       wybraneSamorzady = zapisaneId;
+      dataLoaded = true;
     });
+    if (mounted) {
+      setState(() {
+        showLoader = false;
+      });
+    }
   }
 
   void onSearch(String value) {
@@ -87,10 +96,8 @@ class _SelectingSamorzadState extends State<SelectingSamorzad> {
         MaterialPageRoute(
           builder:
               (context) => BottomNavBar(
-                aktywnySamorzad:
-                    wybraneObiekty.first, // ← przekazujemy pierwszy wybrany
-                wybraneSamorzady:
-                    wybraneObiekty, // ← przekazujemy cały Set<Samorzad>
+                aktywnySamorzad: wybraneObiekty.first,
+                wybraneSamorzady: wybraneObiekty,
               ),
         ),
         (route) => false,
@@ -102,31 +109,27 @@ class _SelectingSamorzadState extends State<SelectingSamorzad> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: backgroundColor,
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(28),
-        child: AppBar(
-          elevation: 0,
-          forceMaterialTransparency: true,
-          backgroundColor: backgroundColor,
-          centerTitle: true,
-        ),
-      ),
       body: Column(
         children: [
+          SizedBox(height: 64.h),
           Padding(
-            padding: EdgeInsets.all(20),
+            padding: EdgeInsets.all(20.w),
             child: TextField(
               decoration: InputDecoration(
                 hintText: 'Szukaj',
-                hintStyle: TextStyle(color: Color.fromARGB(255, 80, 93, 97)),
+                hintStyle: GoogleFonts.poppins(
+                  color: Colors.black,
+                  fontSize: 16.sp,
+                  fontWeight: FontWeight.w600,
+                ),
                 filled: true,
-                fillColor: Color(0xFFB5D7E4),
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 14,
+                fillColor: const Color(0xFFACD2DD),
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: 24.w,
+                  vertical: 14.h,
                 ),
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(50)),
+                  borderRadius: BorderRadius.all(Radius.circular(50.r)),
                   borderSide: BorderSide.none,
                 ),
               ),
@@ -135,84 +138,125 @@ class _SelectingSamorzadState extends State<SelectingSamorzad> {
           ),
           Expanded(
             child:
-                filtrowaneSamorzady.isEmpty
+                showLoader
+                    ? const Center(child: CircularProgressIndicator())
+                    : filtrowaneSamorzady.isEmpty
                     ? Center(
-                      child:
-                          showLoader
-                              ? const CircularProgressIndicator()
-                              : const Text("Nie znaleziono samorządu"),
+                      child: Padding(
+                        padding: EdgeInsets.all(24.w),
+                        child: Text(
+                          'Brak wyników dla wyszukiwania.',
+                          style: GoogleFonts.poppins(
+                            fontSize: 16.sp,
+                            fontWeight: FontWeight.w500,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
                     )
                     : SingleChildScrollView(
-                      physics: const ClampingScrollPhysics(),
-                      child: Column(
-                        children: List.generate(filtrowaneSamorzady.length, (
-                          index,
-                        ) {
-                          final samorzad = filtrowaneSamorzady[index];
-                          final isSelected = wybraneSamorzady.contains(
-                            samorzad.id,
-                          );
-                          return FadeInUpWidget(
-                            delay: Duration(milliseconds: index * 100),
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 20,
-                                vertical: 10,
-                              ),
-                              child: Material(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(18),
-                                child: InkWell(
-                                  borderRadius: BorderRadius.circular(10),
-                                  onTap: () => onSelect(samorzad),
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 5,
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 16.w,
+                          vertical: 10.h,
+                        ),
+                        child: Column(
+                          children: List.generate(filtrowaneSamorzady.length, (
+                            index,
+                          ) {
+                            final samorzad = filtrowaneSamorzady[index];
+                            final isSelected = wybraneSamorzady.contains(
+                              samorzad.id,
+                            );
+                            final isFirst = index == 0;
+                            final isLast =
+                                index == filtrowaneSamorzady.length - 1;
+
+                            return FadeInUpWidget(
+                              delay: Duration(milliseconds: 50 * index),
+                              child: Column(
+                                children: [
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.vertical(
+                                      top:
+                                          isFirst
+                                              ? Radius.circular(20.r)
+                                              : Radius.zero,
+                                      bottom:
+                                          isLast
+                                              ? Radius.circular(20.r)
+                                              : Radius.zero,
                                     ),
-                                    child: ListTile(
-                                      leading: AdaptiveNetworkImage(
-                                        url: samorzad.herb,
-                                        width: 40,
-                                        height: 40,
-                                      ),
-                                      title: Text(
-                                        samorzad.nazwa,
-                                        style: const TextStyle(fontSize: 18),
-                                      ),
-                                      trailing:
-                                          isSelected
-                                              ? const Icon(
-                                                Icons.check,
-                                                color: Color.fromARGB(
-                                                  255,
-                                                  0,
-                                                  145,
-                                                  0,
+                                    child: Material(
+                                      color: Colors.white,
+                                      child: InkWell(
+                                        onTap: () => onSelect(samorzad),
+                                        child: SizedBox(
+                                          height: 70.h,
+                                          child: Row(
+                                            children: [
+                                              SizedBox(width: 19.w),
+                                              AdaptiveNetworkImage(
+                                                url: samorzad.herb,
+                                                width: 32.w,
+                                                height: 32.h,
+                                              ),
+                                              SizedBox(width: 23.w),
+                                              Expanded(
+                                                child: Text(
+                                                  samorzad.nazwa,
+                                                  style: GoogleFonts.poppins(
+                                                    fontSize: 15.sp,
+                                                    fontWeight: FontWeight.w600,
+                                                  ),
                                                 ),
-                                              )
-                                              : null,
+                                              ),
+                                              if (isSelected)
+                                                Padding(
+                                                  padding: EdgeInsets.only(
+                                                    right: 20.w,
+                                                  ),
+                                                  child: SvgPicture.asset(
+                                                    'assets/icons/picked.svg',
+                                                    width: 24.w,
+                                                    height: 24.h,
+                                                  ),
+                                                ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
                                     ),
                                   ),
-                                ),
+                                  if (!isLast)
+                                    Divider(
+                                      height: 1,
+                                      color: Colors.grey.shade300,
+                                      thickness: 1,
+                                    ),
+                                ],
                               ),
-                            ),
-                          );
-                        }),
+                            );
+                          }),
+                        ),
                       ),
                     ),
           ),
-          const Padding(
-            padding: EdgeInsets.all(5),
-            child: Text('Zawsze możesz zmienić swój wybór później'),
+          Padding(
+            padding: EdgeInsets.all(5.w),
+            child: Text(
+              'Zawsze możesz zmienić swój wybór później',
+              style: TextStyle(fontSize: 13.sp),
+            ),
           ),
           Padding(
-            padding: const EdgeInsets.all(12),
+            padding: EdgeInsets.all(12.w),
             child: ElevatedButton(
               onPressed: wybraneSamorzady.isNotEmpty ? onSubmit : null,
               style: ElevatedButton.styleFrom(backgroundColor: Colors.black),
-              child: const Text(
+              child: Text(
                 "Gotowe",
-                style: TextStyle(color: Colors.white),
+                style: TextStyle(color: Colors.white, fontSize: 16.sp),
               ),
             ),
           ),

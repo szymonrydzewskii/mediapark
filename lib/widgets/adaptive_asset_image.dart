@@ -3,11 +3,13 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class AdaptiveAssetImage extends StatefulWidget {
   final String basePath; // e.g. 'assets/icons/my_icon'
   final double width;
   final double height;
+
   const AdaptiveAssetImage({
     super.key,
     required this.basePath,
@@ -36,23 +38,23 @@ class _AdaptiveAssetImageState extends State<AdaptiveAssetImage> {
       if (map.containsKey(svgKey)) {
         return SvgPicture.asset(
           svgKey,
-          width: widget.width,
-          height: widget.height,
+          width: widget.width.w,
+          height: widget.height.h,
           fit: BoxFit.contain,
           alignment: Alignment.center,
         );
       } else if (map.containsKey(pngKey)) {
         return Image.asset(
           pngKey,
-          width: widget.width,
-          height: widget.height,
+          width: widget.width.w,
+          height: widget.height.h,
           fit: BoxFit.contain,
           alignment: Alignment.center,
         );
       } else {
         return Icon(
           Icons.error,
-          size: min(widget.width, widget.height),
+          size: min(widget.width.w, widget.height.h),
           color: Colors.red,
         );
       }
@@ -66,9 +68,9 @@ class _AdaptiveAssetImageState extends State<AdaptiveAssetImage> {
       builder: (context, snapshot) {
         if (snapshot.connectionState != ConnectionState.done) {
           return SizedBox(
-            width: widget.width,
-            height: widget.height,
-            child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+            width: widget.width.w,
+            height: widget.height.h,
+            child: Center(child: CircularProgressIndicator(strokeWidth: 2.r)),
           );
         }
         return snapshot.data!;
@@ -81,6 +83,7 @@ class AdaptiveNetworkImage extends StatelessWidget {
   final String url;
   final double width;
   final double height;
+
   const AdaptiveNetworkImage({
     super.key,
     required this.url,
@@ -94,57 +97,35 @@ class AdaptiveNetworkImage extends StatelessWidget {
     if (url.toLowerCase().endsWith('.svg')) {
       widgetToShow = SvgPicture.network(
         url,
-        width: width,
-        height: height,
+        width: width.w,
+        height: height.h,
         fit: BoxFit.contain,
         alignment: Alignment.center,
         placeholderBuilder: (context) => SizedBox(
-          width: width,
-          height: height,
-          child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+          width: width.w,
+          height: height.h,
+          child: Center(child: CircularProgressIndicator(strokeWidth: 2.r)),
         ),
       );
     } else {
       widgetToShow = Image.network(
         url,
-        width: width,
-        height: height,
+        width: width.w,
+        height: height.h,
         fit: BoxFit.contain,
         alignment: Alignment.center,
         errorBuilder: (context, error, stack) => Icon(
           Icons.error,
-          size: min(width, height),
+          size: min(width.w, height.h),
           color: Colors.red,
         ),
       );
     }
 
     return SizedBox(
-      width: width,
-      height: height,
+      width: width.w,
+      height: height.h,
       child: Center(child: widgetToShow),
     );
   }
 }
-
-/* Usage examples:
-
-// In moduly_box_container.dart, replace Image.asset with:
-SizedBox(
-  width: 50,
-  height: 50,
-  child: AdaptiveAssetImage(
-    basePath: 'assets/icons/$alias',
-    width: 50,
-    height: 50,
-  ),
-),
-
-// In selecting_samorzad.dart and main_window.dart, replace Image.network:
-AdaptiveNetworkImage(
-  url: samorzad.herb,
-  width: 40, // or desired size
-  height: 40,
-),
-
-*/

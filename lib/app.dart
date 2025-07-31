@@ -1,11 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:mediapark/helpers/preferences_helper.dart';
-import 'package:mediapark/screens/main_window.dart';
-import 'package:mediapark/screens/selecting_samorzad.dart';
 import 'package:mediapark/screens/welcome_screen.dart';
-import 'package:mediapark/services/samorzad_service.dart';
-import 'package:mediapark/widgets/bottom_nav_bar.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});

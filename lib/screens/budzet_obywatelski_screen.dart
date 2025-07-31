@@ -1,27 +1,56 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mediapark/models/samorzad_details.dart';
 import '../services/budzet_obywatelski_service.dart';
 import '../models/budzet_obywatelski.dart';
 import 'budzet_obywatelski_details_screen.dart';
+import 'package:mediapark/screens/bo_harmonogram_screen.dart';
 
 class BudzetObywatelskiScreen extends StatelessWidget {
   final SamorzadModule modul;
+  final SamorzadSzczegoly samorzad;
 
-  const BudzetObywatelskiScreen({super.key, required this.modul});
+  const BudzetObywatelskiScreen({
+    super.key,
+    required this.modul,
+    required this.samorzad,
+  });
 
   @override
   Widget build(BuildContext context) {
-    const String idInstytucji = '201';
+    final String idInstytucji = modul.idInstytucji;
 
     return Scaffold(
-      backgroundColor: Color(0xFFCCE9F2),
+      backgroundColor: const Color(0xFFBCE1EB),
       appBar: AppBar(
         elevation: 0,
         forceMaterialTransparency: true,
-        backgroundColor: Color(0xFFCCE9F2),
+        backgroundColor: const Color(0xFFBCE1EB),
         centerTitle: true,
+        title: Text(
+          "Budżet Obywatelski",
+          style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(
+              Icons.calendar_today_outlined,
+              color: Colors.black,
+            ),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder:
+                      (_) => BOHarmonogramScreen(
+                        idInstytucji: samorzad.idBoInstitution,
+                      ),
+                ),
+              );
+            },
+          ),
+        ],
       ),
-      // AppBar(title: Text(modul.alias.toUpperCase())),
       body: FutureBuilder<List<BudzetObywatelski>>(
         future: fetchProjekty(idInstytucji),
         builder: (context, snapshot) {
@@ -31,17 +60,17 @@ class BudzetObywatelskiScreen extends StatelessWidget {
             return Center(child: Text('Błąd: ${snapshot.error}'));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return const Center(child: Text('Brak projektów'));
-          } else {
-            final projekty = snapshot.data!;
-            return ListView.builder(
-              padding: const EdgeInsets.all(10),
-              itemCount: projekty.length,
-              itemBuilder: (context, index) {
-                final projekt = projekty[index];
-                return _buildProjektCard(context, projekt);
-              },
-            );
           }
+
+          final projekty = snapshot.data!;
+          return ListView.builder(
+            padding: EdgeInsets.all(10.w),
+            itemCount: projekty.length,
+            itemBuilder: (context, index) {
+              final projekt = projekty[index];
+              return _buildProjektCard(context, projekt);
+            },
+          );
         },
       ),
     );
@@ -51,13 +80,15 @@ class BudzetObywatelskiScreen extends StatelessWidget {
     String shorterDescription(String desc) =>
         desc.length > 300 ? '${desc.substring(0, 200)}...' : desc;
 
+    final shortDesc = projekt.shortDescription.replaceAll('\r\n', '\n');
+
     return Card(
-      color: const Color(0xFFD6F4FE),
-      elevation: 4,
-      margin: const EdgeInsets.symmetric(vertical: 8),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+      color: const Color(0xFFCAECF4),
+      elevation: 0,
+      margin: EdgeInsets.symmetric(vertical: 8.h),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18.r)),
       child: InkWell(
-        borderRadius: BorderRadius.circular(18), // dopasowany do Card
+        borderRadius: BorderRadius.circular(18.r),
         onTap: () {
           Navigator.push(
             context,
@@ -70,7 +101,7 @@ class BudzetObywatelskiScreen extends StatelessWidget {
           );
         },
         child: Padding(
-          padding: const EdgeInsets.all(12),
+          padding: EdgeInsets.all(12.w),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -79,70 +110,64 @@ class BudzetObywatelskiScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 4,
-                        horizontal: 8,
+                      padding: EdgeInsets.symmetric(
+                        vertical: 4.h,
+                        horizontal: 8.w,
                       ),
                       decoration: BoxDecoration(
                         color: Colors.green[800],
-                        borderRadius: BorderRadius.circular(50),
+                        borderRadius: BorderRadius.circular(50.r),
                       ),
                       child: Text(
                         projekt.statusName,
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
-                          fontSize: 12,
+                          fontSize: 12.sp,
                         ),
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8.h),
                     Text(
                       projekt.name,
-                      style: const TextStyle(
-                        fontSize: 16,
+                      style: TextStyle(
+                        fontSize: 16.sp,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8.h),
                     if (projekt.typeVisible)
                       Row(
                         children: [
-                          const Text(
-                            "Rodzaj: ",
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          Text(projekt.typeValue),
+                          Text("Rodzaj: ", style: _boldLabelStyle()),
+                          Text(projekt.typeValue, style: _valueStyle()),
                         ],
                       ),
                     if (projekt.quartersVisible &&
                         projekt.quartersValue.isNotEmpty)
                       Row(
                         children: [
-                          const Text(
-                            "Osiedle: ",
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          Text(projekt.quartersValue),
+                          Text("Osiedle: ", style: _boldLabelStyle()),
+                          Text(projekt.quartersValue, style: _valueStyle()),
                         ],
                       ),
                     if (projekt.costVisible)
                       Row(
                         children: [
-                          const Text(
-                            "Koszt: ",
-                            style: TextStyle(fontWeight: FontWeight.bold),
+                          Text("Koszt: ", style: _boldLabelStyle()),
+                          Text(
+                            projekt.costValue.replaceAll('&nbsp;', ' '),
+                            style: _valueStyle(),
                           ),
-                          Text(projekt.costValue.replaceAll('&nbsp;', ' ')),
                         ],
                       ),
-                    const SizedBox(height: 8),
-                    Text(
-                      shorterDescription(
-                        projekt.shortDescription.replaceAll('\r\n', '\n'),
+                    SizedBox(height: 8.h),
+                    if (shortDesc.isNotEmpty)
+                      Text(
+                        shorterDescription(shortDesc),
+                        textAlign: TextAlign.justify,
+                        style: TextStyle(fontSize: 14.sp),
                       ),
-                      textAlign: TextAlign.justify,
-                    ),
                   ],
                 ),
               ),
@@ -157,4 +182,8 @@ class BudzetObywatelskiScreen extends StatelessWidget {
       ),
     );
   }
+
+  TextStyle _boldLabelStyle() =>
+      TextStyle(fontWeight: FontWeight.bold, fontSize: 14.sp);
+  TextStyle _valueStyle() => TextStyle(fontSize: 14.sp);
 }

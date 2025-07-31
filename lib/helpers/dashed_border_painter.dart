@@ -1,6 +1,5 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class DashedBorderPainter extends CustomPainter {
   final Color color;
@@ -10,10 +9,12 @@ class DashedBorderPainter extends CustomPainter {
 
   DashedBorderPainter({
     required this.color,
-    this.strokeWidth = 2,
-    this.gap = 20,
-    this.dashLength = 25,
-  });
+    double? strokeWidth,
+    double? gap,
+    double? dashLength,
+  })  : strokeWidth = (strokeWidth ?? 1).w,
+        gap = (gap ?? 20).w,
+        dashLength = (dashLength ?? 20).w;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -23,22 +24,18 @@ class DashedBorderPainter extends CustomPainter {
       ..style = PaintingStyle.stroke;
 
     final rect = Rect.fromLTWH(0, 0, size.width, size.height);
-    final radius = size.width / 2;
     final path = Path()..addOval(rect);
-
-    final dashPath = _createDashedPath(path);
-    canvas.drawPath(dashPath, paint);
+    final dashedPath = _createDashedPath(path);
+    canvas.drawPath(dashedPath, paint);
   }
 
   Path _createDashedPath(Path source) {
     final Path dest = Path();
-    for (PathMetric pathMetric in source.computeMetrics()) {
+    for (final metric in source.computeMetrics()) {
       double distance = 0.0;
-      while (distance < pathMetric.length) {
-        dest.addPath(
-          pathMetric.extractPath(distance, distance + dashLength),
-          Offset.zero,
-        );
+      while (distance < metric.length) {
+        final end = (distance + dashLength).clamp(0, metric.length).toDouble();
+        dest.addPath(metric.extractPath(distance, end), Offset.zero);
         distance += dashLength + gap;
       }
     }
@@ -46,5 +43,5 @@ class DashedBorderPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(CustomPainter oldDelegate) => false;
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

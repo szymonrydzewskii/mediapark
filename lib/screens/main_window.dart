@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:mediapark/animations/fade_in_up.dart';
 import 'package:mediapark/animations/slide_fade_route.dart';
 import 'package:mediapark/models/samorzad.dart';
 import 'package:mediapark/models/samorzad_details.dart';
@@ -6,9 +8,10 @@ import 'package:mediapark/screens/settings_screen.dart';
 import 'package:mediapark/widgets/adaptive_asset_image.dart';
 import 'package:mediapark/services/samorzad_details_service.dart';
 import 'package:mediapark/screens/selecting_samorzad.dart';
-import 'package:mediapark/widgets/custom_appbar.dart';
 import 'package:mediapark/widgets/moduly_box_builder.dart';
 import 'dart:math';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:mediapark/widgets/tiles/modul_tile.dart';
 
 class MainWindow extends StatefulWidget {
   final Set<Samorzad> wybraneSamorzady;
@@ -27,7 +30,8 @@ class _MainWindowState extends State<MainWindow>
   bool showPanel = false;
   SamorzadSzczegoly? szczegolyInstytucji;
   bool loadingSzczegoly = false;
-  static const backgroundColor = Color(0xFFCCE9F2);
+  static const backgroundColor = Color(0xFFBCE1EB);
+  Set<String> animowaneModuly = {};
 
   @override
   void initState() {
@@ -77,7 +81,7 @@ class _MainWindowState extends State<MainWindow>
   void otworzWybieranie(BuildContext context) {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => SelectingSamorzad()),
+      MaterialPageRoute(builder: (context) => const SelectingSamorzad()),
     );
   }
 
@@ -86,102 +90,81 @@ class _MainWindowState extends State<MainWindow>
     final lista = widget.wybraneSamorzady.toList();
     final panelHeight = min(max(lista.length, 4) * 70.0, 370);
 
-    // final moduly = {
-    //   'konsultacje' : aktywnySamorzad?.konsultacje ?? false,
-    //   'kalendarz' : aktywnySamorzad?.kalendarz ?? false,
-    //   'ogloszenia' : aktywnySamorzad?.ogloszenia ?? false
-    // };
-
-    // final widgetMap = {
-    //   'konsultacje' : const KonsultacjeBox(),
-    //   'kalendarz' : const KalendarzBox(),
-    //   'ogloszenia' : const OgloszeniaBox()
-    // };
-
-    // final aktywneModuly = moduly.entries.where((entry) => entry.value == true).map((entry) => widgetMap[entry.key]!).toList();
-
     return Scaffold(
       backgroundColor: backgroundColor,
       body: Stack(
         children: [
-          //główny ekran
           Column(
             children: [
-              // CustomAppBar(
-              //   active: aktywnySamorzad!,
-              //   onLogoTap: () {
-              //     setState(() {
-              //       showPanel = !showPanel;
-              //     });
-
-              //     if (showPanel) {
-              //       _panelController.forward();
-              //     } else {
-              //       _panelController.reverse();
-              //     }
-              //   },
-              //   onSettings: onSettingsClick,
-              // ),
               Padding(
-                padding: const EdgeInsets.all(8),
+                padding: EdgeInsets.all(8.w),
                 child: AppBar(
                   elevation: 0,
                   forceMaterialTransparency: true,
                   backgroundColor: backgroundColor,
                   centerTitle: true,
                   title: Padding(
-                    padding: const EdgeInsets.only(top: 20),
+                    padding: EdgeInsets.only(top: 20.h),
                     child: Text(
                       aktywnySamorzad?.nazwa ?? '',
-                      style: const TextStyle(
+                      style: GoogleFonts.poppins(
                         fontWeight: FontWeight.bold,
-                        fontSize: 35,
+                        fontSize: 35.sp,
                         color: Colors.black,
                         height: 0.5,
                       ),
                     ),
                   ),
-                  // actions: [
-                  //   IconButton(
-                  //     onPressed: onSettingsClick,
-                  //     icon: Icon(Icons.settings, color: Colors.black),
-                  //   ),
-                  // ],
                 ),
               ),
-
-              // konsultacje box
               Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.all(2),
+                  padding: EdgeInsets.all(2.w),
                   child: AnimatedSwitcher(
-                    duration: Duration(milliseconds: 300),
+                    duration: const Duration(milliseconds: 300),
                     child:
                         loadingSzczegoly
                             ? const Center(child: CircularProgressIndicator())
                             : szczegolyInstytucji == null
                             ? const Center(child: Text("Brak danych"))
-                            : GridView.count(
+                            : GridView.builder(
                               key: const PageStorageKey('moduly_grid'),
-                              crossAxisCount: 2,
-                              crossAxisSpacing: 10,
-                              mainAxisSpacing: 10,
-                              children: [
-                                ...buildModulyBoxy(
-                                context,
-                                aktywnySamorzad!,
-                                szczegolyInstytucji!.modules,
-                              ),
-                              SizedBox()
-                              ]
+                              itemCount:
+                                  szczegolyInstytucji!.modules.length + 1,
+                              gridDelegate:
+                                  SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 2,
+                                    crossAxisSpacing: 10.w,
+                                    mainAxisSpacing: 10.h,
+                                  ),
+                              itemBuilder: (context, index) {
+                                if (index ==
+                                    szczegolyInstytucji!.modules.length) {
+                                  return const SizedBox();
+                                }
+                                final modul =
+                                    szczegolyInstytucji!.modules[index];
+                                final hasAnimated = animowaneModuly.contains(
+                                  modul.alias,
+                                );
+                                animowaneModuly.add(modul.alias);
+                                return FadeInUpWidget(
+                                  key: ValueKey(modul.alias), // ważne!
+                                  animate: !hasAnimated,
+                                  delay: Duration(milliseconds: index * 100),
+                                  child: ModulTile(
+                                    key: ValueKey(modul.alias),
+                                    modul: modul,
+                                    samorzad: szczegolyInstytucji!,
+                                  ),
+                                );
+                              },
                             ),
                   ),
                 ),
               ),
-              
             ],
           ),
-          // panel przełączania samorządów
           if (showPanel)
             Positioned.fill(
               child: GestureDetector(
@@ -190,13 +173,13 @@ class _MainWindowState extends State<MainWindow>
                   setState(() => showPanel = false);
                 },
                 behavior: HitTestBehavior.translucent,
-                child: Container(), // pusta warstwa "kliknięcia"
+                child: Container(),
               ),
             ),
           Positioned(
             top: kToolbarHeight,
-            left: 15,
-            right: 15,
+            left: 15.w,
+            right: 15.w,
             child: FadeTransition(
               opacity: _panelAnimation,
               child: SlideTransition(
@@ -208,7 +191,7 @@ class _MainWindowState extends State<MainWindow>
                   child: Material(
                     elevation: 6,
                     color: Colors.white,
-                    borderRadius: BorderRadius.circular(15),
+                    borderRadius: BorderRadius.circular(15.r),
                     child: Container(
                       constraints: BoxConstraints(
                         maxHeight: panelHeight.toDouble(),
@@ -225,8 +208,8 @@ class _MainWindowState extends State<MainWindow>
                                 return ListTile(
                                   leading: AdaptiveNetworkImage(
                                     url: samorzad.herb,
-                                    width: 30,
-                                    height: 30,
+                                    width: 30.w,
+                                    height: 30.h,
                                   ),
                                   title: Text(samorzad.nazwa),
                                   onTap: () async {
@@ -240,7 +223,7 @@ class _MainWindowState extends State<MainWindow>
                           ),
                           const Divider(height: 1),
                           Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 8),
+                            padding: EdgeInsets.symmetric(vertical: 8.h),
                             child: ElevatedButton(
                               onPressed: () {
                                 setState(() => showPanel = false);
@@ -250,9 +233,9 @@ class _MainWindowState extends State<MainWindow>
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.white,
                               ),
-                              child: const Text(
+                              child: Text(
                                 "Pokaż wszystkie",
-                                style: TextStyle(color: Colors.black),
+                                style: GoogleFonts.poppins(color: Colors.black),
                               ),
                             ),
                           ),

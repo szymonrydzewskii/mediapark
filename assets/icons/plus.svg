@@ -1,0 +1,15 @@
+<svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="80" height="80" rx="40" fill="#1D1F1F"/>
+  <rect x="38" y="26" width="4" height="28" rx="2" fill="url(#grad1)" />
+  <rect x="26" y="38" width="28" height="4" rx="2" fill="url(#grad2)" />
+  <defs>
+    <linearGradient id="grad1" x1="2" y1="0" x2="2" y2="28" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FDFECC"/>
+      <stop offset="1" stop-color="#FEE25D"/>
+    </linearGradient>
+    <linearGradient id="grad2" x1="2" y1="4" x2="30" y2="4" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#6894FF"/>
+      <stop offset="1" stop-color="#7ACFFF"/>
+    </linearGradient>
+  </defs>
+</svg>
