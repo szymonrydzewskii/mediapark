@@ -34,9 +34,7 @@ class MoreTile extends StatelessWidget {
           (context as Element).markNeedsBuild();
         }
       },
-      child: Padding(
-        padding: EdgeInsets.all(10.w),
-        child: Container(
+      child: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [Colors.lightBlue[50]!, Colors.lightBlue[100]!],
@@ -56,7 +54,6 @@ class MoreTile extends StatelessWidget {
             ),
           ),
         ),
-      ),
     );
   }
 }

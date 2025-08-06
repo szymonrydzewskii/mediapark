@@ -89,6 +89,14 @@ class _MainWindowState extends State<MainWindow>
   Widget build(BuildContext context) {
     final lista = widget.wybraneSamorzady.toList();
     final panelHeight = min(max(lista.length, 4) * 70.0, 370);
+    final rawName = (aktywnySamorzad?.nazwa ?? '').trim();
+    // rozbijamy po białych znakach (wiele spacji/znaków)
+    final parts = rawName.split(RegExp(r'\s+'));
+
+    final twoLineName =
+        parts.length <= 1
+            ? rawName
+            : '${parts.first}\n${parts.sublist(1).join(' ')}';
 
     return Scaffold(
       backgroundColor: backgroundColor,
@@ -97,8 +105,9 @@ class _MainWindowState extends State<MainWindow>
           Column(
             children: [
               Padding(
-                padding: EdgeInsets.all(8.w),
+                padding: EdgeInsets.all(16.w),
                 child: AppBar(
+                  toolbarHeight: 100.h,
                   elevation: 0,
                   forceMaterialTransparency: true,
                   backgroundColor: backgroundColor,
@@ -106,12 +115,16 @@ class _MainWindowState extends State<MainWindow>
                   title: Padding(
                     padding: EdgeInsets.only(top: 20.h),
                     child: Text(
-                      aktywnySamorzad?.nazwa ?? '',
+                      twoLineName,
+                      textAlign: TextAlign.center,
+                      maxLines: 2, // maks. dwie linie
+                      softWrap: true, // pozwól zawijać
+                      overflow: TextOverflow.visible,
                       style: GoogleFonts.poppins(
                         fontWeight: FontWeight.bold,
                         fontSize: 35.sp,
                         color: Colors.black,
-                        height: 0.5,
+                        height: 1.0, // gęstszy odstęp między liniami (dopasuj)
                       ),
                     ),
                   ),
@@ -129,6 +142,12 @@ class _MainWindowState extends State<MainWindow>
                             ? const Center(child: Text("Brak danych"))
                             : GridView.builder(
                               key: const PageStorageKey('moduly_grid'),
+                              padding: EdgeInsets.only(
+                                right: 16.w,
+                                left: 16.w,
+                                bottom: 100.h,
+                                top: 20.h,
+                              ),
                               itemCount:
                                   szczegolyInstytucji!.modules.length + 1,
                               gridDelegate:

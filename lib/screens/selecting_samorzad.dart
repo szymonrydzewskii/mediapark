@@ -136,112 +136,132 @@ class _SelectingSamorzadState extends State<SelectingSamorzad> {
               onChanged: onSearch,
             ),
           ),
+          SizedBox(height: 12.h),
+          // ZAMIENIA dotychczasowy Expanded(...)
           Expanded(
-            child:
-                showLoader
-                    ? const Center(child: CircularProgressIndicator())
-                    : filtrowaneSamorzady.isEmpty
-                    ? Center(
-                      child: Padding(
-                        padding: EdgeInsets.all(24.w),
-                        child: Text(
-                          'Brak wyników dla wyszukiwania.',
-                          style: GoogleFonts.poppins(
-                            fontSize: 16.sp,
-                            fontWeight: FontWeight.w500,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                    )
-                    : SingleChildScrollView(
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 16.w,
-                          vertical: 10.h,
-                        ),
-                        child: Column(
-                          children: List.generate(filtrowaneSamorzady.length, (
-                            index,
-                          ) {
-                            final samorzad = filtrowaneSamorzady[index];
-                            final isSelected = wybraneSamorzady.contains(
-                              samorzad.id,
-                            );
-                            final isFirst = index == 0;
-                            final isLast =
-                                index == filtrowaneSamorzady.length - 1;
-
-                            return FadeInUpWidget(
-                              delay: Duration(milliseconds: 50 * index),
-                              child: Column(
-                                children: [
-                                  ClipRRect(
-                                    borderRadius: BorderRadius.vertical(
-                                      top:
-                                          isFirst
-                                              ? Radius.circular(20.r)
-                                              : Radius.zero,
-                                      bottom:
-                                          isLast
-                                              ? Radius.circular(20.r)
-                                              : Radius.zero,
-                                    ),
-                                    child: Material(
-                                      color: Colors.white,
-                                      child: InkWell(
-                                        onTap: () => onSelect(samorzad),
-                                        child: SizedBox(
-                                          height: 70.h,
-                                          child: Row(
-                                            children: [
-                                              SizedBox(width: 19.w),
-                                              AdaptiveNetworkImage(
-                                                url: samorzad.herb,
-                                                width: 32.w,
-                                                height: 32.h,
-                                              ),
-                                              SizedBox(width: 23.w),
-                                              Expanded(
-                                                child: Text(
-                                                  samorzad.nazwa,
-                                                  style: GoogleFonts.poppins(
-                                                    fontSize: 15.sp,
-                                                    fontWeight: FontWeight.w600,
-                                                  ),
-                                                ),
-                                              ),
-                                              if (isSelected)
-                                                Padding(
-                                                  padding: EdgeInsets.only(
-                                                    right: 20.w,
-                                                  ),
-                                                  child: SvgPicture.asset(
-                                                    'assets/icons/picked.svg',
-                                                    width: 24.w,
-                                                    height: 24.h,
-                                                  ),
-                                                ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  if (!isLast)
-                                    Divider(
-                                      height: 1,
-                                      color: Colors.grey.shade300,
-                                      thickness: 1,
-                                    ),
-                                ],
-                              ),
-                            );
-                          }),
-                        ),
-                      ),
-                    ),
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.w),
+              child: Center(
+                child: Container(
+                  // height: 440.h,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20.r),
+                  ),
+                  clipBehavior:
+                      Clip.hardEdge, // ważne – zawartość przycięta do radiusa
+                  child: _buildScrollableListCard(), // ↓ helper z pkt 2
+                ),
+              ),
+            ),
           ),
+
+          // Expanded(
+          //   child:
+          //       showLoader
+          //           ? const Center(child: CircularProgressIndicator())
+          //           : filtrowaneSamorzady.isEmpty
+          //           ? Center(
+          //             child: Padding(
+          //               padding: EdgeInsets.all(24.w),
+          //               child: Text(
+          //                 'Brak wyników dla wyszukiwania.',
+          //                 style: GoogleFonts.poppins(
+          //                   fontSize: 16.sp,
+          //                   fontWeight: FontWeight.w500,
+          //                 ),
+          //                 textAlign: TextAlign.center,
+          //               ),
+          //             ),
+          //           )
+          //           : SingleChildScrollView(
+          //             child: Padding(
+          //               padding: EdgeInsets.symmetric(
+          //                 horizontal: 16.w,
+          //                 vertical: 10.h,
+          //               ),
+          //               child: Column(
+          //                 children: List.generate(filtrowaneSamorzady.length, (
+          //                   index,
+          //                 ) {
+          //                   final samorzad = filtrowaneSamorzady[index];
+          //                   final isSelected = wybraneSamorzady.contains(
+          //                     samorzad.id,
+          //                   );
+          //                   final isFirst = index == 0;
+          //                   final isLast =
+          //                       index == filtrowaneSamorzady.length - 1;
+
+          //                   return FadeInUpWidget(
+          //                     delay: Duration(milliseconds: 50 * index),
+          //                     child: Column(
+          //                       children: [
+          //                         ClipRRect(
+          //                           borderRadius: BorderRadius.vertical(
+          //                             top:
+          //                                 isFirst
+          //                                     ? Radius.circular(20.r)
+          //                                     : Radius.zero,
+          //                             bottom:
+          //                                 isLast
+          //                                     ? Radius.circular(20.r)
+          //                                     : Radius.zero,
+          //                           ),
+          //                           child: Material(
+          //                             color: Colors.white,
+          //                             child: InkWell(
+          //                               onTap: () => onSelect(samorzad),
+          //                               child: SizedBox(
+          //                                 height: 70.h,
+          //                                 child: Row(
+          //                                   children: [
+          //                                     SizedBox(width: 19.w),
+          //                                     AdaptiveNetworkImage(
+          //                                       url: samorzad.herb,
+          //                                       width: 32.w,
+          //                                       height: 32.h,
+          //                                     ),
+          //                                     SizedBox(width: 23.w),
+          //                                     Expanded(
+          //                                       child: Text(
+          //                                         samorzad.nazwa,
+          //                                         style: GoogleFonts.poppins(
+          //                                           fontSize: 15.sp,
+          //                                           fontWeight: FontWeight.w600,
+          //                                         ),
+          //                                       ),
+          //                                     ),
+          //                                     if (isSelected)
+          //                                       Padding(
+          //                                         padding: EdgeInsets.only(
+          //                                           right: 20.w,
+          //                                         ),
+          //                                         child: SvgPicture.asset(
+          //                                           'assets/icons/picked.svg',
+          //                                           width: 24.w,
+          //                                           height: 24.h,
+          //                                         ),
+          //                                       ),
+          //                                   ],
+          //                                 ),
+          //                               ),
+          //                             ),
+          //                           ),
+          //                         ),
+          //                         if (!isLast)
+          //                           Divider(
+          //                             height: 1,
+          //                             color: Colors.grey.shade300,
+          //                             thickness: 1,
+          //                           ),
+          //                       ],
+          //                     ),
+          //                   );
+          //                 }),
+          //               ),
+          //             ),
+          //           ),
+          // ),
           Padding(
             padding: EdgeInsets.all(5.w),
             child: Text(
@@ -261,6 +281,103 @@ class _SelectingSamorzadState extends State<SelectingSamorzad> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildScrollableListCard() {
+    if (showLoader) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (filtrowaneSamorzady.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: EdgeInsets.all(24.w),
+          child: Text(
+            'Brak wyników dla wyszukiwania.',
+            style: GoogleFonts.poppins(
+              fontSize: 16.sp,
+              fontWeight: FontWeight.w500,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ),
+      );
+    }
+
+    // Masz dwa warianty: SingleChildScrollView+Column (jak w szablonie) albo ListView.
+    // Poniżej wersja zgodna z Twoim wzorcem (SingleChildScrollView + Column):
+
+    return SingleChildScrollView(
+      child: Padding(
+        padding: EdgeInsets.all(16.w), // wewnętrzny padding karty
+        child: Column(
+          children: List.generate(filtrowaneSamorzady.length, (index) {
+            final samorzad = filtrowaneSamorzady[index];
+            final isSelected = wybraneSamorzady.contains(samorzad.id);
+            final isFirst = index == 0;
+            final isLast = index == filtrowaneSamorzady.length - 1;
+
+            return FadeInUpWidget(
+              delay: Duration(milliseconds: 50 * index),
+              child: Column(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.vertical(
+                      top: isFirst ? Radius.circular(20.r) : Radius.zero,
+                      bottom: isLast ? Radius.circular(20.r) : Radius.zero,
+                    ),
+                    child: Material(
+                      color: Colors.white,
+                      child: InkWell(
+                        onTap: () => onSelect(samorzad),
+                        child: SizedBox(
+                          height: 70.h,
+                          child: Row(
+                            children: [
+                              SizedBox(width: 19.w),
+                              AdaptiveNetworkImage(
+                                url: samorzad.herb,
+                                width: 32.w,
+                                height: 32.h,
+                              ),
+                              SizedBox(width: 23.w),
+                              Expanded(
+                                child: Text(
+                                  samorzad.nazwa,
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 15.sp,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                              if (isSelected)
+                                Padding(
+                                  padding: EdgeInsets.only(right: 20.w),
+                                  child: SvgPicture.asset(
+                                    'assets/icons/picked.svg',
+                                    width: 24.w,
+                                    height: 24.h,
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  if (!isLast)
+                    Divider(
+                      height: 1,
+                      color: Colors.grey.shade300,
+                      thickness: 1,
+                    ),
+                ],
+              ),
+            );
+          }),
+        ),
       ),
     );
   }
