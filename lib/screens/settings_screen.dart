@@ -17,22 +17,29 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       backgroundColor: const Color(0xFFBCE1EB),
       body: SafeArea(
-        child: Padding(
-          padding: EdgeInsets.all(24.w),
+        child: SingleChildScrollView(
+          // dodajemy zapas na lewitujący nav bar
+          padding: EdgeInsets.fromLTRB(
+            24.w,
+            24.h,
+            24.w,
+            24.h,
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                  'Ustawienia',
-                  style: GoogleFonts.poppins(
-                    fontSize: 28.sp,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.black
-                  ),
+                'Ustawienia',
+                style: GoogleFonts.poppins(
+                  fontSize: 28.sp,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.black,
                 ),
+              ),
               SizedBox(height: 30.h),
               _buildTile("Regulamin", onTap: () {}),
               _buildTile("Polityka prywatności", onTap: () {}),
@@ -86,7 +93,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         pushEnabled = value;
                       });
                     },
-                    activeTrackColor: Color(0xFF1D1F1F)
+                    activeTrackColor: Color(0xFF1D1F1F),
                   ),
                 ],
               ),
@@ -94,15 +101,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
               const Divider(thickness: 1, color: Color(0xFF96C5D1)),
               SizedBox(height: 30.h),
               Center(
-              child: Text(
+                child: Text(
                   'Wersja aplikacji: v 1.20.343',
                   style: GoogleFonts.poppins(
                     fontSize: 12.sp,
                     fontWeight: FontWeight.w400,
                     color: Color(0xFF373737),
+                  ),
                 ),
               ),
-            ),
             ],
           ),
         ),
@@ -131,7 +138,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   style: GoogleFonts.poppins(
                     fontSize: 15.sp,
                     fontWeight: FontWeight.w600,
-                    color: Colors.black
+                    color: Colors.black,
                   ),
                 ),
                 const Icon(Icons.chevron_right),

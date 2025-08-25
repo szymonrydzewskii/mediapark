@@ -47,6 +47,7 @@ dependencies:
   timelines_plus: ^1.0.7
   html_unescape: ^2.0.0
   cached_network_image: ^3.3.1 
+  google_nav_bar: ^5.0.7
 
   flutter_localizations:
     sdk: flutter
@@ -111,12 +112,12 @@ flutter:
 
 flutter_native_splash:
   color: "#BCE1EB"                # Kolor tła splash screena
-  image: assets/icons/splash_logo_big.png        # Obraz splash (np. logo)
+  image: assets/icons/splash_ios_android11.png        # Obraz splash (np. logo)
   android_gravity: center
   ios_content_mode: center
   android: true
   ios: true
   web: false
   android_12:
-    image: assets/icons/splash_logo_a12.png 
+    image: assets/icons/splash_android12.png 
     icon_background_color: "#BCE1EB"
