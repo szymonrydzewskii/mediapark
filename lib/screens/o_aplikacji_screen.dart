@@ -68,7 +68,7 @@ class _OAplikacjiScreenState extends State<OAplikacjiScreen> {
               ),
             ),
             SizedBox(height: 44.5.h),
-            Divider(height: 1),
+            Divider(height: 1, color: Color(0xFF96C5D1)),
             SizedBox(height: 44.5.h),
             Center(
               child: Text(
@@ -100,7 +100,7 @@ class _OAplikacjiScreenState extends State<OAplikacjiScreen> {
               ),
             ),
             SizedBox(height: 19.h),
-            Divider(height: 1.h),
+            Divider(height: 1.h, color: Color(0xFF96C5D1),),
             Center(
               child: Padding(
                 padding: EdgeInsets.all(33.0.r),

@@ -140,44 +140,56 @@ class _MainWindowState extends State<MainWindow>
                             ? const Center(child: CircularProgressIndicator())
                             : szczegolyInstytucji == null
                             ? const Center(child: Text("Brak danych"))
-                            : GridView.builder(
-                              key: const PageStorageKey('moduly_grid'),
-                              padding: EdgeInsets.only(
-                                right: 16.w,
-                                left: 16.w,
-                                bottom: 100.h,
-                                top: 20.h,
+                            : // zamiast: GridView.builder(...)
+                            SingleChildScrollView(
+                              padding: EdgeInsets.fromLTRB(
+                                16.w,
+                                20.h,
+                                16.w,
+                                100.h,
                               ),
-                              itemCount:
-                                  szczegolyInstytucji!.modules.length + 1,
-                              gridDelegate:
-                                  SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisCount: 2,
-                                    crossAxisSpacing: 10.w,
-                                    mainAxisSpacing: 10.h,
-                                  ),
-                              itemBuilder: (context, index) {
-                                if (index ==
-                                    szczegolyInstytucji!.modules.length) {
-                                  return const SizedBox();
-                                }
-                                final modul =
-                                    szczegolyInstytucji!.modules[index];
-                                final hasAnimated = animowaneModuly.contains(
-                                  modul.alias,
-                                );
-                                animowaneModuly.add(modul.alias);
-                                return FadeInUpWidget(
-                                  key: ValueKey(modul.alias), // ważne!
-                                  animate: !hasAnimated,
-                                  delay: Duration(milliseconds: index * 100),
-                                  child: ModulTile(
-                                    key: ValueKey(modul.alias),
-                                    modul: modul,
-                                    samorzad: szczegolyInstytucji!,
-                                  ),
-                                );
-                              },
+                              child: LayoutBuilder(
+                                builder: (context, constraints) {
+                                  const columns = 2;
+                                  final spacing = 10.w;
+                                  final runSpacing = 10.h;
+                                  // szerokość pojedynczego tile'a (2 kolumny + odstęp między nimi)
+                                  final tileW =
+                                      (constraints.maxWidth - spacing) /
+                                      columns;
+
+                                  final mods = szczegolyInstytucji!.modules;
+                                  return Wrap(
+                                    spacing: spacing,
+                                    runSpacing: runSpacing,
+                                    children: List.generate(mods.length, (
+                                      index,
+                                    ) {
+                                      final modul = mods[index];
+                                      final hasAnimated = animowaneModuly
+                                          .contains(modul.alias);
+                                      animowaneModuly.add(modul.alias);
+
+                                      return SizedBox(
+                                        width: tileW,
+                                        // wysokość możesz zostawić ModulTile (ma 205.h), ale SizedBox ułatwia Wrap’owi layout
+                                        child: FadeInUpWidget(
+                                          key: ValueKey(modul.alias),
+                                          animate: !hasAnimated,
+                                          delay: Duration(
+                                            milliseconds: index * 100,
+                                          ),
+                                          child: ModulTile(
+                                            key: ValueKey(modul.alias),
+                                            modul: modul,
+                                            samorzad: szczegolyInstytucji!,
+                                          ),
+                                        ),
+                                      );
+                                    }),
+                                  );
+                                },
+                              ),
                             ),
                   ),
                 ),

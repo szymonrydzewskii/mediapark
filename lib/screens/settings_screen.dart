@@ -4,6 +4,7 @@ import 'package:mediapark/widgets/adaptive_asset_image.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'o_aplikacji_screen.dart';
 import 'package:mediapark/animations/slide_fade_route.dart';
+import 'package:flutter/cupertino.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -14,21 +15,15 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   bool pushEnabled = false;
-
+  
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       backgroundColor: const Color(0xFFBCE1EB),
       body: SafeArea(
         child: SingleChildScrollView(
           // dodajemy zapas na lewitujący nav bar
-          padding: EdgeInsets.fromLTRB(
-            24.w,
-            24.h,
-            24.w,
-            24.h,
-          ),
+          padding: EdgeInsets.fromLTRB(24.w, 24.h, 24.w, 24.h),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -47,9 +42,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
               _buildTile(
                 "O aplikacji",
                 onTap: () {
-                  Navigator.of(
-                    context,
-                  ).push(slideFadeRouteTo(const OAplikacjiScreen()));
+                  Navigator.of(context).push(
+                    CupertinoPageRoute(
+                      builder: (_) => const OAplikacjiScreen(),
+                    ),
+                  );
                 },
               ),
               SizedBox(height: 30.h),
