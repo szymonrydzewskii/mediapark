@@ -20,14 +20,19 @@ class KalendarzWydarzenDetailsScreen extends StatefulWidget {
   });
 
   @override
-  State<KalendarzWydarzenDetailsScreen> createState() => _KalendarzWydarzenDetailsScreenState();
+  State<KalendarzWydarzenDetailsScreen> createState() =>
+      _KalendarzWydarzenDetailsScreenState();
 }
 
-class _KalendarzWydarzenDetailsScreenState extends State<KalendarzWydarzenDetailsScreen> {
+class _KalendarzWydarzenDetailsScreenState
+    extends State<KalendarzWydarzenDetailsScreen> {
   static const backgroundColor = Color(0xFFBCE1EB);
   late final WydarzeniaService _service;
   late Future<WydarzenieDetails> _future;
+
   final _df = DateFormat('dd.MM.yyyy HH:mm');
+  final _dfTimeOnly = DateFormat('HH:mm');
+  final _dfDayShort = DateFormat('dd.MM.yy');
 
   @override
   void initState() {
@@ -45,20 +50,20 @@ class _KalendarzWydarzenDetailsScreenState extends State<KalendarzWydarzenDetail
         backgroundColor: backgroundColor,
         elevation: 0,
         foregroundColor: Colors.black,
-        leading: Transform.translate(
-          offset: Offset(8.w, 0),
-          child: IconButton(
-            icon: SvgPicture.asset('assets/icons/back_button.svg', width: 40.w, height: 40.w),
-            onPressed: () => Navigator.of(context).maybePop(),
+        automaticallyImplyLeading: false,
+        actions: [
+          Padding(
+            padding: EdgeInsets.only(right: 8.w),
+            child: IconButton(
+              icon: SvgPicture.asset(
+                'assets/icons/quit_button.svg',
+                width: 40.w,
+                height: 40.w,
+              ),
+              onPressed: () => Navigator.of(context).maybePop(),
+            ),
           ),
-        ),
-        title: Text(
-          widget.tytul,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: GoogleFonts.poppins(fontSize: 18.sp, fontWeight: FontWeight.w700, color: Colors.black),
-        ),
-        centerTitle: true,
+        ],
       ),
       body: SafeArea(
         child: FutureBuilder<WydarzenieDetails>(
@@ -68,12 +73,36 @@ class _KalendarzWydarzenDetailsScreenState extends State<KalendarzWydarzenDetail
               return const Center(child: CircularProgressIndicator());
             }
             if (snap.hasError || !snap.hasData) {
-              return Center(child: Text('Błąd: ${snap.error ?? 'brak danych'}'));
+              return Center(
+                child: Text('Błąd: ${snap.error ?? 'brak danych'}'),
+              );
             }
+
             final d = snap.data!;
-            final czas = d.allDay
-                ? 'cały dzień'
-                : d.end == null
+
+            // === TYLKO ZMIANA TEGO TEKSTU ===
+            String chipText;
+            DateTime norm(DateTime x) => DateTime(x.year, x.month, x.day);
+            final today = norm(DateTime.now());
+            final tomorrow = norm(DateTime.now().add(const Duration(days: 1)));
+            final eventDay = norm(d.start);
+
+            if (d.allDay) {
+              chipText = '${_dfDayShort.format(d.start)} / Cały dzień'; // tylko data
+            } else if (eventDay == today) {
+              chipText = 'Dzisiaj / ${_dfTimeOnly.format(d.start)}';
+            } else if (eventDay == tomorrow) {
+              chipText = 'Jutro / ${_dfTimeOnly.format(d.start)}';
+            } else {
+              chipText =
+                  '${_dfDayShort.format(d.start)} / ${_dfTimeOnly.format(d.start)}';
+            }
+            // ================================
+
+            final czas =
+                d.allDay
+                    ? 'cały dzień'
+                    : d.end == null
                     ? _df.format(d.start)
                     : '${_df.format(d.start)} – ${_df.format(d.end!)}';
 
@@ -82,24 +111,39 @@ class _KalendarzWydarzenDetailsScreenState extends State<KalendarzWydarzenDetail
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // meta
+                  // 🔹 CHIP pod AppBarem po lewej (bez zmian w layoucie)
                   Container(
-                    padding: EdgeInsets.all(14.w),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFCAECF4),
-                      borderRadius: BorderRadius.circular(16.r),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 12.w,
+                      vertical: 6.h,
                     ),
-                    child: Row(
-                      children: [
-                        const Icon(Icons.event, color: Colors.black87),
-                        SizedBox(width: 10.w),
-                        Expanded(
-                          child: Text(
-                            czas,
-                            style: GoogleFonts.poppins(fontSize: 14.sp, fontWeight: FontWeight.w600),
-                          ),
-                        ),
-                      ],
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF7F1C3),
+                      borderRadius: BorderRadius.circular(999.r),
+                    ),
+                    child: Text(
+                      chipText,
+                      style: GoogleFonts.poppins(
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 16.h),
+
+                  // 🔹 Tytuł wydarzenia jak w WydarzeniaDniaScreen
+                  Padding(
+                    padding: EdgeInsets.only(bottom: 24.h),
+                    child: Text(
+                      widget.tytul,
+                      style: GoogleFonts.poppins(
+                        fontSize: 32.sp,
+                        fontWeight: FontWeight.w700,
+                        height: 36.sp / 28.sp, // line-height: 36px
+                        letterSpacing: 0,
+                        color: Colors.black,
+                      ),
                     ),
                   ),
                   SizedBox(height: 16.h),
@@ -114,7 +158,10 @@ class _KalendarzWydarzenDetailsScreenState extends State<KalendarzWydarzenDetail
                     ),
                     child: Text(
                       cleanHtmlString(d.contentHtml),
-                      style: GoogleFonts.poppins(fontSize: 14.sp, fontWeight: FontWeight.w400),
+                      style: GoogleFonts.poppins(
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w400,
+                      ),
                     ),
                   ),
                 ],

@@ -1,4 +1,5 @@
 // lib/screens/kalendarz_wydarzen_screen.dart
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -62,14 +63,12 @@ class _KalendarzWydarzenScreenState extends State<KalendarzWydarzenScreen> {
 
   @override
   void dispose() {
-    // Bezpieczne dispose PageController
     if (_calPageController != null) {
       try {
         if (_calPageController!.hasClients) {
           _calPageController!.dispose();
         }
       } catch (e) {
-        // PageController został już disposed przez TableCalendar
         debugPrint('PageController już disposed: $e');
       }
       _calPageController = null;
@@ -81,17 +80,14 @@ class _KalendarzWydarzenScreenState extends State<KalendarzWydarzenScreen> {
     final list = await _service.fetchWszystkieStrony(startPage: 1);
     _allEvents = List<WydarzenieListItem>.from(list);
 
-    // Grupowanie i filtrowanie w jednej pętli
     _eventsByDay.clear();
     final now = DateTime.now();
     final upcomingEvents = <WydarzenieListItem>[];
 
     for (final event in _allEvents) {
-      // Grupowanie do kalendarza
       final day = _normalize(event.start);
       (_eventsByDay[day] ??= []).add(event);
 
-      // Filtrowanie nadchodzących
       if (event.start.isAfter(now) ||
           isSameDay(event.start, now) ||
           (event.end?.isAfter(now) ?? false)) {
@@ -99,12 +95,10 @@ class _KalendarzWydarzenScreenState extends State<KalendarzWydarzenScreen> {
       }
     }
 
-    // Sortowanie w każdym dniu kalendarza
     _eventsByDay.forEach(
       (_, events) => events.sort((a, b) => a.start.compareTo(b.start)),
     );
 
-    // Sortowanie nadchodzących lub fallback
     _upcoming =
         upcomingEvents.isEmpty
             ? List<WydarzenieListItem>.from(_allEvents)
@@ -115,12 +109,10 @@ class _KalendarzWydarzenScreenState extends State<KalendarzWydarzenScreen> {
   }
 
   DateTime _normalize(DateTime d) => DateTime(d.year, d.month, d.day);
-
   List<WydarzenieListItem> _getEventsForDay(DateTime day) =>
       _eventsByDay[_normalize(day)] ?? const [];
 
   void _goPrevMonth() {
-    // Debounce - zapobiega zbyt szybkim kliknięciom
     final now = DateTime.now();
     if (_lastNavigation != null &&
         now.difference(_lastNavigation!) < _navigationDebounce) {
@@ -128,11 +120,9 @@ class _KalendarzWydarzenScreenState extends State<KalendarzWydarzenScreen> {
     }
     _lastNavigation = now;
 
-    // Sprawdź czy widget jest jeszcze zamontowany i controller istnieje
     if (!mounted || _calPageController == null) return;
 
     try {
-      // Sprawdź czy controller ma jeszcze aktywnych klientów
       if (_calPageController!.hasClients) {
         _calPageController!.previousPage(
           duration: const Duration(milliseconds: 250),
@@ -140,13 +130,11 @@ class _KalendarzWydarzenScreenState extends State<KalendarzWydarzenScreen> {
         );
       }
     } catch (e) {
-      // PageController został już disposed
       debugPrint('PageController już disposed w _goPrevMonth: $e');
     }
   }
 
   void _goNextMonth() {
-    // Debounce - zapobiega zbyt szybkim kliknięciom
     final now = DateTime.now();
     if (_lastNavigation != null &&
         now.difference(_lastNavigation!) < _navigationDebounce) {
@@ -154,11 +142,9 @@ class _KalendarzWydarzenScreenState extends State<KalendarzWydarzenScreen> {
     }
     _lastNavigation = now;
 
-    // Sprawdź czy widget jest jeszcze zamontowany i controller istnieje
     if (!mounted || _calPageController == null) return;
 
     try {
-      // Sprawdź czy controller ma jeszcze aktywnych klientów
       if (_calPageController!.hasClients) {
         _calPageController!.nextPage(
           duration: const Duration(milliseconds: 250),
@@ -166,7 +152,6 @@ class _KalendarzWydarzenScreenState extends State<KalendarzWydarzenScreen> {
         );
       }
     } catch (e) {
-      // PageController został już disposed
       debugPrint('PageController już disposed w _goNextMonth: $e');
     }
   }
@@ -344,7 +329,7 @@ class _KalendarzWydarzenScreenState extends State<KalendarzWydarzenScreen> {
     );
   }
 
-  void _onDaySelected(DateTime selectedDay, DateTime focusedDay) {
+  void _onDaySelected(DateTime selectedDay, DateTime focusedDay) async {
     if (!mounted) return;
 
     setState(() {
@@ -354,16 +339,47 @@ class _KalendarzWydarzenScreenState extends State<KalendarzWydarzenScreen> {
 
     final events = _getEventsForDay(selectedDay);
     if (events.isNotEmpty && mounted) {
-      Navigator.of(context).push(
-        MaterialPageRoute(
-          builder:
-              (_) => WydarzeniaDniaScreen(
-                idInstytucji: widget.idInstytucji,
-                day: _normalize(selectedDay),
-                events: events,
-              ),
-        ),
+      final Map<int, WydarzenieDetails> eventDetails = {};
+
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const Center(child: CircularProgressIndicator()),
       );
+
+      try {
+        final futures = events.map(
+          (event) => _service.fetchSzczegoly(event.id),
+        );
+        final details = await Future.wait(futures);
+
+        for (int i = 0; i < events.length; i++) {
+          eventDetails[events[i].id] = details[i];
+        }
+
+        if (mounted) Navigator.of(context).pop();
+
+        if (mounted) {
+          Navigator.of(context).push(
+            CupertinoPageRoute(
+              builder:
+                  (_) => WydarzeniaDniaScreen(
+                    idInstytucji: widget.idInstytucji,
+                    day: _normalize(selectedDay),
+                    events: events,
+                    preloadedDetails: eventDetails,
+                  ),
+            ),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          Navigator.of(context).pop();
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Błąd ładowania szczegółów: $e')),
+          );
+        }
+      }
     }
   }
 
@@ -397,7 +413,6 @@ class _KalendarzWydarzenScreenState extends State<KalendarzWydarzenScreen> {
         fontWeight: FontWeight.w500,
         color: Colors.black38,
       ),
-      // Transparent decorations
       defaultDecoration: const BoxDecoration(color: Colors.transparent),
       weekendDecoration: const BoxDecoration(color: Colors.transparent),
       outsideDecoration: const BoxDecoration(color: Colors.transparent),
@@ -422,7 +437,6 @@ class _KalendarzWydarzenScreenState extends State<KalendarzWydarzenScreen> {
     final today = _normalize(DateTime.now());
     final hasEvents = _getEventsForDay(date).isNotEmpty;
 
-    // Obliczanie tła
     Color bg = Colors.transparent;
     if (isToday && hasEvents) {
       bg = const Color(0xFFF7F1C3);
@@ -483,8 +497,8 @@ class _KalendarzWydarzenScreenState extends State<KalendarzWydarzenScreen> {
     }, childCount: _upcoming.length),
   );
 
+  // === NADCHODZĄCE: kafelek z bottom sheet ===
   Widget _eventTile(WydarzenieListItem e) {
-    // Chip: Dziś/Jutro/data + opcjonalnie godzina
     final String chipDate = _dfDay.format(e.start);
     final String chipTime = _dfTime.format(e.start);
 
@@ -496,8 +510,7 @@ class _KalendarzWydarzenScreenState extends State<KalendarzWydarzenScreen> {
 
     late final String chipText;
     if (e.allDay) {
-      // Zawsze tylko data dla wydarzeń całodniowych
-      chipText = chipDate;
+      chipText = '$chipDate / Cały dzień';
     } else if (eventDay == today) {
       chipText = 'Dziś / $chipTime';
     } else if (eventDay == tomorrow) {
@@ -506,24 +519,11 @@ class _KalendarzWydarzenScreenState extends State<KalendarzWydarzenScreen> {
       chipText = '$chipDate / $chipTime';
     }
 
-    // Stylowanie „dzisiaj” (karta)
     final bool isToday = eventDay == today;
     final Color cardBg = isToday ? Colors.white : const Color(0xFFCAECF4);
 
     return InkWell(
-      onTap: () {
-        if (!mounted) return;
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder:
-                (_) => KalendarzWydarzenDetailsScreen(
-                  idInstytucji: widget.idInstytucji,
-                  idWydarzenia: e.id,
-                  tytul: e.title,
-                ),
-          ),
-        );
-      },
+      onTap: () => _openDetailsBottomSheet(context, e),
       borderRadius: BorderRadius.circular(20.r),
       child: Container(
         decoration: BoxDecoration(
@@ -581,7 +581,7 @@ class _KalendarzWydarzenScreenState extends State<KalendarzWydarzenScreen> {
                   ),
                   child: Center(
                     child: Text(
-                      chipText, // np. 26.08.25/23:12 lub 26.08.25 (allDay)
+                      chipText,
                       style: GoogleFonts.poppins(
                         fontSize: 12.sp,
                         fontWeight: FontWeight.w700,
@@ -596,6 +596,48 @@ class _KalendarzWydarzenScreenState extends State<KalendarzWydarzenScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  // 🔽 ten sam bottom sheet co w WydarzeniaDniaScreen
+  Future<void> _openDetailsBottomSheet(
+    BuildContext context,
+    WydarzenieListItem event,
+  ) async {
+    final mq = MediaQuery.of(context);
+    await showModalBottomSheet(
+      context: context,
+      useSafeArea: false,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      barrierColor: Colors.black54,
+      builder: (ctx) {
+        final sheetHeight = mq.size.height * 0.96;
+        final topRadius = Radius.circular(24.r);
+        return FractionallySizedBox(
+          heightFactor: 0.9, // 90% ekranu
+          child: Padding(
+            padding: EdgeInsets.only(bottom: mq.viewInsets.bottom),
+            child: Align(
+              alignment: Alignment.bottomCenter,
+              child: ClipRRect(
+                borderRadius: BorderRadius.vertical(top: topRadius),
+                child: SizedBox(
+                  height: sheetHeight,
+                  child: Material(
+                    type: MaterialType.transparency,
+                    child: KalendarzWydarzenDetailsScreen(
+                      idInstytucji: widget.idInstytucji,
+                      idWydarzenia: event.id,
+                      tytul: event.title,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 
