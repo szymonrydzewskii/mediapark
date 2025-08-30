@@ -308,17 +308,6 @@ class _KonsultacjeScreenState extends State<KonsultacjeScreen> {
   }
 }
 
-Future<bool> _checkImageExists(String url) async {
-  try {
-    final client = HttpClient();
-    final request = await client.headUrl(Uri.parse(url));
-    final response = await request.close();
-    return response.statusCode == 200;
-  } catch (e) {
-    return false;
-  }
-}
-
 Widget _buildTag(String label) {
   return Container(
     padding: EdgeInsets.only(right: 12.w, left: 12.w, top: 8.h, bottom: 8.h),

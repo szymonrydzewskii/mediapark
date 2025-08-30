@@ -8,7 +8,6 @@ import 'package:mediapark/screens/settings_screen.dart';
 import 'package:mediapark/widgets/adaptive_asset_image.dart';
 import 'package:mediapark/services/samorzad_details_service.dart';
 import 'package:mediapark/screens/selecting_samorzad.dart';
-import 'package:mediapark/widgets/moduly_box_builder.dart';
 import 'dart:math';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mediapark/widgets/tiles/modul_tile.dart';

@@ -6,7 +6,6 @@ import 'package:mediapark/animations/fade_in_up.dart';
 import 'package:mediapark/models/samorzad.dart';
 import 'package:mediapark/widgets/adaptive_asset_image.dart';
 import 'package:mediapark/helpers/preferences_helper.dart';
-import 'package:mediapark/services/samorzad_service.dart';
 import 'package:mediapark/widgets/bottom_nav_bar.dart';
 import 'package:mediapark/services/cached_samorzad_service.dart';
 

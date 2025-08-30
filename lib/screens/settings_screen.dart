@@ -3,7 +3,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mediapark/widgets/adaptive_asset_image.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'o_aplikacji_screen.dart';
-import 'package:mediapark/animations/slide_fade_route.dart';
 import 'package:flutter/cupertino.dart';
 
 class SettingsScreen extends StatefulWidget {

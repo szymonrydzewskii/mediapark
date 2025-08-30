@@ -30,7 +30,6 @@ class _KalendarzWydarzenDetailsScreenState
   late final WydarzeniaService _service;
   late Future<WydarzenieDetails> _future;
 
-  final _df = DateFormat('dd.MM.yyyy HH:mm');
   final _dfTimeOnly = DateFormat('HH:mm');
   final _dfDayShort = DateFormat('dd.MM.yy');
 

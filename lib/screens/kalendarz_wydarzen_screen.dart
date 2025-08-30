@@ -251,7 +251,7 @@ class _KalendarzWydarzenScreenState extends State<KalendarzWydarzenScreen> {
           child: Row(
             children: [
               Text(
-                title ?? '',
+                title,
                 style: GoogleFonts.poppins(
                   fontSize: 28.sp,
                   fontWeight: FontWeight.w700,
