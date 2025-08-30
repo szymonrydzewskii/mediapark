@@ -53,7 +53,7 @@ class _KalendarzWydarzenDetailsScreenState
         automaticallyImplyLeading: false,
         actions: [
           Padding(
-            padding: EdgeInsets.only(right: 8.w),
+            padding: EdgeInsets.only(right: 16.w),
             child: IconButton(
               icon: SvgPicture.asset(
                 'assets/icons/quit_button.svg',
@@ -88,7 +88,7 @@ class _KalendarzWydarzenDetailsScreenState
             final eventDay = norm(d.start);
 
             if (d.allDay) {
-              chipText = '${_dfDayShort.format(d.start)} / Cały dzień'; // tylko data
+              chipText = '${_dfDayShort.format(d.start)} / Cały dzień';
             } else if (eventDay == today) {
               chipText = 'Dzisiaj / ${_dfTimeOnly.format(d.start)}';
             } else if (eventDay == tomorrow) {
@@ -97,21 +97,13 @@ class _KalendarzWydarzenDetailsScreenState
               chipText =
                   '${_dfDayShort.format(d.start)} / ${_dfTimeOnly.format(d.start)}';
             }
-            // ================================
-
-            final czas =
-                d.allDay
-                    ? 'cały dzień'
-                    : d.end == null
-                    ? _df.format(d.start)
-                    : '${_df.format(d.start)} – ${_df.format(d.end!)}';
 
             return SingleChildScrollView(
-              padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 24.h),
+              padding: EdgeInsets.fromLTRB(24.w, 12.h, 24.w, 24.h),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // 🔹 CHIP pod AppBarem po lewej (bez zmian w layoucie)
+                  // 🔹 CHIP pod AppBarem po lewej
                   Container(
                     padding: EdgeInsets.symmetric(
                       horizontal: 12.w,
@@ -132,36 +124,60 @@ class _KalendarzWydarzenDetailsScreenState
                   ),
                   SizedBox(height: 16.h),
 
-                  // 🔹 Tytuł wydarzenia jak w WydarzeniaDniaScreen
-                  Padding(
-                    padding: EdgeInsets.only(bottom: 24.h),
-                    child: Text(
-                      widget.tytul,
-                      style: GoogleFonts.poppins(
-                        fontSize: 32.sp,
-                        fontWeight: FontWeight.w700,
-                        height: 36.sp / 28.sp, // line-height: 36px
-                        letterSpacing: 0,
-                        color: Colors.black,
-                      ),
+                  // 🔹 Tytuł wydarzenia
+                  Text(
+                    widget.tytul,
+                    style: GoogleFonts.poppins(
+                      fontSize: 32.sp,
+                      fontWeight: FontWeight.w700,
+                      height: 1.125,
+                      letterSpacing: 0,
+                      color: Colors.black,
                     ),
                   ),
-                  SizedBox(height: 16.h),
+                  SizedBox(height: 24.h),
 
-                  // treść
-                  Container(
-                    width: double.infinity,
-                    padding: EdgeInsets.all(16.w),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(20.r),
-                    ),
-                    child: Text(
-                      cleanHtmlString(d.contentHtml),
-                      style: GoogleFonts.poppins(
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.w400,
+                  // 🖼️ Obraz wydarzenia (jeśli istnieje) - osobny kontener
+                  if (d.mainPhoto != null && d.mainPhoto!.isNotEmpty)
+                    Container(
+                      width: double.infinity,
+                      margin: EdgeInsets.only(bottom: 24.h),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(40.r),
+                        child: Image.network(
+                          d.mainPhoto!,
+                          width: double.infinity,
+                          height: 200.h,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return const SizedBox.shrink();
+                          },
+                          loadingBuilder: (context, child, loadingProgress) {
+                            if (loadingProgress == null) return child;
+                            return Container(
+                              height: 200.h,
+                              child: Center(
+                                child: CircularProgressIndicator(
+                                  value: loadingProgress.expectedTotalBytes != null
+                                      ? loadingProgress.cumulativeBytesLoaded /
+                                          loadingProgress.expectedTotalBytes!
+                                      : null,
+                                ),
+                              ),
+                            );
+                          },
+                        ),
                       ),
+                    ),
+
+                  // 📝 Treść wydarzenia - bezpośrednio na niebieskim tle
+                  Text(
+                    cleanHtmlString(d.contentHtml),
+                    style: GoogleFonts.poppins(
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.w400,
+                      height: 1.4,
+                      color: Colors.black,
                     ),
                   ),
                 ],

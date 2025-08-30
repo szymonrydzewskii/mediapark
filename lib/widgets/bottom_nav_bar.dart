@@ -230,6 +230,7 @@ class _BottomNavBarState extends State<BottomNavBar>
                       leading:
                           selectedIndex == 0
                               ? AdaptiveNetworkImage(
+                                key: ValueKey(aktywnaGmina.herb),
                                 url: aktywnaGmina.herb,
                                 height: 20.h,
                                 width: 20.w,

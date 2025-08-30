@@ -1,6 +1,8 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:mediapark/screens/bo_wyniki_glosowania_screen.dart';
 import 'package:timelines_plus/timelines_plus.dart';
 import 'package:mediapark/models/bo_harmonogram.dart';
 import 'package:mediapark/services/bo_service.dart';
@@ -242,25 +244,63 @@ class _BOHarmonogramScreenState extends State<BOHarmonogramScreen> {
   Widget _buildActiveContent(_Stage s) {
     switch (s.type) {
       case PhaseType.promo:
-        return _ActiveStageCard(stage: s, showVoteButton: false,);
+        return _ActiveStageCard(
+          stage: s,
+          showVoteButton: false,
+          showProjectsButton: false,
+        );
       case PhaseType.addProjects:
-        return _ActiveStageCard(stage: s, showVoteButton: false,);
+        return _ActiveStageCard(
+          stage: s,
+          showVoteButton: false,
+          showProjectsButton: false,
+        );
       case PhaseType.verification:
-        return _ActiveStageCard(stage: s, showAddProjectButton: false, showVoteButton: false,);
+        return _ActiveStageCard(
+          stage: s,
+          showAddProjectButton: false,
+          showVoteButton: false,
+          showProjectsButton: false,
+        );
       case PhaseType.choosing:
-        return _ActiveStageCard(stage: s, showAddProjectButton: false, showVoteButton: false,);
+        return _ActiveStageCard(
+          stage: s,
+          showAddProjectButton: false,
+          showVoteButton: false,
+          showProjectsButton: false,
+        );
       case PhaseType.voting:
-        return _ActiveStageCard(stage: s, showAddProjectButton: false,);
+        return _ActiveStageCard(
+          stage: s,
+          showAddProjectButton: false,
+          showProjectsButton: false,
+        );
       case PhaseType.resultsVerification:
-        return _ActiveStageCard(stage: s, showAddProjectButton: false, showVoteButton: false,);
+        return _ActiveStageCard(
+          stage: s,
+          showAddProjectButton: false,
+          showVoteButton: false,
+          showProjectsButton: false,
+        );
       case PhaseType.officialResults:
-        return _ActiveStageCard(stage: s, showAddProjectButton: false, showVoteButton: false, showCountdown: false, showEnd: false,);
+        return _ActiveStageCard(
+          stage: s,
+          showAddProjectButton: false,
+          showVoteButton: false,
+          showCountdown: false,
+          showEnd: false,
+          showStart: false,
+        );
       case PhaseType.unknown:
-      return _ActiveStageCard(stage: s, showAddProjectButton: false, showCountdown: false, showVoteButton: false,);
+        return _ActiveStageCard(
+          stage: s,
+          showAddProjectButton: false,
+          showCountdown: false,
+          showVoteButton: false,
+        );
       default:
         // standardowy pasek z odliczaniem i przyciskiem „Głosuj”
-        return _ActiveStageCard(stage: s, showAddProjectButton: false,);
-        
+        return _ActiveStageCard(stage: s, showAddProjectButton: false);
     }
   }
 }
@@ -273,7 +313,7 @@ enum PhaseType {
   voting,
   resultsVerification,
   officialResults,
-  unknown
+  unknown,
 }
 
 class _Stage {
@@ -295,6 +335,7 @@ class _ActiveStageCard extends StatelessWidget {
   final bool showCountdown;
   final bool showVoteButton;
   final bool showAddProjectButton;
+  final bool showProjectsButton;
 
   const _ActiveStageCard({
     required this.stage,
@@ -303,6 +344,7 @@ class _ActiveStageCard extends StatelessWidget {
     this.showCountdown = true,
     this.showVoteButton = true,
     this.showAddProjectButton = true,
+    this.showProjectsButton = true,
   });
 
   @override
@@ -327,8 +369,20 @@ class _ActiveStageCard extends StatelessWidget {
           Text.rich(
             TextSpan(
               children: [
-                TextSpan(text: 'start: ', style: GoogleFonts.poppins(fontSize: 12.sp, fontWeight: FontWeight.w400)),
-                TextSpan(text: df.format(stage.start), style: GoogleFonts.poppins(fontSize: 12.sp, fontWeight: FontWeight.w600)),
+                TextSpan(
+                  text: 'start: ',
+                  style: GoogleFonts.poppins(
+                    fontSize: 12.sp,
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+                TextSpan(
+                  text: df.format(stage.start),
+                  style: GoogleFonts.poppins(
+                    fontSize: 12.sp,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
               ],
             ),
           ),
@@ -337,15 +391,33 @@ class _ActiveStageCard extends StatelessWidget {
           Text.rich(
             TextSpan(
               children: [
-                TextSpan(text: 'koniec: ', style: GoogleFonts.poppins(fontSize: 12.sp, fontWeight: FontWeight.w400)),
-                TextSpan(text: df.format(stage.endDisplay), style: GoogleFonts.poppins(fontSize: 12.sp, fontWeight: FontWeight.w600)),
+                TextSpan(
+                  text: 'koniec: ',
+                  style: GoogleFonts.poppins(
+                    fontSize: 12.sp,
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+                TextSpan(
+                  text: df.format(stage.endDisplay),
+                  style: GoogleFonts.poppins(
+                    fontSize: 12.sp,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
               ],
             ),
           ),
         SizedBox(height: 16.h),
         // ---- odliczanie ----
         if (showCountdown) ...[
-          Text("POZOSTAŁO:", style: GoogleFonts.poppins(fontSize: 12.sp, fontWeight: FontWeight.w800)),
+          Text(
+            "POZOSTAŁO:",
+            style: GoogleFonts.poppins(
+              fontSize: 12.sp,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
           SizedBox(height: 12.h),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -365,9 +437,9 @@ class _ActiveStageCard extends StatelessWidget {
             ],
           ),
           SizedBox(height: 12.h),
-          if (showVoteButton || showAddProjectButton)
+          if (showVoteButton || showAddProjectButton || showProjectsButton)
             const Divider(thickness: 1, color: Color(0xFFCAECF4)),
-            SizedBox(height: 12.h),
+          SizedBox(height: 12.h),
         ],
         // ---- przycisk ----
         if (showVoteButton)
@@ -385,7 +457,7 @@ class _ActiveStageCard extends StatelessWidget {
             child: Text("Zagłosuj", style: TextStyle(color: Colors.white)),
           ),
         if (showAddProjectButton)
-        ElevatedButton(
+          ElevatedButton(
             onPressed: () {
               // TODO zgłoś projekt
             },
@@ -397,7 +469,32 @@ class _ActiveStageCard extends StatelessWidget {
               backgroundColor: Color(0xFF1D1F1F),
             ),
             child: Text("Zgłoś projekt", style: TextStyle(color: Colors.white)),
-          )
+          ),
+        if (showProjectsButton)
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(c).push(
+                CupertinoPageRoute(
+                  builder:
+                      (_) => BoWynikiGlosowaniaScreen(
+                        institutionId: stage.type.index,
+                      ),
+                ),
+              );
+            },
+
+            style: ElevatedButton.styleFrom(
+              minimumSize: Size.fromHeight(50.h),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30),
+              ),
+              backgroundColor: Color(0xFF1D1F1F),
+            ),
+            child: Text(
+              "Zobacz wyniki głosowania",
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
       ],
     );
   }

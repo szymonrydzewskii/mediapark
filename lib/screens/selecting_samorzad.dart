@@ -8,6 +8,7 @@ import 'package:mediapark/widgets/adaptive_asset_image.dart';
 import 'package:mediapark/helpers/preferences_helper.dart';
 import 'package:mediapark/services/samorzad_service.dart';
 import 'package:mediapark/widgets/bottom_nav_bar.dart';
+import 'package:mediapark/services/cached_samorzad_service.dart';
 
 class SelectingSamorzad extends StatefulWidget {
   const SelectingSamorzad({super.key});
@@ -17,6 +18,7 @@ class SelectingSamorzad extends StatefulWidget {
 }
 
 class _SelectingSamorzadState extends State<SelectingSamorzad> {
+  final _samorzadService = CachedSamorzadService();
   static const backgroundColor = Color(0xFFBCE1EB);
   List<Samorzad> wszystkieSamorzady = [];
   List<Samorzad> filtrowaneSamorzady = [];
@@ -40,19 +42,26 @@ class _SelectingSamorzadState extends State<SelectingSamorzad> {
   }
 
   Future<void> loadData() async {
-    final samorzady = await loadSamorzad();
-    final zapisaneId = await PreferencesHelper.getSelectedSamorzady();
-    if (!mounted) return;
-    setState(() {
-      wszystkieSamorzady = samorzady;
-      filtrowaneSamorzady = samorzady;
-      wybraneSamorzady = zapisaneId;
-      dataLoaded = true;
-    });
-    if (mounted) {
+    try {
+      // Użyj nowego serwisu
+      final samorzady = await _samorzadService.loadSamorzad();
+      final zapisaneId = await PreferencesHelper.getSelectedSamorzady();
+
+      if (!mounted) return;
       setState(() {
+        wszystkieSamorzady = samorzady;
+        filtrowaneSamorzady = samorzady;
+        wybraneSamorzady = zapisaneId;
+        dataLoaded = true;
         showLoader = false;
       });
+    } catch (e) {
+      if (mounted) {
+        setState(() => showLoader = false);
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Błąd ładowania: $e')));
+      }
     }
   }
 

@@ -5,6 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'package:mediapark/models/samorzad_details.dart';
+import 'package:mediapark/screens/bo_harmonogram_screen.dart';
 import 'package:mediapark/screens/budzet_obywatelski_screen.dart';
 import 'package:mediapark/screens/kalendarz_wydarzen_screen.dart';
 import 'package:mediapark/screens/konsultacje_screen.dart';
@@ -53,10 +54,9 @@ class ModulTile extends StatelessWidget {
   void _open(BuildContext context, String title) {
     final alias = modul.alias.toLowerCase();
     final instId = _resolveInstitutionId();
-
-    // Prosty router po aliasie – łatwo rozbudować
+    
     final routes = <String, Widget Function()>{
-      'budzet-obywatelski': () => BudzetObywatelskiScreen(modul: modul, samorzad: samorzad),
+      'budzet-obywatelski': () => BOHarmonogramScreen(idInstytucji: samorzad.idBoInstitution),
       'konsultacje-spoleczne': () => const KonsultacjeScreen(),
       'ogloszenia': () => OgloszeniaScreen(idInstytucji: '$instId'),
       'kalendarz-wydarzen': () => KalendarzWydarzenScreen(idInstytucji: instId),

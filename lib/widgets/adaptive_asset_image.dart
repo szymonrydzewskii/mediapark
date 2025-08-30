@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'cached_network_image_widget.dart';
 
 class AdaptiveAssetImage extends StatefulWidget {
   final String basePath; // e.g. 'assets/icons/my_icon'
@@ -28,7 +29,8 @@ class _AdaptiveAssetImageState extends State<AdaptiveAssetImage> {
   @override
   void initState() {
     super.initState();
-    _manifest ??= rootBundle.loadString('AssetManifest.json')
+    _manifest ??= rootBundle
+        .loadString('AssetManifest.json')
         .then((s) => json.decode(s) as Map<String, dynamic>);
 
     _loader = _manifest!.then((map) {
@@ -93,39 +95,6 @@ class AdaptiveNetworkImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Widget widgetToShow;
-    if (url.toLowerCase().endsWith('.svg')) {
-      widgetToShow = SvgPicture.network(
-        url,
-        width: width.w,
-        height: height.h,
-        fit: BoxFit.contain,
-        alignment: Alignment.center,
-        placeholderBuilder: (context) => SizedBox(
-          width: width.w,
-          height: height.h,
-          child: Center(child: CircularProgressIndicator(strokeWidth: 2.r)),
-        ),
-      );
-    } else {
-      widgetToShow = Image.network(
-        url,
-        width: width.w,
-        height: height.h,
-        fit: BoxFit.contain,
-        alignment: Alignment.center,
-        errorBuilder: (context, error, stack) => Icon(
-          Icons.error,
-          size: min(width.w, height.h),
-          color: Colors.red,
-        ),
-      );
-    }
-
-    return SizedBox(
-      width: width.w,
-      height: height.h,
-      child: Center(child: widgetToShow),
-    );
+    return CachedNetworkImageWidget(url: url, width: width, height: height);
   }
 }

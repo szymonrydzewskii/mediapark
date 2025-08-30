@@ -31,7 +31,10 @@ class WydarzenieListItem {
       return DateTime(d.year, d.month, d.day, t.hour, t.minute);
     }
 
-    DateTime start = _combine(j['event_start_date'] ?? '', j['event_start_time']);
+    DateTime start = _combine(
+      j['event_start_date'] ?? '',
+      j['event_start_time'],
+    );
     DateTime? end;
     if ((j['event_end_date'] ?? '').toString().isNotEmpty) {
       end = _combine(j['event_end_date'], j['event_end_time']);
@@ -40,13 +43,22 @@ class WydarzenieListItem {
     }
 
     return WydarzenieListItem(
-      id: (j['id_event'] ?? 0) is String ? int.tryParse(j['id_event']) ?? 0 : (j['id_event'] ?? 0),
+      id:
+          (j['id_event'] ?? 0) is String
+              ? int.tryParse(j['id_event']) ?? 0
+              : (j['id_event'] ?? 0),
       title: (j['title'] ?? '').toString().trim(),
-      intro: (j['intro'] ?? '').toString().trim().isEmpty ? null : j['intro'].toString().trim(),
+      intro:
+          (j['intro'] ?? '').toString().trim().isEmpty
+              ? null
+              : j['intro'].toString().trim(),
       allDay: isAllDay,
       start: start,
       end: end,
-      mainPhoto: (j['main_photo'] ?? '').toString().trim().isEmpty ? null : j['main_photo'].toString().trim(),
+      mainPhoto:
+          (j['main_photo'] ?? '').toString().trim().isEmpty
+              ? null
+              : j['main_photo'].toString().trim(),
     );
   }
 }
@@ -59,6 +71,7 @@ class WydarzenieDetails {
   final bool allDay;
   final DateTime start;
   final DateTime? end;
+  final String? mainPhoto; // 🔹 DODANE POLE
 
   const WydarzenieDetails({
     required this.id,
@@ -67,6 +80,7 @@ class WydarzenieDetails {
     required this.allDay,
     required this.start,
     this.end,
+    this.mainPhoto, // 🔹 DODANE POLE
   });
 
   factory WydarzenieDetails.fromJson(Map<String, dynamic> j) {
@@ -79,7 +93,10 @@ class WydarzenieDetails {
       return DateTime(d.year, d.month, d.day, t.hour, t.minute);
     }
 
-    DateTime start = _combine(j['event_start_date'] ?? '', j['event_start_time']);
+    DateTime start = _combine(
+      j['event_start_date'] ?? '',
+      j['event_start_time'],
+    );
     DateTime? end;
     if ((j['event_end_date'] ?? '').toString().isNotEmpty) {
       end = _combine(j['event_end_date'], j['event_end_time']);
@@ -87,12 +104,19 @@ class WydarzenieDetails {
     }
 
     return WydarzenieDetails(
-      id: (j['id_event'] ?? 0) is String ? int.tryParse(j['id_event']) ?? 0 : (j['id_event'] ?? 0),
+      id:
+          (j['id_event'] ?? 0) is String
+              ? int.tryParse(j['id_event']) ?? 0
+              : (j['id_event'] ?? 0),
       title: (j['title'] ?? '').toString().trim(),
       contentHtml: (j['content'] ?? '').toString(),
       allDay: isAllDay,
       start: start,
       end: end,
+      mainPhoto:
+          (j['main_photo'] ?? '').toString().trim().isEmpty
+              ? null
+              : j['main_photo'].toString().trim(), // 🔹 DODANE POLE
     );
   }
 }
