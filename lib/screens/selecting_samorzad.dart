@@ -8,6 +8,8 @@ import 'package:mediapark/widgets/adaptive_asset_image.dart';
 import 'package:mediapark/helpers/preferences_helper.dart';
 import 'package:mediapark/widgets/bottom_nav_bar.dart';
 import 'package:mediapark/services/cached_samorzad_service.dart';
+import 'package:mediapark/services/cached_samorzad_details_service.dart';
+import 'package:mediapark/services/global_data_service.dart';
 
 class SelectingSamorzad extends StatefulWidget {
   const SelectingSamorzad({super.key});
@@ -18,6 +20,8 @@ class SelectingSamorzad extends StatefulWidget {
 
 class _SelectingSamorzadState extends State<SelectingSamorzad> {
   final _samorzadService = CachedSamorzadService();
+  final _detailsService = CachedSamorzadDetailsService();
+  final _globalDataService = GlobalDataService();
   static const backgroundColor = Color(0xFFBCE1EB);
   List<Samorzad> wszystkieSamorzady = [];
   List<Samorzad> filtrowaneSamorzady = [];
@@ -99,6 +103,9 @@ class _SelectingSamorzadState extends State<SelectingSamorzad> {
               .where((s) => wybraneSamorzady.contains(s.id))
               .toSet();
 
+      final pierwszySamorzad = wybraneObiekty.first;
+
+      // Navigate immediately without waiting
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(
@@ -110,6 +117,20 @@ class _SelectingSamorzadState extends State<SelectingSamorzad> {
         ),
         (route) => false,
       );
+
+      // Preload data for all selected municipalities in background
+      Future.wait([
+        // Load details for all selected municipalities
+        ...wybraneObiekty.map((samorzad) =>
+          _detailsService.fetchSzczegolyInstytucji(samorzad.id).catchError((_) {})
+        ),
+        // Load module data for all selected municipalities
+        ...wybraneObiekty.map((samorzad) =>
+          _globalDataService.loadMunicipalityData(samorzad.id.toString())
+        ),
+      ]).catchError((e) {
+        print('Background preloading error: $e');
+      });
     }
   }
 
@@ -345,10 +366,14 @@ class _SelectingSamorzadState extends State<SelectingSamorzad> {
                           child: Row(
                             children: [
                               SizedBox(width: 19.w),
-                              AdaptiveNetworkImage(
-                                url: samorzad.herb,
+                              Container(
                                 width: 32.w,
                                 height: 32.h,
+                                child: AdaptiveNetworkImage(
+                                  url: samorzad.herb,
+                                  width: 32.w,
+                                  height: 32.h,
+                                ),
                               ),
                               SizedBox(width: 23.w),
                               Expanded(

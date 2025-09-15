@@ -229,11 +229,19 @@ class _BottomNavBarState extends State<BottomNavBar>
                       icon: Icons.home,
                       leading:
                           selectedIndex == 0
-                              ? AdaptiveNetworkImage(
-                                key: ValueKey(aktywnaGmina.herb),
-                                url: aktywnaGmina.herb,
-                                height: 20.h,
+                              ? Container(
                                 width: 20.w,
+                                height: 20.h,
+                                alignment: Alignment.center,
+                                child: AnimatedSwitcher(
+                                  duration: const Duration(milliseconds: 300),
+                                  child: AdaptiveNetworkImage(
+                                    key: ValueKey(aktywnaGmina.herb),
+                                    url: aktywnaGmina.herb,
+                                    height: 20.h,
+                                    width: 20.w,
+                                  ),
+                                ),
                               )
                               : SvgPicture.asset(
                                 'assets/icons/home.svg',
@@ -336,10 +344,15 @@ class _DropdownCard extends StatelessWidget {
                     ),
                     child: Row(
                       children: [
-                        AdaptiveNetworkImage(
-                          url: s.herb,
-                          height: 20.h,
+                        Container(
                           width: 20.w,
+                          height: 20.h,
+                          alignment: Alignment.center,
+                          child: AdaptiveNetworkImage(
+                            url: s.herb,
+                            height: 20.h,
+                            width: 20.w,
+                          ),
                         ),
                         SizedBox(width: 10.w),
                         Expanded(

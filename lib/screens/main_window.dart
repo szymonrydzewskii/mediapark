@@ -6,7 +6,8 @@ import 'package:mediapark/models/samorzad.dart';
 import 'package:mediapark/models/samorzad_details.dart';
 import 'package:mediapark/screens/settings_screen.dart';
 import 'package:mediapark/widgets/adaptive_asset_image.dart';
-import 'package:mediapark/services/samorzad_details_service.dart';
+import 'package:mediapark/services/cached_samorzad_details_service.dart';
+import 'package:mediapark/services/global_data_service.dart';
 import 'package:mediapark/screens/selecting_samorzad.dart';
 import 'dart:math';
 import 'package:google_fonts/google_fonts.dart';
@@ -23,6 +24,8 @@ class MainWindow extends StatefulWidget {
 
 class _MainWindowState extends State<MainWindow>
     with SingleTickerProviderStateMixin {
+  final _detailsService = CachedSamorzadDetailsService();
+  final _globalDataService = GlobalDataService();
   late final AnimationController _panelController;
   late final Animation<double> _panelAnimation;
   Samorzad? aktywnySamorzad;
@@ -31,12 +34,21 @@ class _MainWindowState extends State<MainWindow>
   bool loadingSzczegoly = false;
   static const backgroundColor = Color(0xFFBCE1EB);
   Set<String> animowaneModuly = {};
+  static Set<String> globalAnimatedModules = {}; // Globalna lista animowanych modułów
+  bool _isFirstLoad = true;
+  bool _isAnimatingOut = false;
+  bool _isAnimatingIn = false;
+  String? _previousMunicipalityId;
+
 
   @override
   void initState() {
     super.initState();
     aktywnySamorzad = widget.wybraneSamorzady.first;
-    onHerbClick(widget.wybraneSamorzady.first);
+    loadingSzczegoly = false; // Don't show loading on startup
+    _previousMunicipalityId = widget.wybraneSamorzady.first.id.toString();
+    _isFirstLoad = true; // Keep first load animation
+    _loadInitialData();
 
     _panelController = AnimationController(
       vsync: this,
@@ -54,27 +66,83 @@ class _MainWindowState extends State<MainWindow>
     super.dispose();
   }
 
+  Future<void> _loadInitialData() async {
+    final firstSamorzad = widget.wybraneSamorzady.first;
+    final municipalityId = firstSamorzad.id.toString();
+
+    // Try to get data immediately if already cached
+    try {
+      final szczegoly = await _detailsService.fetchSzczegolyInstytucji(firstSamorzad.id);
+      if (mounted) {
+        setState(() {
+          szczegolyInstytucji = szczegoly;
+        });
+      }
+    } catch (e) {
+      // If immediate fetch fails, load in background
+      _detailsService.fetchSzczegolyInstytucji(firstSamorzad.id).then((szczegoly) {
+        if (mounted) {
+          setState(() {
+            szczegolyInstytucji = szczegoly;
+          });
+        }
+      }).catchError((_) {});
+    }
+
+    // Load module data in background
+    _globalDataService.loadMunicipalityData(municipalityId).catchError((_) {});
+  }
+
   void onSettingsClick() {
     Navigator.of(context).push(slideFadeRouteTo(const SettingsScreen()));
   }
 
   void onHerbClick(Samorzad samorzad) async {
+    final municipalityId = samorzad.id.toString();
+
+    // If switching to different municipality, animate out first
+    if (_previousMunicipalityId != null && _previousMunicipalityId != municipalityId) {
+      setState(() {
+        _isAnimatingOut = true;
+      });
+
+      // Wait for fade out animation
+      await Future.delayed(const Duration(milliseconds: 200));
+    }
+
+    // Update UI and start fade in animation
     setState(() {
       aktywnySamorzad = samorzad;
       showPanel = false;
-      loadingSzczegoly = true;
+      loadingSzczegoly = false;
+      _isFirstLoad = false;
+      _isAnimatingOut = false;
+      _isAnimatingIn = true;
+      _previousMunicipalityId = municipalityId;
     });
-    try {
-      final szczegoly = await fetchSzczegolyInstytucji(samorzad.id);
-      setState(() {
-        szczegolyInstytucji = szczegoly;
-        loadingSzczegoly = false;
-      });
-    } catch (e) {
-      setState(() {
-        loadingSzczegoly = false;
-      });
-    }
+
+    // Reset fade in animation after it completes
+    Future.delayed(const Duration(milliseconds: 50), () {
+      if (mounted) {
+        setState(() {
+          _isAnimatingIn = false;
+        });
+      }
+    });
+
+    // Load data in background without blocking UI
+    Future.wait([
+      _detailsService.fetchSzczegolyInstytucji(samorzad.id).then((szczegoly) {
+        if (mounted && aktywnySamorzad?.id == samorzad.id) {
+          setState(() {
+            szczegolyInstytucji = szczegoly;
+          });
+        }
+      }).catchError((_) {}),
+      _globalDataService.loadMunicipalityData(municipalityId),
+    ]).catchError((e) {
+      print('Background loading error: $e');
+    });
   }
 
   void otworzWybieranie(BuildContext context) {
@@ -135,11 +203,7 @@ class _MainWindowState extends State<MainWindow>
                   child: AnimatedSwitcher(
                     duration: const Duration(milliseconds: 300),
                     child:
-                        loadingSzczegoly
-                            ? const Center(child: CircularProgressIndicator())
-                            : szczegolyInstytucji == null
-                            ? const Center(child: Text("Brak danych"))
-                            : // zamiast: GridView.builder(...)
+                        // Always show modules, with fallbacks while loading
                             SingleChildScrollView(
                               padding: EdgeInsets.fromLTRB(
                                 16.w,
@@ -157,7 +221,36 @@ class _MainWindowState extends State<MainWindow>
                                       (constraints.maxWidth - spacing) /
                                       columns;
 
-                                  final mods = szczegolyInstytucji!.modules;
+                                  // Use modules from details if available, otherwise empty
+                                  final mods = szczegolyInstytucji?.modules ?? [];
+
+                                  if (mods.isEmpty) {
+                                    return const SizedBox(); // Empty while loading
+                                  }
+
+                                  // Show fade out animation when switching municipalities
+                                  if (_isAnimatingOut) {
+                                    return AnimatedOpacity(
+                                      opacity: 0.0,
+                                      duration: const Duration(milliseconds: 200),
+                                      child: Wrap(
+                                        spacing: spacing,
+                                        runSpacing: runSpacing,
+                                        children: List.generate(mods.length, (index) {
+                                          final modul = mods[index];
+                                          return SizedBox(
+                                            width: tileW,
+                                            child: ModulTile(
+                                              key: ValueKey('${modul.alias}_fadeout'),
+                                              modul: modul,
+                                              samorzad: szczegolyInstytucji!,
+                                            ),
+                                          );
+                                        }),
+                                      ),
+                                    );
+                                  }
+
                                   return Wrap(
                                     spacing: spacing,
                                     runSpacing: runSpacing,
@@ -165,25 +258,34 @@ class _MainWindowState extends State<MainWindow>
                                       index,
                                     ) {
                                       final modul = mods[index];
-                                      final hasAnimated = animowaneModuly
-                                          .contains(modul.alias);
-                                      animowaneModuly.add(modul.alias);
+                                      final moduleKey = '${aktywnySamorzad?.id}_${modul.alias}';
+                                      final hasAnimated = globalAnimatedModules.contains(moduleKey);
+                                      globalAnimatedModules.add(moduleKey);
 
                                       return SizedBox(
                                         width: tileW,
-                                        // wysokość możesz zostawić ModulTile (ma 205.h), ale SizedBox ułatwia Wrap’owi layout
-                                        child: FadeInUpWidget(
-                                          key: ValueKey(modul.alias),
-                                          animate: !hasAnimated,
-                                          delay: Duration(
-                                            milliseconds: index * 100,
-                                          ),
-                                          child: ModulTile(
-                                            key: ValueKey(modul.alias),
-                                            modul: modul,
-                                            samorzad: szczegolyInstytucji!,
-                                          ),
-                                        ),
+                                        child: _isFirstLoad
+                                          ? FadeInUpWidget(
+                                              key: ValueKey(modul.alias),
+                                              animate: !hasAnimated,
+                                              delay: Duration(
+                                                milliseconds: index * 100,
+                                              ),
+                                              child: ModulTile(
+                                                key: ValueKey(modul.alias),
+                                                modul: modul,
+                                                samorzad: szczegolyInstytucji!,
+                                              ),
+                                            )
+                                          : AnimatedOpacity(
+                                              opacity: _isAnimatingIn ? 0.0 : 1.0,
+                                              duration: const Duration(milliseconds: 300),
+                                              child: ModulTile(
+                                                key: ValueKey(modul.alias),
+                                                modul: modul,
+                                                samorzad: szczegolyInstytucji!,
+                                              ),
+                                            ),
                                       );
                                     }),
                                   );

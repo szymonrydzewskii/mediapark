@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:mediapark/models/ogloszenia.dart';
 import 'package:mediapark/screens/ogloszenia_details_screen.dart';
-import 'package:mediapark/services/ogloszenia_service.dart';
+import 'package:mediapark/services/global_data_service.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -16,31 +16,46 @@ class OgloszeniaScreen extends StatefulWidget {
 }
 
 class _OgloszeniaScreenState extends State<OgloszeniaScreen> {
-  late OgloszeniaService _service;
-  late Future<List<Ogloszenia>> _future;
+  final GlobalDataService _globalService = GlobalDataService();
+  List<Ogloszenia> _ogloszenia = [];
   List<KategoriaOgloszen> _kategorie = [];
+  Map<int, String> _kategorieMap = {};
   int? _wybranaKategoria;
+  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _service = OgloszeniaService(idInstytucji: widget.idInstytucji);
     _loadData();
   }
 
   Future<void> _loadData() async {
-    _future = _service.fetchWszystkie();
-    final kategorie = await _service.fetchKategorie();
+    // Show data immediately if available, otherwise show what we have
     setState(() {
-      _kategorie = kategorie;
+      _kategorie = _globalService.kategorie;
+      _kategorieMap = {for (var k in _kategorie) k.id: k.name};
+      _ogloszenia = _globalService.ogloszenia;
+      _isLoading = false; // Always show UI immediately
+    });
+
+    // Ensure global data is loaded in background
+    _globalService.loadMunicipalityData(widget.idInstytucji).then((_) {
+      if (mounted) {
+        setState(() {
+          _kategorie = _globalService.kategorie;
+          _kategorieMap = {for (var k in _kategorie) k.id: k.name};
+          _ogloszenia = _globalService.ogloszenia;
+        });
+      }
+    }).catchError((e) {
+      print('Background loading error in OgloszeniaScreen: $e');
     });
   }
 
   void _filtruj(int? id) {
     setState(() {
       _wybranaKategoria = id;
-      _future =
-          id == null ? _service.fetchWszystkie() : _service.fetchZKategorii(id);
+      _ogloszenia = _globalService.getOgloszeniaByCategory(id);
     });
   }
 
@@ -67,78 +82,65 @@ class _OgloszeniaScreenState extends State<OgloszeniaScreen> {
           ),
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 8),
-            Text(
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 8),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Text(
               "Ogłoszenia",
               style: GoogleFonts.poppins(
                 fontSize: 28.sp,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: 12),
-            _buildKategorieChips(),
-            const SizedBox(height: 12),
-            Expanded(
-              child: FutureBuilder<List<Ogloszenia>>(
-                future: _future,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
-                  } else if (snapshot.hasError) {
-                    final err = snapshot.error.toString().toLowerCase();
-                    final isBrakDanych =
-                        err.contains("nie znaleziono") || err.contains("brak");
-                    return Center(
-                      child: Text(
-                        isBrakDanych
-                            ? 'Nie znaleziono ogłoszeń'
-                            : 'Wystąpił błąd pobierania danych',
-                        textAlign: TextAlign.center,
-                      ),
-                    );
-                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                    return const Center(child: Text('Brak ogłoszeń'));
-                  }
+          ),
+          const SizedBox(height: 12),
+          _buildKategorieChips(),
+          const SizedBox(height: 12),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: _isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : _ogloszenia.isEmpty
+                      ? const Center(child: Text('Brak ogłoszeń'))
+                      : ListView.builder(
+                          itemCount: _ogloszenia.length,
+                          itemBuilder: (context, index) {
+                            final o = _ogloszenia[index];
+                            final hasValidImage = _globalService.isImageValid(o.mainPhoto);
 
-                  final ogloszenia = snapshot.data!;
-                  return ListView.builder(
-                    itemCount: ogloszenia.length,
-                    itemBuilder: (context, index) {
-                      final o = ogloszenia[index];
-                      return _buildOgloszenieTile(o);
-                    },
-                  );
-                },
-              ),
+                            return hasValidImage
+                                ? _buildOgloszenieTileWithImage(o)
+                                : _buildOgloszenieTileWithoutImage(o);
+                          },
+                        ),
             ),
+          ),
 
-            // PRZYCISK POKAZ WIECEJ
+          // PRZYCISK POKAZ WIECEJ
 
-            // const SizedBox(height: 10),
-            // Center(
-            //   child: ElevatedButton(
-            //     style: ElevatedButton.styleFrom(
-            //       backgroundColor: Color(0xFF1D1F1F),
-            //       foregroundColor: Colors.white,
-            //       shape: RoundedRectangleBorder(
-            //         borderRadius: BorderRadius.circular(25),
-            //       ),
-            //     ),
-            //     onPressed: () {}, // TODO: Pokaż więcej
-            //     child: const Padding(
-            //       padding: EdgeInsets.symmetric(vertical: 10, horizontal: 24),
-            //       child: Text("Pokaż więcej"),
-            //     ),
-            //   ),
-            // ),
-            // const SizedBox(height: 16),
-          ],
-        ),
+          // const SizedBox(height: 10),
+          // Center(
+          //   child: ElevatedButton(
+          //     style: ElevatedButton.styleFrom(
+          //       backgroundColor: Color(0xFF1D1F1F),
+          //       foregroundColor: Colors.white,
+          //       shape: RoundedRectangleBorder(
+          //         borderRadius: BorderRadius.circular(25),
+          //       ),
+          //     ),
+          //     onPressed: () {}, // TODO: Pokaż więcej
+          //     child: const Padding(
+          //       padding: EdgeInsets.symmetric(vertical: 10, horizontal: 24),
+          //       child: Text("Pokaż więcej"),
+          //     ),
+          //   ),
+          // ),
+          // const SizedBox(height: 16),
+        ],
       ),
     );
   }
@@ -146,11 +148,14 @@ class _OgloszeniaScreenState extends State<OgloszeniaScreen> {
   Widget _buildKategorieChips() {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
-      child: Row(
-        children: [
-          _buildChip("Najnowsze", null),
-          ..._kategorie.map((k) => _buildChip(k.name, k.id)),
-        ],
+      child: Padding(
+        padding: EdgeInsets.only(left: 16.w, right: 16.w),
+        child: Row(
+          children: [
+            _buildChip("Najnowsze", null),
+            ..._kategorie.map((k) => _buildChip(k.name, k.id)),
+          ],
+        ),
       ),
     );
   }
@@ -174,14 +179,14 @@ class _OgloszeniaScreenState extends State<OgloszeniaScreen> {
         backgroundColor: const Color(0xFFACD2DD),
         onSelected: (_) => _filtruj(id),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(25),
+          borderRadius: BorderRadius.circular(999),
           side: BorderSide(color: Color(0xFFACD2DD), width: 2.w),
         ),
       ),
     );
   }
 
-  Widget _buildOgloszenieTile(Ogloszenia o) {
+  Widget _buildOgloszenieTileWithImage(Ogloszenia o) {
     return InkWell(
       splashColor: Colors.transparent,
       highlightColor: Colors.transparent,
@@ -189,7 +194,11 @@ class _OgloszeniaScreenState extends State<OgloszeniaScreen> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (_) => OgloszeniaDetailsScreen(ogloszenie: o),
+            builder:
+                (_) => OgloszeniaDetailsScreen(
+                  ogloszenie: o,
+                  idInstytucji: widget.idInstytucji,
+                ),
           ),
         );
       },
@@ -200,57 +209,65 @@ class _OgloszeniaScreenState extends State<OgloszeniaScreen> {
         elevation: 0,
         margin: const EdgeInsets.symmetric(vertical: 8),
         child: Padding(
-          padding: const EdgeInsets.all(12),
+          padding: EdgeInsets.fromLTRB(22.w, 12.h, 12.w, 12.h),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (o.mainPhoto != null && o.mainPhoto!.isNotEmpty)
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: Image.network(
-                    o.mainPhoto!,
-                    width: 80,
-                    height: 80,
-                    fit: BoxFit.cover,
-                    errorBuilder:
-                        (context, error, stackTrace) => const SizedBox.shrink(),
-                  ),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Image.network(
+                  o.mainPhoto!,
+                  width: 80,
+                  height: 80,
+                  fit: BoxFit.cover,
                 ),
+              ),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: -8,
-                      children: [
-                        if (o.categoryName != null)
-                          _buildTag(o.categoryName!)
-                        else
-                          Text(o.alias),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      o.title,
-                      style: GoogleFonts.poppins(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20.sp,
+                    if (o.idCategory != null &&
+                        _kategorieMap.containsKey(o.idCategory)) ...[
+                      SizedBox(height: 12.h),
+                      _buildTag(_kategorieMap[o.idCategory]!),
+                      SizedBox(height: 12.h),
+                    ],
+                    Padding(
+                      padding: EdgeInsets.only(right: 12.w),
+                      child: Text(
+                        o.title,
+                        textAlign: TextAlign.left,
+                        style: GoogleFonts.poppins(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 20.sp,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 4),
-                    Text(
-                      o.intro,
-                      style: GoogleFonts.poppins(fontSize: 14.sp),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
+                    RichText(
+                      text: TextSpan(
+                        children: [
+                          TextSpan(
+                            text: "dodane ",
+                            style: GoogleFonts.poppins(
+                              fontSize: 12.sp,
+                              color: Colors.black,
+                              fontWeight: FontWeight.w400
+                            ),
+                          ),
+                          TextSpan(
+                            text: _czasDodania(o.datetime),
+                            style: GoogleFonts.poppins(
+                              fontSize: 12.sp,
+                              color: Colors.black,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                    const SizedBox(height: 6),
-                    Text(
-                      "dodane ${_czasDodania(o.datetime)}",
-                      style: const TextStyle(fontSize: 12, color: Colors.grey),
-                    ),
+                    SizedBox(height: 12.h),
                   ],
                 ),
               ),
@@ -261,16 +278,105 @@ class _OgloszeniaScreenState extends State<OgloszeniaScreen> {
     );
   }
 
-  Widget _buildTag(String label) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: const Color(0xFFACD2DD),
-        borderRadius: BorderRadius.circular(8),
+  Widget _buildOgloszenieTileWithoutImage(Ogloszenia o) {
+    return InkWell(
+      splashColor: Colors.transparent,
+      highlightColor: Colors.transparent,
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder:
+                (_) => OgloszeniaDetailsScreen(
+                  ogloszenie: o,
+                  idInstytucji: widget.idInstytucji,
+                ),
+          ),
+        );
+      },
+      borderRadius: BorderRadius.circular(25),
+      child: Card(
+        color: const Color(0xFFCAECF4),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
+        elevation: 0,
+        margin: const EdgeInsets.symmetric(vertical: 8),
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(22.w, 12.h, 12.w, 12.h),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (o.idCategory != null &&
+                  _kategorieMap.containsKey(o.idCategory)) ...[
+                SizedBox(height: 12.h),
+                _buildTag(_kategorieMap[o.idCategory]!),
+                SizedBox(height: 12.h),
+              ],
+              Padding(
+                padding: EdgeInsets.only(right: 30.w),
+                child: Text(
+                  o.title,
+                  textAlign: TextAlign.left,
+                  style: GoogleFonts.poppins(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 20.sp,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 4),
+              Padding(
+                padding: EdgeInsets.only(right: 60.w),
+                child: Text(
+                  _globalService.getOgloszenieContent(o.id),
+                  textAlign: TextAlign.left,
+                  style: GoogleFonts.poppins(fontSize: 14.sp, fontWeight: FontWeight.w400),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              SizedBox(height: 24.h),
+              RichText(
+                text: TextSpan(
+                  children: [
+                    TextSpan(
+                      text: "dodane ",
+                      style: GoogleFonts.poppins(
+                        fontSize: 12.sp,
+                        color: Colors.black,
+                        fontWeight: FontWeight.w400
+                      ),
+                    ),
+                    TextSpan(
+                      text: _czasDodania(o.datetime),
+                      style: GoogleFonts.poppins(
+                        fontSize: 12.sp,
+                        color: Colors.black,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 12.h),
+            ],
+          ),
+        ),
       ),
-      child: Text(
-        label,
-        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
+    );
+  }
+
+  Widget _buildTag(String label) {
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+        decoration: BoxDecoration(
+          color: const Color(0xFFACD2DD),
+          borderRadius: BorderRadius.circular(999),
+        ),
+        child: Text(
+          label,
+          style: GoogleFonts.poppins(fontSize: 12.sp, fontWeight: FontWeight.w600),
+        ),
       ),
     );
   }

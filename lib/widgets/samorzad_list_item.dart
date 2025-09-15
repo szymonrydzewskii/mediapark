@@ -24,10 +24,14 @@ class SamorzadListItem extends StatelessWidget {
         borderRadius: BorderRadius.circular(10.r),
         child: ListTile(
           onTap: onTap,
-          leading: AdaptiveNetworkImage(
-            url: samorzad.herb,
+          leading: Container(
             width: 40.w,
             height: 40.h,
+            child: AdaptiveNetworkImage(
+              url: samorzad.herb,
+              width: 40.w,
+              height: 40.h,
+            ),
           ),
           title: Text(
             samorzad.nazwa,

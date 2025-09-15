@@ -41,4 +41,15 @@ class OgloszeniaService {
       throw Exception('Nie znaleziono ogłoszeń');
     }
   }
+
+  Future<OgloszeniaDetails> fetchSzczegoly(int idOgloszenia) async {
+    final url = 'https://test.wdialogu.pl/v1/i/$idInstytucji/ogloszenia/szczegoly/$idOgloszenia';
+    final res = await http.get(Uri.parse(url));
+    if (res.statusCode == 200) {
+      final data = json.decode(res.body) as Map<String, dynamic>;
+      return OgloszeniaDetails.fromJson(data);
+    } else {
+      throw Exception('Nie znaleziono szczegółów ogłoszenia');
+    }
+  }
 }

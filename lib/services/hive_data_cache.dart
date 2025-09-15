@@ -52,6 +52,10 @@ class HiveDataCache {
     await _dataBox?.clear();
   }
 
+  static Future<void> delete(String key) async {
+    await _dataBox?.delete(key);
+  }
+
   static Future<T?> getObject<T>(
     String key,
     T Function(Map<String, dynamic>) fromJson, {

@@ -127,15 +127,18 @@ class ModulTile extends StatelessWidget {
                 child: AdaptiveAssetImage(basePath: iconPath),
               ),
               SizedBox(height: 12.h),
-              Text(
-                title,
-                textAlign: TextAlign.center,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: GoogleFonts.poppins(
-                  fontSize: 17.sp,
-                  fontWeight: FontWeight.w800,
-                  color: Colors.black,
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 12.w),
+                child: Text(
+                  title,
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: GoogleFonts.poppins(
+                    fontSize: 17.sp,
+                    fontWeight: FontWeight.w800,
+                    color: Colors.black,
+                  ),
                 ),
               ),
               const Spacer(),
