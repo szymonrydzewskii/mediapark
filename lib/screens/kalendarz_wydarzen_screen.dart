@@ -109,6 +109,17 @@ class _KalendarzWydarzenScreenState extends State<KalendarzWydarzenScreen> {
   }
 
   DateTime _normalize(DateTime d) => DateTime(d.year, d.month, d.day);
+
+  bool _isEventActiveOnDay(WydarzenieListItem event, DateTime day) {
+    final normalizedDay = _normalize(day);
+    final eventStart = _normalize(event.start);
+    final eventEnd = event.end != null ? _normalize(event.end!) : eventStart;
+
+    return normalizedDay.isAtSameMomentAs(eventStart) ||
+           normalizedDay.isAtSameMomentAs(eventEnd) ||
+           (normalizedDay.isAfter(eventStart) && normalizedDay.isBefore(eventEnd));
+  }
+
   List<WydarzenieListItem> _getEventsForDay(DateTime day) =>
       _eventsByDay[_normalize(day)] ?? const [];
 
@@ -435,7 +446,8 @@ class _KalendarzWydarzenScreenState extends State<KalendarzWydarzenScreen> {
   }) {
     final d = _normalize(date);
     final today = _normalize(DateTime.now());
-    final hasEvents = _getEventsForDay(date).isNotEmpty;
+    final eventsForDay = _getEventsForDay(date);
+    final hasEvents = eventsForDay.isNotEmpty;
 
     Color bg = Colors.transparent;
     if (isToday && hasEvents) {
@@ -520,7 +532,8 @@ class _KalendarzWydarzenScreenState extends State<KalendarzWydarzenScreen> {
     }
 
     final bool isToday = eventDay == today;
-    final Color cardBg = isToday ? Colors.white : const Color(0xFFCAECF4);
+    final bool isCurrentlyActive = _isEventActiveOnDay(e, today);
+    final Color cardBg = (isToday || isCurrentlyActive) ? Colors.white : const Color(0xFFCAECF4);
 
     return InkWell(
       onTap: () => _openDetailsBottomSheet(context, e),
@@ -574,7 +587,7 @@ class _KalendarzWydarzenScreenState extends State<KalendarzWydarzenScreen> {
                   ),
                   decoration: BoxDecoration(
                     color:
-                        isToday
+                        (isToday || isCurrentlyActive)
                             ? const Color(0xFFF13636)
                             : const Color(0xFFF7F1C3),
                     borderRadius: BorderRadius.circular(999.r),
@@ -585,7 +598,7 @@ class _KalendarzWydarzenScreenState extends State<KalendarzWydarzenScreen> {
                       style: GoogleFonts.poppins(
                         fontSize: 12.sp,
                         fontWeight: FontWeight.w700,
-                        color: isToday ? Colors.white : Colors.black,
+                        color: (isToday || isCurrentlyActive) ? Colors.white : Colors.black,
                       ),
                     ),
                   ),
