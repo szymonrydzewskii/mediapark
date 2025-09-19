@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:mediapark/models/samorzad_details.dart';
 import 'package:mediapark/widgets/more_links_page.dart';
 import 'package:mediapark/animations/slide_fade_route.dart';
+import 'package:mediapark/style/app_style.dart';
 
 class MoreTile extends StatelessWidget {
   final SamorzadSzczegoly aktywnySamorzad;
@@ -37,7 +38,7 @@ class MoreTile extends StatelessWidget {
       child: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [Colors.lightBlue[50]!, Colors.lightBlue[100]!],
+              colors: [AppColors.primaryLight, AppColors.primary],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),

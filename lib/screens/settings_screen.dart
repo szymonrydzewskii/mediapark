@@ -4,6 +4,7 @@ import 'package:mediapark/widgets/adaptive_asset_image.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'o_aplikacji_screen.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:mediapark/style/app_style.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -18,7 +19,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFBCE1EB),
+      backgroundColor: AppColors.primary,
       body: SafeArea(
         child: SingleChildScrollView(
           // dodajemy zapas na lewitujący nav bar
@@ -49,7 +50,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 },
               ),
               SizedBox(height: 30.h),
-              const Divider(thickness: 1, color: Color(0xFF96C5D1)),
+              const Divider(thickness: 1, color: AppColors.divider),
               SizedBox(height: 49.h),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -89,12 +90,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         pushEnabled = value;
                       });
                     },
-                    activeTrackColor: Color(0xFF1D1F1F),
+                    activeTrackColor: AppColors.blackMedium,
                   ),
                 ],
               ),
               SizedBox(height: 49.h),
-              const Divider(thickness: 1, color: Color(0xFF96C5D1)),
+              const Divider(thickness: 1, color: AppColors.divider),
               SizedBox(height: 30.h),
               Center(
                 child: Text(
@@ -102,7 +103,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   style: GoogleFonts.poppins(
                     fontSize: 12.sp,
                     fontWeight: FontWeight.w400,
-                    color: Color(0xFF373737),
+                    color: AppColors.blackLight,
                   ),
                 ),
               ),
@@ -121,7 +122,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         onTap: onTap,
         child: Ink(
           decoration: BoxDecoration(
-            color: const Color(0xFFCAECF4),
+            color: AppColors.primaryLight,
             borderRadius: BorderRadius.circular(16.r),
           ),
           child: Padding(

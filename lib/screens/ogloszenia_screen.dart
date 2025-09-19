@@ -5,6 +5,7 @@ import 'package:mediapark/screens/ogloszenia_details_screen.dart';
 import 'package:mediapark/services/global_data_service.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:mediapark/style/app_style.dart';
 
 class OgloszeniaScreen extends StatefulWidget {
   final String idInstytucji;
@@ -62,10 +63,10 @@ class _OgloszeniaScreenState extends State<OgloszeniaScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFBCE1EB),
+      backgroundColor: AppColors.primary,
       appBar: AppBar(
         forceMaterialTransparency: true,
-        backgroundColor: const Color(0xFFBCE1EB),
+        backgroundColor: AppColors.primary,
         elevation: 0,
         foregroundColor: Colors.black,
         leading: Transform.translate(
@@ -175,12 +176,12 @@ class _OgloszeniaScreenState extends State<OgloszeniaScreen> {
           ),
         ),
         selected: isSelected,
-        selectedColor: const Color(0xFFBCE1EB),
-        backgroundColor: const Color(0xFFACD2DD),
+        selectedColor: AppColors.primary,
+        backgroundColor: AppColors.primaryMedium,
         onSelected: (_) => _filtruj(id),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(999),
-          side: BorderSide(color: Color(0xFFACD2DD), width: 2.w),
+          side: BorderSide(color: AppColors.primaryMedium, width: 2.w),
         ),
       ),
     );
@@ -204,7 +205,7 @@ class _OgloszeniaScreenState extends State<OgloszeniaScreen> {
       },
       borderRadius: BorderRadius.circular(25),
       child: Card(
-        color: const Color(0xFFCAECF4),
+        color: AppColors.primaryLight,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
         elevation: 0,
         margin: const EdgeInsets.symmetric(vertical: 8),
@@ -296,7 +297,7 @@ class _OgloszeniaScreenState extends State<OgloszeniaScreen> {
       },
       borderRadius: BorderRadius.circular(25),
       child: Card(
-        color: const Color(0xFFCAECF4),
+        color: AppColors.primaryLight,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
         elevation: 0,
         margin: const EdgeInsets.symmetric(vertical: 8),
@@ -370,7 +371,7 @@ class _OgloszeniaScreenState extends State<OgloszeniaScreen> {
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
         decoration: BoxDecoration(
-          color: const Color(0xFFACD2DD),
+          color: AppColors.primaryMedium,
           borderRadius: BorderRadius.circular(999),
         ),
         child: Text(
@@ -385,8 +386,19 @@ class _OgloszeniaScreenState extends State<OgloszeniaScreen> {
     try {
       final dt = DateTime.parse(datetime);
       final diff = DateTime.now().difference(dt);
-      if (diff.inDays >= 1) return "${diff.inDays} dni temu";
-      if (diff.inHours >= 1) return "${diff.inHours} godzin temu";
+
+      if (diff.inDays == 7) {
+        return "tydzień temu";
+      } else if (diff.inDays > 7) {
+        return dt.day.toString().padLeft(2, '0') + '.' +
+               dt.month.toString().padLeft(2, '0') + '.' +
+               dt.year.toString();
+      } else if (diff.inDays >= 1) {
+        return "${diff.inDays} dni temu";
+      } else if (diff.inHours >= 1) {
+        return "${diff.inHours} godzin temu";
+      }
+
       return "dzisiaj";
     } catch (_) {
       return datetime;

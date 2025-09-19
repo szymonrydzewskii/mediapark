@@ -11,6 +11,7 @@ import 'package:mediapark/screens/konsultacje_screen.dart';
 import 'package:mediapark/screens/ogloszenia_screen.dart';
 import 'package:mediapark/widgets/adaptive_asset_image.dart';
 import 'package:mediapark/widgets/webview_page.dart';
+import 'package:mediapark/style/app_style.dart';
 
 class ModulTile extends StatelessWidget {
   final SamorzadModule modul;
@@ -56,7 +57,7 @@ class ModulTile extends StatelessWidget {
 
     final routes = <String, Widget Function()>{
       'budzet-obywatelski': () => BOHarmonogramScreen(idInstytucji: samorzad.idBoInstitution),
-      'konsultacje-spoleczne': () => const KonsultacjeScreen(),
+      'konsultacje-spoleczne': () => KonsultacjeScreen(idInstytucji: '$instId'),
       'ogloszenia': () => OgloszeniaScreen(idInstytucji: '$instId'),
       'kalendarz-wydarzen': () => KalendarzWydarzenScreen(idInstytucji: instId),
     };
@@ -114,7 +115,7 @@ class ModulTile extends StatelessWidget {
         height: 205.h,
         child: Container(
           decoration: BoxDecoration(
-            color: const Color(0xFFCAECF4),
+            color: AppColors.primaryLight,
             borderRadius: BorderRadius.circular(40.r),
           ),
           child: Column(

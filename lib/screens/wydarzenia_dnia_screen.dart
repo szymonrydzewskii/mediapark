@@ -16,6 +16,7 @@ import 'package:mediapark/helpers/html_helper.dart';
 
 // 👇 ekran szczegółów jednego wydarzenia
 import 'kalendarz_wydarzen_details_screen.dart';
+import 'package:mediapark/style/app_style.dart';
 
 class WydarzeniaDniaScreen extends StatefulWidget {
   final int idInstytucji;
@@ -52,9 +53,9 @@ class _WydarzeniaDniaScreenState extends State<WydarzeniaDniaScreen> {
 
   PreferredSizeWidget _buildAppBar() => AppBar(
     forceMaterialTransparency: true,
-    backgroundColor: const Color(0xFFBCE1EB),
+    backgroundColor: AppColors.primary,
     elevation: 0,
-    foregroundColor: Colors.black,
+    foregroundColor: AppColors.blackMedium,
     leading: Transform.translate(
       offset: Offset(8.w, 0),
       child: IconButton(
@@ -80,7 +81,7 @@ class _WydarzeniaDniaScreenState extends State<WydarzeniaDniaScreen> {
     }
 
     return Scaffold(
-      backgroundColor: const Color(0xFFBCE1EB),
+      backgroundColor: AppColors.primary,
       appBar: _buildAppBar(),
       body: SafeArea(
         child: Column(
@@ -96,7 +97,7 @@ class _WydarzeniaDniaScreenState extends State<WydarzeniaDniaScreen> {
                   fontWeight: FontWeight.w700,
                   height: 36.sp / 28.sp, // line-height: 36px
                   letterSpacing: 0,
-                  color: Colors.black,
+                  color: AppColors.blackMedium,
                 ),
               ),
             ),
@@ -158,7 +159,7 @@ class _WydarzeniaDniaScreenState extends State<WydarzeniaDniaScreen> {
       child: Container(
         width: 361.w,
         decoration: BoxDecoration(
-          color: const Color(0xFFCAECF4),
+          color: AppColors.primaryLight,
           borderRadius: BorderRadius.circular(20.r),
         ),
         child:
@@ -179,7 +180,7 @@ class _WydarzeniaDniaScreenState extends State<WydarzeniaDniaScreen> {
       useSafeArea: false,
       isScrollControlled: true,
       backgroundColor: Colors.transparent, // żeby było widać zaokrąglenie
-      barrierColor: Colors.black54,
+      barrierColor: AppColors.blackMedium,
       builder: (ctx) {
         final sheetHeight = mq.size.height * 0.96;
         final topRadius = Radius.circular(24.r);
@@ -225,7 +226,7 @@ class _WydarzeniaDniaScreenState extends State<WydarzeniaDniaScreen> {
       width: 361.w,
       padding: EdgeInsets.fromLTRB(24.w, 34.h, 24.w, 24.h),
       decoration: BoxDecoration(
-        color: const Color(0xFFCAECF4),
+        color: AppColors.primaryLight,
         borderRadius: BorderRadius.circular(20.r),
       ),
       child: Column(
@@ -240,7 +241,7 @@ class _WydarzeniaDniaScreenState extends State<WydarzeniaDniaScreen> {
             style: GoogleFonts.poppins(
               fontSize: 20.sp,
               fontWeight: FontWeight.w700,
-              color: Colors.black,
+              color: AppColors.blackMedium,
             ),
           ),
           SizedBox(height: 12.h),
@@ -256,7 +257,7 @@ class _WydarzeniaDniaScreenState extends State<WydarzeniaDniaScreen> {
               style: GoogleFonts.poppins(
                 fontSize: 14.sp,
                 fontWeight: FontWeight.w400,
-                color: Colors.black,
+                color: AppColors.blackMedium,
               ),
             ),
           SizedBox(height: 16.h),
@@ -265,7 +266,7 @@ class _WydarzeniaDniaScreenState extends State<WydarzeniaDniaScreen> {
           Container(
             padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
             decoration: BoxDecoration(
-              color: const Color(0xFFF7F1C3),
+              color: AppColors.secondary,
               borderRadius: BorderRadius.circular(999.r),
             ),
             child: Text(
@@ -273,7 +274,7 @@ class _WydarzeniaDniaScreenState extends State<WydarzeniaDniaScreen> {
               style: GoogleFonts.poppins(
                 fontSize: 12.sp,
                 fontWeight: FontWeight.w700,
-                color: Colors.black,
+                color: AppColors.blackMedium,
               ),
             ),
           ),
@@ -292,7 +293,7 @@ class _WydarzeniaDniaScreenState extends State<WydarzeniaDniaScreen> {
       width: 361.w,
       padding: EdgeInsets.fromLTRB(24.w, 24.h, 24.w, 24.h),
       decoration: BoxDecoration(
-        color: const Color(0xFFCAECF4),
+        color: AppColors.primaryLight,
         borderRadius: BorderRadius.circular(20.r),
       ),
       child: Row(
@@ -321,7 +322,7 @@ class _WydarzeniaDniaScreenState extends State<WydarzeniaDniaScreen> {
                   style: GoogleFonts.poppins(
                     fontSize: 18.sp,
                     fontWeight: FontWeight.w700,
-                    color: Colors.black,
+                    color: AppColors.blackMedium,
                   ),
                 ),
                 SizedBox(height: 24.h),
@@ -331,7 +332,7 @@ class _WydarzeniaDniaScreenState extends State<WydarzeniaDniaScreen> {
                     vertical: 6.h,
                   ),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF7F1C3),
+                    color: AppColors.secondary,
                     borderRadius: BorderRadius.circular(999.r),
                   ),
                   child: Text(
@@ -339,7 +340,7 @@ class _WydarzeniaDniaScreenState extends State<WydarzeniaDniaScreen> {
                     style: GoogleFonts.poppins(
                       fontSize: 12.sp,
                       fontWeight: FontWeight.w700,
-                      color: Colors.black,
+                      color: AppColors.blackMedium,
                     ),
                   ),
                 ),

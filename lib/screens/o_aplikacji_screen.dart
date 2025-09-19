@@ -3,6 +3,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mediapark/widgets/adaptive_asset_image.dart';
+import 'package:mediapark/style/app_style.dart';
 
 class OAplikacjiScreen extends StatefulWidget {
   const OAplikacjiScreen({super.key});
@@ -12,7 +13,7 @@ class OAplikacjiScreen extends StatefulWidget {
 }
 
 class _OAplikacjiScreenState extends State<OAplikacjiScreen> {
-  static const backgroundColor = Color(0xFFBCE1EB);
+  static const backgroundColor = AppColors.primary;
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +21,7 @@ class _OAplikacjiScreenState extends State<OAplikacjiScreen> {
       backgroundColor: backgroundColor,
       appBar: AppBar(
         forceMaterialTransparency: true,
-        backgroundColor: const Color(0xFFBCE1EB),
+        backgroundColor: AppColors.primary,
         elevation: 0,
         foregroundColor: Colors.black,
         leading: Transform.translate(
@@ -68,7 +69,7 @@ class _OAplikacjiScreenState extends State<OAplikacjiScreen> {
               ),
             ),
             SizedBox(height: 44.5.h),
-            Divider(height: 1, color: Color(0xFF96C5D1)),
+            Divider(height: 1, color: AppColors.divider),
             SizedBox(height: 44.5.h),
             Center(
               child: Text(
@@ -100,7 +101,7 @@ class _OAplikacjiScreenState extends State<OAplikacjiScreen> {
               ),
             ),
             SizedBox(height: 19.h),
-            Divider(height: 1.h, color: Color(0xFF96C5D1),),
+            Divider(height: 1.h, color: AppColors.divider,),
             Center(
               child: Padding(
                 padding: EdgeInsets.all(33.0.r),
@@ -109,7 +110,7 @@ class _OAplikacjiScreenState extends State<OAplikacjiScreen> {
                   style: GoogleFonts.poppins(
                     fontSize: 12.sp,
                     fontWeight: FontWeight.w400,
-                    color: Color(0xFF373737),
+                    color: AppColors.blackLight,
                   ),
                 ),
               ),
@@ -128,7 +129,7 @@ class _OAplikacjiScreenState extends State<OAplikacjiScreen> {
         onTap: onTap,
         child: Ink(
           decoration: BoxDecoration(
-            color: const Color(0xFFCAECF4),
+            color: AppColors.primaryLight,
             borderRadius: BorderRadius.circular(16.r),
           ),
           child: Padding(

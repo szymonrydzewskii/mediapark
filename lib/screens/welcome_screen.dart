@@ -6,6 +6,7 @@ import 'package:mediapark/helpers/dashed_border_painter.dart';
 import 'package:mediapark/screens/selecting_samorzad.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../widgets/adaptive_asset_image.dart';
+import 'package:mediapark/style/app_style.dart';
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
@@ -82,7 +83,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFBCE1EB),
+      backgroundColor: AppColors.primary,
       body: SafeArea(
         child: Stack(
           children: [

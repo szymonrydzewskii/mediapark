@@ -6,6 +6,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:mediapark/screens/wydarzenia_dnia_screen.dart';
+import 'package:mediapark/style/app_style.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:mediapark/models/wydarzenia_models.dart';
 import 'package:mediapark/services/wydarzenia_service.dart';
@@ -22,7 +23,6 @@ class KalendarzWydarzenScreen extends StatefulWidget {
 }
 
 class _KalendarzWydarzenScreenState extends State<KalendarzWydarzenScreen> {
-  // Константы UI
   static const _cellW = 43.0;
   static const _cellH = 65.6;
   static const _cellGapX = 10.0;
@@ -31,7 +31,6 @@ class _KalendarzWydarzenScreenState extends State<KalendarzWydarzenScreen> {
   static const _padL = 10.0;
   static const _padR = 10.0;
   static const _padSafeV = 6.0;
-  static const backgroundColor = Color(0xFFBCE1EB);
   static const _navigationDebounce = Duration(milliseconds: 300);
 
   // Kontrolery i stan
@@ -170,7 +169,7 @@ class _KalendarzWydarzenScreenState extends State<KalendarzWydarzenScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: backgroundColor,
+      backgroundColor: AppColors.primary,
       appBar: _buildAppBar(),
       body: SafeArea(
         child: FutureBuilder<void>(
@@ -191,7 +190,7 @@ class _KalendarzWydarzenScreenState extends State<KalendarzWydarzenScreen> {
 
   PreferredSizeWidget _buildAppBar() => AppBar(
     forceMaterialTransparency: true,
-    backgroundColor: backgroundColor,
+    backgroundColor: AppColors.primary,
     elevation: 0,
     foregroundColor: Colors.black,
     leading: Transform.translate(
@@ -244,7 +243,7 @@ class _KalendarzWydarzenScreenState extends State<KalendarzWydarzenScreen> {
 
   Widget _calendarDivider() => SizedBox(
     width: ((_cellW + _cellGapX) * 7).w,
-    child: const Divider(color: Color(0xFF96C5D1), thickness: 1, height: 1),
+    child: const Divider(color: AppColors.divider, thickness: 1, height: 1),
   );
 
   Widget _buildCalendar() {
@@ -287,7 +286,7 @@ class _KalendarzWydarzenScreenState extends State<KalendarzWydarzenScreen> {
           child: Container(
             width: calendarWidth,
             decoration: BoxDecoration(
-              color: backgroundColor,
+              color: AppColors.primary,
               borderRadius: BorderRadius.circular(20.r),
             ),
             child: _buildTableCalendar(),
@@ -451,10 +450,10 @@ class _KalendarzWydarzenScreenState extends State<KalendarzWydarzenScreen> {
 
     Color bg = Colors.transparent;
     if (isToday && hasEvents) {
-      bg = const Color(0xFFF7F1C3);
+      bg = AppColors.secondary;
     } else if (hasEvents) {
       bg =
-          d.isBefore(today) ? const Color(0xFFCAECF4) : const Color(0xFFF7F1C3);
+          d.isBefore(today) ? AppColors.primaryLight : AppColors.secondary;
     }
 
     return SizedBox(
@@ -471,7 +470,7 @@ class _KalendarzWydarzenScreenState extends State<KalendarzWydarzenScreen> {
           color: bg,
           borderRadius: BorderRadius.circular(_cellRadius.r),
           border:
-              isSelected ? Border.all(color: const Color(0xFF1D1F1F)) : null,
+              isSelected ? Border.all(color: AppColors.blackMedium) : null,
         ),
         child: Center(
           child: Text(
@@ -479,7 +478,7 @@ class _KalendarzWydarzenScreenState extends State<KalendarzWydarzenScreen> {
             style: GoogleFonts.poppins(
               fontSize: 16.sp,
               fontWeight: FontWeight.w600,
-              color: isToday ? const Color(0xFFF13636) : Colors.black,
+              color: isToday ? AppColors.red : Colors.black,
             ),
           ),
         ),
@@ -533,7 +532,7 @@ class _KalendarzWydarzenScreenState extends State<KalendarzWydarzenScreen> {
 
     final bool isToday = eventDay == today;
     final bool isCurrentlyActive = _isEventActiveOnDay(e, today);
-    final Color cardBg = (isToday || isCurrentlyActive) ? Colors.white : const Color(0xFFCAECF4);
+    final Color cardBg = (isToday || isCurrentlyActive) ? Colors.white : AppColors.primaryLight;
 
     return InkWell(
       onTap: () => _openDetailsBottomSheet(context, e),
@@ -588,8 +587,8 @@ class _KalendarzWydarzenScreenState extends State<KalendarzWydarzenScreen> {
                   decoration: BoxDecoration(
                     color:
                         (isToday || isCurrentlyActive)
-                            ? const Color(0xFFF13636)
-                            : const Color(0xFFF7F1C3),
+                            ? AppColors.red
+                            : AppColors.secondary,
                     borderRadius: BorderRadius.circular(999.r),
                   ),
                   child: Center(
@@ -657,7 +656,7 @@ class _KalendarzWydarzenScreenState extends State<KalendarzWydarzenScreen> {
   Widget _emptyCard(String msg) => Container(
     width: double.infinity,
     decoration: BoxDecoration(
-      color: const Color(0xFFCAECF4),
+      color: AppColors.primaryLight,
       borderRadius: BorderRadius.circular(20.r),
     ),
     padding: EdgeInsets.all(20.w),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mediapark/widgets/adaptive_asset_image.dart';
+import 'package:mediapark/style/app_style.dart';
 import '../models/budzet_obywatelski_details.dart';
 import '../services/budzet_obywatelski_details_service.dart';
 
@@ -24,11 +25,11 @@ class BudzetObywatelskiDetailsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFCCE9F2),
+      backgroundColor: AppColors.primaryLight,
       appBar: AppBar(
         elevation: 0,
         forceMaterialTransparency: true,
-        backgroundColor: const Color(0xFFCCE9F2),
+        backgroundColor: AppColors.primaryLight,
         centerTitle: true,
       ),
       body: FutureBuilder<BudzetObywatelskiDetails>(

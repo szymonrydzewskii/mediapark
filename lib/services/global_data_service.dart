@@ -1,6 +1,8 @@
 import 'dart:async';
 import '../models/ogloszenia.dart';
+import '../models/konsultacje.dart';
 import 'ogloszenia_service.dart';
+import 'konsultacje_service.dart';
 import 'package:http/http.dart' as http;
 
 class GlobalDataService {
@@ -16,6 +18,10 @@ class GlobalDataService {
   Map<int, OgloszeniaDetails>? _cachedOgloszeniaDetails;
   Map<String, bool>? _cachedImageValidity;
 
+  // Cache for konsultacje
+  Map<String, List<Konsultacje>>? _cachedKonsultacje;
+  Map<String, bool>? _cachedKonsultacjeImageValidity;
+
   // Loading states
   bool _isLoading = false;
   final StreamController<bool> _loadingController = StreamController<bool>.broadcast();
@@ -29,12 +35,15 @@ class GlobalDataService {
   List<KategoriaOgloszen> get kategorie => _cachedKategorie ?? [];
   Map<int, OgloszeniaDetails> get ogloszeniaDetails => _cachedOgloszeniaDetails ?? {};
   Map<String, bool> get imageValidity => _cachedImageValidity ?? {};
+  Map<String, List<Konsultacje>> get konsultacje => _cachedKonsultacje ?? {};
+  Map<String, bool> get konsultacjeImageValidity => _cachedKonsultacjeImageValidity ?? {};
 
   Future<void> loadMunicipalityData(String municipalityId) async {
     // If same municipality and data already loaded, return
     if (_currentMunicipalityId == municipalityId &&
         _cachedOgloszenia != null &&
-        _cachedKategorie != null) {
+        _cachedKategorie != null &&
+        _cachedKonsultacje != null) {
       return;
     }
 
@@ -50,9 +59,9 @@ class GlobalDataService {
     try {
       await Future.wait([
         _loadOgloszeniaData(municipalityId),
+        _loadKonsultacjeData(municipalityId),
         // TODO: Add other modules here
         // _loadBudzetObywatelskiData(municipalityId),
-        // _loadKonsultacjeData(municipalityId),
       ]);
     } catch (e) {
       print('Error loading municipality data: $e');
@@ -111,6 +120,41 @@ class GlobalDataService {
     }
 
     await Future.wait(futures);
+  }
+
+  Future<void> _loadKonsultacjeData(String municipalityId) async {
+    try {
+      final service = KonsultacjeService();
+      final konsultacjeData = await service.fetchKonsultacje();
+      _cachedKonsultacje = konsultacjeData;
+      _cachedKonsultacjeImageValidity = {};
+
+      // Validate images for all konsultacje
+      final futures = <Future>[];
+      for (final categoryList in konsultacjeData.values) {
+        for (final k in categoryList) {
+          if (k.photoUrl != null && k.photoUrl!.isNotEmpty) {
+            futures.add(
+              _checkImageValidity(k.photoUrl!).then((isValid) {
+                _cachedKonsultacjeImageValidity![k.photoUrl!] = isValid;
+              }).catchError((e) {
+                _cachedKonsultacjeImageValidity![k.photoUrl!] = false;
+              })
+            );
+          }
+        }
+      }
+
+      await Future.wait(futures);
+    } catch (e) {
+      print('Error loading konsultacje data: $e');
+      _cachedKonsultacje = {
+        'active': [],
+        'planned': [],
+        'finished': [],
+      };
+      _cachedKonsultacjeImageValidity = {};
+    }
   }
 
   Future<bool> _checkImageValidity(String imageUrl) async {
@@ -176,11 +220,18 @@ class GlobalDataService {
     return category?.name ?? '';
   }
 
+  bool isKonsultacjaImageValid(String? imageUrl) {
+    if (imageUrl == null || imageUrl.isEmpty) return false;
+    return _cachedKonsultacjeImageValidity?[imageUrl] ?? false;
+  }
+
   void _clearCache() {
     _cachedOgloszenia = null;
     _cachedKategorie = null;
     _cachedOgloszeniaDetails = null;
     _cachedImageValidity = null;
+    _cachedKonsultacje = null;
+    _cachedKonsultacjeImageValidity = null;
   }
 
   void dispose() {

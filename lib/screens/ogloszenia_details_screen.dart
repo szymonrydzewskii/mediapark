@@ -10,6 +10,7 @@ import 'package:flutter_html/flutter_html.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:mediapark/style/app_style.dart';
 
 class OgloszeniaDetailsScreen extends StatefulWidget {
   final Ogloszenia ogloszenie;
@@ -81,10 +82,10 @@ class _OgloszeniaDetailsScreenState extends State<OgloszeniaDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFBCE1EB),
+      backgroundColor: AppColors.primary,
       appBar: AppBar(
         forceMaterialTransparency: true,
-        backgroundColor: const Color(0xFFBCE1EB),
+        backgroundColor: AppColors.primary,
         elevation: 0,
         foregroundColor: Colors.black,
         leading: Transform.translate(
@@ -142,7 +143,7 @@ class _OgloszeniaDetailsScreenState extends State<OgloszeniaDetailsScreen> {
                       ),
                     ),
                     SizedBox(height: 12.h),
-                    Divider(height: 1, color: Color(0xFF96C5D1)),
+                    Divider(height: 1, color: AppColors.divider),
                     SizedBox(height: 12.h),
 
                     // Data dodania
@@ -150,7 +151,7 @@ class _OgloszeniaDetailsScreenState extends State<OgloszeniaDetailsScreen> {
                       "Dodane ${_formatDate(_details?.datetime ?? widget.ogloszenie.datetime)}",
                       style: GoogleFonts.poppins(
                         fontSize: 12.sp,
-                        color: Colors.grey[700],
+                        color: AppColors.blackLight,
                         fontWeight: FontWeight.w400,
                       ),
                     ),
@@ -199,7 +200,7 @@ class _OgloszeniaDetailsScreenState extends State<OgloszeniaDetailsScreen> {
 
                     // Lokalizacja
                     if (_hasLocationData()) ...[
-                      Divider(height: 1, color: Color(0xFF96C5D1)),
+                      Divider(height: 1, color: AppColors.divider),
                       SizedBox(height: 40.h),
                       _buildLocationSection(),
                       SizedBox(height: 20.h),
@@ -221,7 +222,7 @@ class _OgloszeniaDetailsScreenState extends State<OgloszeniaDetailsScreen> {
                               margin: EdgeInsets.only(bottom: 8.h),
                               padding: EdgeInsets.all(12.w),
                               decoration: BoxDecoration(
-                                color: const Color(0xFFACD2DD),
+                                color: AppColors.primaryMedium,
                                 borderRadius: BorderRadius.circular(8.r),
                               ),
                               child: Column(

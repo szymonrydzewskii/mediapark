@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import '../services/image_cache_service.dart';
 import 'dart:typed_data';
 import 'dart:math';
+import 'package:mediapark/style/app_style.dart';
 
 class CachedNetworkImageWidget extends StatefulWidget {
   final String url;
@@ -108,7 +109,7 @@ class _CachedNetworkImageWidgetState extends State<CachedNetworkImageWidget> {
       return Icon(
         Icons.error,
         size: min(widget.width.w, widget.height.h),
-        color: Colors.grey,
+        color: AppColors.blackLight,
       );
     }
 

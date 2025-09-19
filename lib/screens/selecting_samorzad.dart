@@ -10,6 +10,7 @@ import 'package:mediapark/widgets/bottom_nav_bar.dart';
 import 'package:mediapark/services/cached_samorzad_service.dart';
 import 'package:mediapark/services/cached_samorzad_details_service.dart';
 import 'package:mediapark/services/global_data_service.dart';
+import 'package:mediapark/style/app_style.dart';
 
 class SelectingSamorzad extends StatefulWidget {
   const SelectingSamorzad({super.key});
@@ -22,7 +23,7 @@ class _SelectingSamorzadState extends State<SelectingSamorzad> {
   final _samorzadService = CachedSamorzadService();
   final _detailsService = CachedSamorzadDetailsService();
   final _globalDataService = GlobalDataService();
-  static const backgroundColor = Color(0xFFBCE1EB);
+  static const backgroundColor = AppColors.primary;
   List<Samorzad> wszystkieSamorzady = [];
   List<Samorzad> filtrowaneSamorzady = [];
   Set<String> wybraneSamorzady = {};
@@ -152,7 +153,7 @@ class _SelectingSamorzadState extends State<SelectingSamorzad> {
                   fontWeight: FontWeight.w600,
                 ),
                 filled: true,
-                fillColor: const Color(0xFFACD2DD),
+                fillColor: AppColors.primaryMedium,
                 contentPadding: EdgeInsets.symmetric(
                   horizontal: 24.w,
                   vertical: 14.h,

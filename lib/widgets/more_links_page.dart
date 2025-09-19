@@ -5,6 +5,7 @@ import 'package:mediapark/widgets/adaptive_asset_image.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mediapark/style/app_style.dart';
 
 class MoreLinksPage extends StatelessWidget {
   final List<SamorzadModule> modules;
@@ -31,11 +32,11 @@ class MoreLinksPage extends StatelessWidget {
     }
 
     return Scaffold(
-      backgroundColor: const Color(0xFFCCE9F2),
+      backgroundColor: AppColors.primaryLight,
       appBar: AppBar(
         elevation: 0,
         forceMaterialTransparency: true,
-        backgroundColor: const Color(0xFFCCE9F2),
+        backgroundColor: AppColors.primaryLight,
         centerTitle: true,
         title: Padding(
           padding: EdgeInsets.only(top: 20.h),
@@ -71,7 +72,7 @@ class MoreLinksPage extends StatelessWidget {
                 },
                 child: Container(
                   decoration: BoxDecoration(
-                    color: const Color(0xFFD6F4FE),
+                    color: AppColors.primaryLight,
                     borderRadius: BorderRadius.circular(25.r),
                   ),
                   child: Column(

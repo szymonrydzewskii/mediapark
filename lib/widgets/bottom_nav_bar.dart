@@ -10,6 +10,7 @@ import 'package:mediapark/screens/settings_screen.dart';
 import 'package:mediapark/screens/selecting_samorzad.dart';
 import 'package:mediapark/models/samorzad.dart';
 import 'package:mediapark/widgets/adaptive_asset_image.dart';
+import 'package:mediapark/style/app_style.dart';
 
 class BottomNavBar extends StatefulWidget {
   final Set<Samorzad> wybraneSamorzady;
@@ -194,10 +195,10 @@ class _BottomNavBarState extends State<BottomNavBar>
           child: Container(
             key: _navBoxKey, // << potrzebne do pozycjonowania menu
             decoration: BoxDecoration(
-              color: const Color(0xFF1D1F1F),
+              color: AppColors.blackMedium,
               borderRadius: BorderRadius.circular(90.r),
               boxShadow: [
-                BoxShadow(color: const Color(0xFFBCE1EB), blurRadius: 12.r),
+                BoxShadow(color: AppColors.primary, blurRadius: 12.r),
               ],
             ),
             padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
@@ -205,7 +206,7 @@ class _BottomNavBarState extends State<BottomNavBar>
               builder: (context, constraints) {
                 return GNav(
                   backgroundColor: Colors.transparent,
-                  tabBackgroundColor: const Color(0xFF373737),
+                  tabBackgroundColor: AppColors.blackLight,
                   gap: 10.w,
                   padding: EdgeInsets.symmetric(
                     horizontal: 16.w,
@@ -312,9 +313,9 @@ class _DropdownCard extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFF373737),
+        color: AppColors.blackLight,
         borderRadius: BorderRadius.circular(18.r),
-        boxShadow: [BoxShadow(color: Color(0xFF373737), blurRadius: 12.r)],
+        boxShadow: [BoxShadow(color: AppColors.blackLight, blurRadius: 12.r)],
       ),
       padding: EdgeInsets.symmetric(vertical: 8.h),
       child: Column(

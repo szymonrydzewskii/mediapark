@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
+import 'package:mediapark/style/app_style.dart';
 
 class WebViewPage extends StatefulWidget {
   final String url;

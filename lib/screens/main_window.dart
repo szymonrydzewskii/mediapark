@@ -12,6 +12,7 @@ import 'package:mediapark/screens/selecting_samorzad.dart';
 import 'dart:math';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mediapark/widgets/tiles/modul_tile.dart';
+import 'package:mediapark/style/app_style.dart';
 
 class MainWindow extends StatefulWidget {
   final Set<Samorzad> wybraneSamorzady;
@@ -32,7 +33,7 @@ class _MainWindowState extends State<MainWindow>
   bool showPanel = false;
   SamorzadSzczegoly? szczegolyInstytucji;
   bool loadingSzczegoly = false;
-  static const backgroundColor = Color(0xFFBCE1EB);
+  static const backgroundColor = AppColors.primary;
   Set<String> animowaneModuly = {};
   static Set<String> globalAnimatedModules = {}; // Globalna lista animowanych modułów
   bool _isFirstLoad = true;

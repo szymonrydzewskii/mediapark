@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/samorzad.dart';
 import 'adaptive_asset_image.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:mediapark/style/app_style.dart';
 
 class SamorzadListItem extends StatelessWidget {
   final Samorzad samorzad;

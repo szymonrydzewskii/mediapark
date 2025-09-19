@@ -9,6 +9,7 @@ import 'package:mediapark/services/bo_service.dart';
 import 'package:intl/intl.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mediapark/helpers/html_helper.dart';
+import 'package:mediapark/style/app_style.dart';
 
 class BOHarmonogramScreen extends StatefulWidget {
   final int idInstytucji;
@@ -34,10 +35,10 @@ class _BOHarmonogramScreenState extends State<BOHarmonogramScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFBCE1EB),
+      backgroundColor: AppColors.primary,
       appBar: AppBar(
         forceMaterialTransparency: true,
-        backgroundColor: const Color(0xFFBCE1EB),
+        backgroundColor: AppColors.primary,
         elevation: 0,
         foregroundColor: Colors.black,
         leading: Transform.translate(
@@ -157,7 +158,7 @@ class _BOHarmonogramScreenState extends State<BOHarmonogramScreen> {
                               color:
                                   isActive
                                       ? Colors.white
-                                      : const Color(0xFFCAECF4),
+                                      : AppColors.primaryLight,
                               borderRadius: BorderRadius.circular(20),
                             ),
                             alignment: Alignment.centerLeft,
@@ -187,7 +188,7 @@ class _BOHarmonogramScreenState extends State<BOHarmonogramScreen> {
                                       width: 40.w,
                                       height: 32.h,
                                       decoration: BoxDecoration(
-                                        color: const Color(0xFFF13636),
+                                        color: AppColors.red,
                                         borderRadius: BorderRadius.circular(
                                           16.r,
                                         ),
@@ -205,7 +206,7 @@ class _BOHarmonogramScreenState extends State<BOHarmonogramScreen> {
                                     : isDone
                                     ? DotIndicator(
                                       size: 32.w,
-                                      color: const Color(0xFFACD2DD),
+                                      color: AppColors.primaryMedium,
                                       child: const Icon(
                                         Icons.check,
                                         size: 16,
@@ -214,7 +215,7 @@ class _BOHarmonogramScreenState extends State<BOHarmonogramScreen> {
                                     )
                                     : DotIndicator(
                                       size: 12.w,
-                                      color: const Color(0xFF96C5D1),
+                                      color: AppColors.divider,
                                     ),
                           ),
                         );
@@ -226,8 +227,8 @@ class _BOHarmonogramScreenState extends State<BOHarmonogramScreen> {
                           gap: 5,
                           indent: type == ConnectorType.start ? 8.h : 0,
                           endIndent: type == ConnectorType.end ? 8.h : 0,
-                          color: const Color(0xFF96C5D1),
-                          gapColor: Colors.transparent,
+                          color: AppColors.divider,
+                          gapColor: Colors.white.withOpacity(0),
                         );
                       },
                     ),
@@ -362,7 +363,7 @@ class _ActiveStageCard extends StatelessWidget {
             fontWeight: FontWeight.w700,
           ),
         ),
-        const Divider(thickness: 1, color: Color(0xFFCAECF4)),
+        const Divider(thickness: 1, color: AppColors.primaryLight),
         SizedBox(height: 16.h),
         // ---- start ----
         if (showStart)
@@ -438,7 +439,7 @@ class _ActiveStageCard extends StatelessWidget {
           ),
           SizedBox(height: 12.h),
           if (showVoteButton || showAddProjectButton || showProjectsButton)
-            const Divider(thickness: 1, color: Color(0xFFCAECF4)),
+            const Divider(thickness: 1, color: AppColors.primaryLight),
           SizedBox(height: 12.h),
         ],
         // ---- przycisk ----
@@ -452,7 +453,7 @@ class _ActiveStageCard extends StatelessWidget {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(30),
               ),
-              backgroundColor: Color(0xFF1D1F1F),
+              backgroundColor: AppColors.blackMedium,
             ),
             child: Text("Zagłosuj", style: TextStyle(color: Colors.white)),
           ),
@@ -466,7 +467,7 @@ class _ActiveStageCard extends StatelessWidget {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(30),
               ),
-              backgroundColor: Color(0xFF1D1F1F),
+              backgroundColor: AppColors.blackMedium,
             ),
             child: Text("Zgłoś projekt", style: TextStyle(color: Colors.white)),
           ),
@@ -488,7 +489,7 @@ class _ActiveStageCard extends StatelessWidget {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(30),
               ),
-              backgroundColor: Color(0xFF1D1F1F),
+              backgroundColor: AppColors.blackMedium,
             ),
             child: Text(
               "Zobacz wyniki głosowania",
@@ -504,7 +505,7 @@ class _ActiveStageCard extends StatelessWidget {
       width: 80.w, // tu szerokość każdego kafelka
       height: 104.h,
       decoration: BoxDecoration(
-        color: const Color(0xFFF7F1C3),
+        color: AppColors.secondary,
         borderRadius: BorderRadius.circular(20),
       ),
       padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 8.w),

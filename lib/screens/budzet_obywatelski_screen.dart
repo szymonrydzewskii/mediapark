@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mediapark/models/samorzad_details.dart';
+import 'package:mediapark/style/app_style.dart';
 import '../services/budzet_obywatelski_service.dart';
 import '../models/budzet_obywatelski.dart';
 import 'budzet_obywatelski_details_screen.dart';
@@ -21,11 +22,11 @@ class BudzetObywatelskiScreen extends StatelessWidget {
     final String idInstytucji = modul.idInstytucji;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFBCE1EB),
+      backgroundColor: AppColors.primary,
       appBar: AppBar(
         elevation: 0,
         forceMaterialTransparency: true,
-        backgroundColor: const Color(0xFFBCE1EB),
+        backgroundColor: AppColors.primary,
         centerTitle: true,
         title: Text(
           "Budżet Obywatelski",
@@ -83,7 +84,7 @@ class BudzetObywatelskiScreen extends StatelessWidget {
     final shortDesc = projekt.shortDescription.replaceAll('\r\n', '\n');
 
     return Card(
-      color: const Color(0xFFCAECF4),
+      color: AppColors.primaryLight,
       elevation: 0,
       margin: EdgeInsets.symmetric(vertical: 8.h),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18.r)),
@@ -115,7 +116,7 @@ class BudzetObywatelskiScreen extends StatelessWidget {
                         horizontal: 8.w,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.green[800],
+                        color: Colors.black,
                         borderRadius: BorderRadius.circular(50.r),
                       ),
                       child: Text(

@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:mediapark/helpers/html_helper.dart';
 import 'package:mediapark/models/wydarzenia_models.dart';
 import 'package:mediapark/services/wydarzenia_service.dart';
+import 'package:mediapark/style/app_style.dart';
 
 class KalendarzWydarzenDetailsScreen extends StatefulWidget {
   final int idInstytucji;
@@ -26,7 +27,7 @@ class KalendarzWydarzenDetailsScreen extends StatefulWidget {
 
 class _KalendarzWydarzenDetailsScreenState
     extends State<KalendarzWydarzenDetailsScreen> {
-  static const backgroundColor = Color(0xFFBCE1EB);
+  static const backgroundColor = AppColors.primary;
   late final WydarzeniaService _service;
   late Future<WydarzenieDetails> _future;
 
@@ -109,7 +110,7 @@ class _KalendarzWydarzenDetailsScreenState
                       vertical: 6.h,
                     ),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF7F1C3),
+                      color: AppColors.secondary,
                       borderRadius: BorderRadius.circular(999.r),
                     ),
                     child: Text(

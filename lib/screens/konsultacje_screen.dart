@@ -7,19 +7,22 @@ import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mediapark/helpers/prettify.dart';
 import '../models/konsultacje.dart';
-import '../services/konsultacje_service.dart';
+import '../services/global_data_service.dart';
 import '../screens/konsultacje_details_screen.dart';
+import 'package:mediapark/style/app_style.dart';
 
 class KonsultacjeScreen extends StatefulWidget {
-  const KonsultacjeScreen({super.key});
+  final String idInstytucji;
+
+  const KonsultacjeScreen({super.key, required this.idInstytucji});
 
   @override
   State<KonsultacjeScreen> createState() => _KonsultacjeScreenState();
 }
 
 class _KonsultacjeScreenState extends State<KonsultacjeScreen> {
-  final _service = KonsultacjeService();
-  late Future<Map<String, List<Konsultacje>>> _future;
+  final GlobalDataService _globalService = GlobalDataService();
+  Map<String, List<Konsultacje>> _konsultacjeData = {};
   final List<Map<String, String>> categories = [
     {'key': 'active', 'label': 'Trwające'},
     {'key': 'planned', 'label': 'Zaplanowane'},
@@ -27,20 +30,40 @@ class _KonsultacjeScreenState extends State<KonsultacjeScreen> {
   ];
 
   String selectedCategory = 'active';
+  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _future = _service.fetchKonsultacje();
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    // Show data immediately if available, otherwise show what we have
+    setState(() {
+      _konsultacjeData = _globalService.konsultacje;
+      _isLoading = false; // Always show UI immediately
+    });
+
+    // Ensure global data is loaded in background
+    _globalService.loadMunicipalityData(widget.idInstytucji).then((_) {
+      if (mounted) {
+        setState(() {
+          _konsultacjeData = _globalService.konsultacje;
+        });
+      }
+    }).catchError((e) {
+      print('Background loading error in KonsultacjeScreen: $e');
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFBCE1EB),
+      backgroundColor: AppColors.primary,
       appBar: AppBar(
         forceMaterialTransparency: true,
-        backgroundColor: const Color(0xFFBCE1EB),
+        backgroundColor: AppColors.primary,
         elevation: 0,
         foregroundColor: Colors.black,
         leading: Transform.translate(
@@ -74,34 +97,11 @@ class _KonsultacjeScreenState extends State<KonsultacjeScreen> {
             _buildCategoryChips(),
             SizedBox(height: 12.h),
             Expanded(
-              child: FutureBuilder<Map<String, List<Konsultacje>>>(
-                future: _future,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
-                  } else if (snapshot.hasError) {
-                    return Center(
-                      child: Text('Wystąpił błąd pobierania danych'),
-                    );
-                  }
-
-                  final konsultacje = snapshot.data![selectedCategory] ?? [];
-                  if (konsultacje.isEmpty) {
-                    return const Center(child: Text('Brak konsultacji'));
-                  }
-
-                  return ListView.builder(
-                    key: PageStorageKey<String>(
-                      'konsultacjeList_$selectedCategory',
-                    ),
-                    itemCount: konsultacje.length,
-                    itemBuilder: (context, index) {
-                      final k = konsultacje[index];
-                      return _buildKonsultacjaTile(k);
-                    },
-                  );
-                },
-              ),
+              child: _isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : _konsultacjeData.isEmpty
+                      ? const Center(child: Text('Wystąpił błąd pobierania danych'))
+                      : _buildKonsultacjeList(),
             ),
           ],
         ),
@@ -128,14 +128,14 @@ class _KonsultacjeScreenState extends State<KonsultacjeScreen> {
                     ),
                   ),
                   selected: selectedCategory == cat['key'],
-                  selectedColor: const Color(0xFFBCE1EB),
-                  backgroundColor: const Color(0xFFACD2DD),
+                  selectedColor: AppColors.primary,
+                  backgroundColor: AppColors.primaryMedium,
                   onSelected:
                       (_) => setState(() => selectedCategory = cat['key']!),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(25.r),
                     side: BorderSide(
-                      color: const Color(0xFFACD2DD),
+                      color: AppColors.primaryMedium,
                       width: 2.w,
                     ),
                   ),
@@ -146,9 +146,26 @@ class _KonsultacjeScreenState extends State<KonsultacjeScreen> {
     );
   }
 
+  Widget _buildKonsultacjeList() {
+    final konsultacje = _konsultacjeData[selectedCategory] ?? [];
+    if (konsultacje.isEmpty) {
+      return const Center(child: Text('Brak konsultacji'));
+    }
+
+    return ListView.builder(
+      itemCount: konsultacje.length,
+      itemBuilder: (context, index) {
+        final k = konsultacje[index];
+        return _buildKonsultacjaTile(k);
+      },
+    );
+  }
+
   Widget _buildKonsultacjaTile(Konsultacje k) {
+    final hasValidImage = _globalService.isKonsultacjaImageValid(k.photoUrl);
+
     return Card(
-      color: const Color(0xFFCAECF4),
+      color: AppColors.primaryLight,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25.r)),
       elevation: 0,
       margin: EdgeInsets.symmetric(vertical: 8.h),
@@ -157,23 +174,16 @@ class _KonsultacjeScreenState extends State<KonsultacjeScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if ((k.photoUrl ?? '').isNotEmpty)
-              Image.network(
-                k.photoUrl!,
-                fit: BoxFit.cover,
-                frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
-                  if (wasSynchronouslyLoaded || frame != null) {
-                    return ClipRRect(
-                      borderRadius: BorderRadius.circular(10.r),
-                      child: AspectRatio(aspectRatio: 3 / 2, child: child),
-                    );
-                  } else {
-                    return const SizedBox.shrink();
-                  }
-                },
-                errorBuilder: (context, error, stackTrace) {
-                  return const SizedBox.shrink();
-                },
+            if (hasValidImage)
+              ClipRRect(
+                borderRadius: BorderRadius.circular(10.r),
+                child: AspectRatio(
+                  aspectRatio: 3 / 2,
+                  child: Image.network(
+                    k.photoUrl!,
+                    fit: BoxFit.cover,
+                  ),
+                ),
               ),
 
             SizedBox(height: 24.h),
@@ -227,7 +237,7 @@ class _KonsultacjeScreenState extends State<KonsultacjeScreen> {
               //   );
               // },
             ),
-            Divider(thickness: 1, color: Color(0xFFACD2DD)),
+            Divider(thickness: 1, color: AppColors.primaryMedium),
             Padding(
               padding: EdgeInsets.symmetric(vertical: 16.w, horizontal: 30.h),
               child: Row(
@@ -247,7 +257,7 @@ class _KonsultacjeScreenState extends State<KonsultacjeScreen> {
                           );
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFCAECF4),
+                          backgroundColor: AppColors.primaryLight,
                           foregroundColor: Colors.black,
                           elevation: 0,
                           side: BorderSide(color: Color(0xFFACD2DD)),
@@ -312,7 +322,7 @@ Widget _buildTag(String label) {
   return Container(
     padding: EdgeInsets.only(right: 12.w, left: 12.w, top: 8.h, bottom: 8.h),
     decoration: BoxDecoration(
-      color: const Color(0xFFF7F1C3),
+      color: AppColors.secondary,
       borderRadius: BorderRadius.circular(8.r),
     ),
     child: Text(
