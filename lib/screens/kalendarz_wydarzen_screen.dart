@@ -7,6 +7,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:mediapark/screens/wydarzenia_dnia_screen.dart';
 import 'package:mediapark/style/app_style.dart';
+import 'package:mediapark/style/date_utils.dart';
+import 'package:mediapark/style/text_styles.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:mediapark/models/wydarzenia_models.dart';
 import 'package:mediapark/services/wydarzenia_service.dart';
@@ -46,9 +48,7 @@ class _KalendarzWydarzenScreenState extends State<KalendarzWydarzenScreen> {
   List<WydarzenieListItem> _upcoming = [];
   late Future<void> _loadFuture;
 
-  // Formatery dat (const dla wydajności)
-  static final _dfDay = DateFormat('dd.MM.yy');
-  static final _dfTime = DateFormat('HH:mm');
+  // Formatery dat zastąpione przez AppDateUtils
 
   @override
   void initState() {
@@ -227,10 +227,9 @@ class _KalendarzWydarzenScreenState extends State<KalendarzWydarzenScreen> {
         sliver: SliverToBoxAdapter(
           child: Text(
             'Nadchodzące\nwydarzenia',
-            style: GoogleFonts.poppins(
-              fontSize: 28.sp,
-              fontWeight: FontWeight.w700,
-              color: Colors.black,
+            style: AppTextStyles.withColor(
+              AppTextStyles.withSize(AppTextStyles.heading1, 28),
+              Colors.black,
             ),
           ),
         ),
@@ -248,9 +247,7 @@ class _KalendarzWydarzenScreenState extends State<KalendarzWydarzenScreen> {
 
   Widget _buildCalendar() {
     final calendarWidth = ((_cellW + _cellGapX) * 7).w;
-    final title = toBeginningOfSentenceCase(
-      DateFormat('LLLL yyyy', 'pl_PL').format(_focusedDay),
-    );
+    final title = AppDateUtils.formatMonthYear(_focusedDay);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -262,10 +259,9 @@ class _KalendarzWydarzenScreenState extends State<KalendarzWydarzenScreen> {
             children: [
               Text(
                 title,
-                style: GoogleFonts.poppins(
-                  fontSize: 28.sp,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.black,
+                style: AppTextStyles.withColor(
+                  AppTextStyles.withSize(AppTextStyles.heading1, 28),
+                  Colors.black,
                 ),
               ),
               const Spacer(),
@@ -510,25 +506,13 @@ class _KalendarzWydarzenScreenState extends State<KalendarzWydarzenScreen> {
 
   // === NADCHODZĄCE: kafelek z bottom sheet ===
   Widget _eventTile(WydarzenieListItem e) {
-    final String chipDate = _dfDay.format(e.start);
-    final String chipTime = _dfTime.format(e.start);
+    // Zastąpiono formatowaniem z AppDateUtils
 
     final DateTime today = _normalize(DateTime.now());
-    final DateTime tomorrow = _normalize(
-      DateTime.now().add(const Duration(days: 1)),
-    );
     final DateTime eventDay = _normalize(e.start);
 
-    late final String chipText;
-    if (e.allDay) {
-      chipText = '$chipDate / Cały dzień';
-    } else if (eventDay == today) {
-      chipText = 'Dziś / $chipTime';
-    } else if (eventDay == tomorrow) {
-      chipText = 'Jutro / $chipTime';
-    } else {
-      chipText = '$chipDate / $chipTime';
-    }
+    // Używamy AppDateUtils do formatowania
+    final String chipText = AppDateUtils.formatEventChip(e.start, e.allDay);
 
     final bool isToday = eventDay == today;
     final bool isCurrentlyActive = _isEventActiveOnDay(e, today);
