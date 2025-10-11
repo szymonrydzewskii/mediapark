@@ -30,7 +30,7 @@ class BOService {
         'https://test.budzetobywatelski.pl/mobile-app-api/v1/i/$institutionId/harmonogram';
     final res = await http.get(Uri.parse(url));
     if (res.statusCode == 200) {
-      final data = json.decode(res.body);
+      final List<dynamic> data = json.decode(res.body);
       return BOHarmonogram.fromJson(data);
     } else {
       throw Exception(

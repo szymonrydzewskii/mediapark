@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mediapark/widgets/adaptive_asset_image.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'o_aplikacji_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:mediapark/style/app_style.dart';
+import 'package:mediapark/helpers/preferences_helper.dart';
+import 'o_aplikacji_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -15,14 +16,36 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   bool pushEnabled = false;
-  
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPushPreference();
+  }
+
+  /// Wczytuje zapisane ustawienie powiadomień PUSH z SharedPreferences
+  Future<void> _loadPushPreference() async {
+    final enabled = await PreferencesHelper.getPushNotificationsEnabled();
+    if (mounted) {
+      setState(() {
+        pushEnabled = enabled;
+        _isLoading = false;
+      });
+    }
+  }
+
+  /// Zapisuje wybór użytkownika dotyczący powiadomień PUSH
+  Future<void> _savePushPreference(bool value) async {
+    await PreferencesHelper.savePushNotificationsEnabled(value);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.primary,
       body: SafeArea(
         child: SingleChildScrollView(
-          // dodajemy zapas na lewitujący nav bar
           padding: EdgeInsets.fromLTRB(24.w, 24.h, 24.w, 24.h),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -55,12 +78,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Padding(
-                    padding: EdgeInsets.only(left: 12.w, top: 16.w),
-                    child: AdaptiveAssetImage(
-                      basePath: 'assets/icons/notifications',
-                      width: 56.w,
-                      height: 56.h,
+                  SizedBox(
+                    width: 56.w + 12.w,
+                    height: 56.h + 16.h,
+                    child: Padding(
+                      padding: EdgeInsets.only(left: 12.w, top: 16.h),
+                      child: AdaptiveAssetImage(
+                        basePath: 'assets/icons/notifications',
+                        width: 56.w,
+                        height: 56.h,
+                      ),
                     ),
                   ),
                   SizedBox(width: 16.w),
@@ -83,15 +110,31 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ],
                     ),
                   ),
-                  Switch(
-                    value: pushEnabled,
-                    onChanged: (value) {
-                      setState(() {
-                        pushEnabled = value;
-                      });
-                    },
-                    activeTrackColor: AppColors.blackMedium,
-                  ),
+                  // Wyświetl Switch dopiero po wczytaniu preferencji
+                  if (!_isLoading)
+                    Switch(
+                      value: pushEnabled,
+                      onChanged: (value) async {
+                        setState(() {
+                          pushEnabled = value;
+                        });
+                        await _savePushPreference(value);
+                      },
+                      activeTrackColor: AppColors.blackMedium,
+                    )
+                  else
+                    // Placeholder podczas ładowania
+                    SizedBox(
+                      width: 51.w,
+                      height: 31.h,
+                      child: const Center(
+                        child: SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
+                      ),
+                    ),
                 ],
               ),
               SizedBox(height: 49.h),

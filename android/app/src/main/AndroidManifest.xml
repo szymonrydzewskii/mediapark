@@ -1,6 +1,30 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.INTERNET"/>
+
+    <queries>
+        <!-- Ogólne intent dla przeglądarek -->
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="http" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="https" />
+        </intent>
+        
+        <!-- Facebook -->
+        <package android:name="com.facebook.katana" />
+        
+        <!-- Instagram -->
+        <package android:name="com.instagram.android" />
+        
+        <!-- X (Twitter) -->
+        <package android:name="com.twitter.android" />
+        
+        <!-- YouTube -->
+        <package android:name="com.google.android.youtube" />
+    </queries>
     
     <application
         android:theme="@style/LaunchTheme"

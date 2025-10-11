@@ -31,12 +31,13 @@ class _BottomNavBarState extends State<BottomNavBar>
   int selectedIndex = 0;
   late Samorzad aktywnaGmina;
 
-  // ▼ Dropdown z Overlaya
-  final GlobalKey _navBoxKey = GlobalKey(); // klucz do kontenera z GNav
+  final GlobalKey _navBoxKey = GlobalKey();
   OverlayEntry? _menuEntry;
   late final AnimationController _menuCtrl;
   late final Animation<double> _fade;
   late final Animation<Offset> _slide;
+
+  bool get _isMenuOpen => _menuEntry != null;
 
   @override
   void initState() {
@@ -62,7 +63,7 @@ class _BottomNavBarState extends State<BottomNavBar>
   }
 
   void _onItemTapped(int index) {
-    if (index != 0) _removeMenu(); // zmiana taba zamyka menu
+    if (index != 0) _removeMenu();
     setState(() => selectedIndex = index);
   }
 
@@ -95,6 +96,7 @@ class _BottomNavBarState extends State<BottomNavBar>
     _menuCtrl.reverse().whenComplete(() {
       _menuEntry?.remove();
       _menuEntry = null;
+      setState(() {}); // odśwież strzałkę
     });
   }
 
@@ -106,28 +108,24 @@ class _BottomNavBarState extends State<BottomNavBar>
     final Size navSize = navBox.size;
     final Offset navPos = navBox.localToGlobal(Offset.zero);
 
-    // szerokość jednego taba (masz 3)
     const tabsCount = 3;
     final perTabWidth = navSize.width / tabsCount;
 
-    // szerokość i wysokość panelu
     double menuWidth = perTabWidth - 20.w;
-    menuWidth = menuWidth.clamp(220.w, 280.w); // sensowny zakres
+    menuWidth = menuWidth.clamp(220.w, 280.w);
     final itemsCount = widget.wybraneSamorzady.length;
     final double menuHeight = math.min(
       16.h + itemsCount * 48.h + 8.h + 44.h,
       260.h,
-    ); // lista + przycisk
+    );
 
-    // pozycja: nad lewą krawędzią pierwszego taba z lekkim odsunięciem
-    final double left = navPos.dx + 6.w; // padding wewnętrzny paska
-    final double top = navPos.dy - menuHeight - 6.h; // 8.h odstępu nad paskiem
+    final double left = navPos.dx + 6.w;
+    final double top = navPos.dy - menuHeight - 6.h;
 
     _menuEntry = OverlayEntry(
       builder: (context) {
         return Stack(
           children: [
-            // półprzezroczysty „barrier” — kliknięcie poza zamyka menu
             Positioned.fill(
               child: GestureDetector(
                 behavior: HitTestBehavior.translucent,
@@ -169,6 +167,7 @@ class _BottomNavBarState extends State<BottomNavBar>
 
     Overlay.of(context).insert(_menuEntry!);
     _menuCtrl.forward(from: 0);
+    setState(() {}); // odśwież strzałkę
   }
 
   @override
@@ -183,7 +182,7 @@ class _BottomNavBarState extends State<BottomNavBar>
     ];
 
     String label = aktywnaGmina.nazwa;
-    if (label.length > 16) label = '${label.substring(0, 16)}…';
+    if (label.length > 14) label = '${label.substring(0, 14)}…';
 
     return Scaffold(
       extendBody: true,
@@ -193,7 +192,7 @@ class _BottomNavBarState extends State<BottomNavBar>
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
           child: Container(
-            key: _navBoxKey, // << potrzebne do pozycjonowania menu
+            key: _navBoxKey,
             decoration: BoxDecoration(
               color: AppColors.blackMedium,
               borderRadius: BorderRadius.circular(90.r),
@@ -204,44 +203,110 @@ class _BottomNavBarState extends State<BottomNavBar>
             padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
             child: LayoutBuilder(
               builder: (context, constraints) {
+                // bazowy limit ~ 1/3 szerokości
+                final double baseMaxTabWidth = (constraints.maxWidth / 3) - 6.w;
+
+                // konserwatywna rezerwa dla dwóch pozostałych kafelków (ikonki + tekst)
+                final double otherTabsReserve =
+                    2 * 130.w; // dostosuj, jeśli masz inne paddingi/teksty
+                final double safety = 24.w;
+
+                // ile realnie możemy oddać aktywnemu kafelkowi
+                final double availableForActive = (constraints.maxWidth -
+                        otherTabsReserve -
+                        safety)
+                    .clamp(140.w, baseMaxTabWidth + 60.w);
+
+                // nie przesadzaj – maks. 60% szerokości paska
+                final double activeMaxWidth = math.min(
+                  availableForActive,
+                  constraints.maxWidth * 0.60,
+                );
+
                 return GNav(
                   backgroundColor: Colors.transparent,
                   tabBackgroundColor: AppColors.blackLight,
-                  gap: 10.w,
+                  gap: 8.w,
                   padding: EdgeInsets.symmetric(
-                    horizontal: 16.w,
-                    vertical: 16.h,
+                    horizontal: 12.w,
+                    vertical: 14.h,
                   ),
                   tabBorderRadius: 99.r,
                   color: Colors.white70,
                   activeColor: Colors.white,
-                  iconSize: 24.sp,
+                  iconSize: 22.sp,
                   duration: const Duration(milliseconds: 250),
                   selectedIndex: selectedIndex,
                   onTabChange: (i) => _onItemTapped(i),
                   textStyle: GoogleFonts.poppins(
-                    fontSize: 14.sp,
+                    fontSize: 13.sp,
                     fontWeight: FontWeight.w700,
                     color: Colors.white,
                   ),
                   tabs: [
-                    // HOME – klik przełącza lub rozwija/zamyka menu
+                    // HOME
                     GButton(
                       icon: Icons.home,
                       leading:
                           selectedIndex == 0
-                              ? Container(
-                                width: 20.w,
-                                height: 20.h,
-                                alignment: Alignment.center,
-                                child: AnimatedSwitcher(
-                                  duration: const Duration(milliseconds: 300),
-                                  child: AdaptiveNetworkImage(
-                                    key: ValueKey(aktywnaGmina.herb),
-                                    url: aktywnaGmina.herb,
-                                    height: 20.h,
-                                    width: 20.w,
-                                  ),
+                              ? AnimatedContainer(
+                                duration: const Duration(milliseconds: 220),
+                                curve: Curves.easeOutCubic,
+                                // >>> tu robimy go SZERSZYM gdy aktywny <<<
+                                constraints: BoxConstraints(
+                                  maxWidth: activeMaxWidth, // szerszy limit
+                                  minWidth:
+                                      baseMaxTabWidth *
+                                      0.85, // opcjonalnie: ładniejsza animacja
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.max,
+                                  children: [
+                                    SizedBox(
+                                      width: 24.w,
+                                      height: 24.h,
+                                      child: AnimatedSwitcher(
+                                        duration: const Duration(
+                                          milliseconds: 300,
+                                        ),
+                                        child: AdaptiveNetworkImage(
+                                          key: ValueKey(aktywnaGmina.herb),
+                                          url: aktywnaGmina.herb,
+                                          height: 24.h,
+                                          width: 24.w,
+                                        ),
+                                      ),
+                                    ),
+                                    SizedBox(width: 8.w),
+                                    Expanded(
+                                      child: Text(
+                                        // label jak wcześniej skracany
+                                        (aktywnaGmina.nazwa.length > 14)
+                                            ? '${aktywnaGmina.nazwa.substring(0, 14)}…'
+                                            : aktywnaGmina.nazwa,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        softWrap: false,
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 13.sp,
+                                          fontWeight: FontWeight.w700,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                    SizedBox(width: 6.w),
+                                    AnimatedRotation(
+                                      turns: _isMenuOpen ? 0.5 : 0,
+                                      duration: const Duration(
+                                        milliseconds: 200,
+                                      ),
+                                      child: Icon(
+                                        Icons.keyboard_arrow_down,
+                                        color: Colors.white,
+                                        size: 18.sp,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               )
                               : SvgPicture.asset(
@@ -249,10 +314,10 @@ class _BottomNavBarState extends State<BottomNavBar>
                                 width: 22.w,
                                 height: 22.h,
                               ),
-                      text: selectedIndex == 0 ? label : '',
+                      text: '',
                       onPressed: () {
                         if (selectedIndex == 0) {
-                          _toggleMenu(); // << rozwijaj/zamykaj dropdown
+                          _toggleMenu();
                         } else {
                           _onItemTapped(0);
                         }
@@ -287,9 +352,7 @@ class _BottomNavBarState extends State<BottomNavBar>
   }
 }
 
-/// Mała karta „dropdown” nad paskiem.
-/// Pokazuje listę Twoich wybranych gmin (do szybkiego przełączenia)
-/// oraz przycisk „Wybierz inną…”, który otwiera SelectingSamorzad.
+/// Mała karta „dropdown" nad paskiem.
 class _DropdownCard extends StatelessWidget {
   final Samorzad aktywnaGmina;
   final Set<Samorzad> wybraneSamorzady;
@@ -320,7 +383,6 @@ class _DropdownCard extends StatelessWidget {
       padding: EdgeInsets.symmetric(vertical: 8.h),
       child: Column(
         children: [
-          // Lista szybkiego wyboru (scrolluje się, jeśli duża)
           Flexible(
             child: ListView.separated(
               padding: EdgeInsets.symmetric(vertical: 4.h),
@@ -345,10 +407,9 @@ class _DropdownCard extends StatelessWidget {
                     ),
                     child: Row(
                       children: [
-                        Container(
+                        SizedBox(
                           width: 20.w,
                           height: 20.h,
-                          alignment: Alignment.center,
                           child: AdaptiveNetworkImage(
                             url: s.herb,
                             height: 20.h,
@@ -379,10 +440,7 @@ class _DropdownCard extends StatelessWidget {
               },
             ),
           ),
-
           SizedBox(height: 6.h),
-
-          // „Wybierz inną…” – przejście do SelectingSamorzad
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 12.w),
             child: SizedBox(

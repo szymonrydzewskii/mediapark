@@ -12,6 +12,7 @@ import 'package:mediapark/screens/ogloszenia_screen.dart';
 import 'package:mediapark/widgets/adaptive_asset_image.dart';
 import 'package:mediapark/widgets/webview_page.dart';
 import 'package:mediapark/style/app_style.dart';
+import 'package:mediapark/helpers/url_launcher_helper.dart';
 
 class ModulTile extends StatelessWidget {
   final SamorzadModule modul;
@@ -51,10 +52,40 @@ class ModulTile extends StatelessWidget {
     return fallback;
   }
 
-  void _open(BuildContext context, String title) {
+  Future<void> _open(BuildContext context, String title) async {
     final alias = modul.alias.toLowerCase();
     final instId = _resolveInstitutionId();
 
+    // Sprawdź, czy to link zewnętrzny (social media)
+    if (UrlLauncherHelper.shouldOpenExternally(alias)) {
+      if (modul.url.isEmpty) {
+        // Pokaż komunikat, jeśli brak URL
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Brak dostępnego linku'),
+              duration: Duration(seconds: 2),
+            ),
+          );
+        }
+        return;
+      }
+
+      // Otwórz w aplikacji zewnętrznej lub przeglądarce
+      final launched = await UrlLauncherHelper.launchExternalUrl(modul.url);
+      
+      if (!launched && context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Nie można otworzyć linku'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+      return;
+    }
+
+    // Routy dla ekranów natywnych
     final routes = <String, Widget Function()>{
       'budzet-obywatelski': () => BOHarmonogramScreen(idInstytucji: samorzad.idBoInstitution),
       'konsultacje-spoleczne': () => KonsultacjeScreen(idInstytucji: '$instId'),
@@ -72,7 +103,9 @@ class ModulTile extends StatelessWidget {
       page = WebViewPage(url: modul.url, title: title);
     }
 
-    Navigator.of(context).push(CupertinoPageRoute(builder: (_) => page));
+    if (context.mounted) {
+      Navigator.of(context).push(CupertinoPageRoute(builder: (_) => page));
+    }
   }
 
   // ===== UI =====

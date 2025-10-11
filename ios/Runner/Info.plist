@@ -47,5 +47,25 @@
 		<true/>
 		<key>UIStatusBarHidden</key>
 		<false/>
+		<key>LSApplicationQueriesSchemes</key>
+		<array>
+			<!-- Facebook -->
+			<string>fb</string>
+			<string>fbapi</string>
+			<string>fbauth2</string>
+			<string>fbshareextension</string>
+			
+			<!-- Instagram -->
+			<string>instagram</string>
+			
+			<!-- X (Twitter) -->
+			<string>twitter</string>
+			<string>twitterauth</string>
+			
+			<!-- YouTube -->
+			<string>youtube</string>
+			<string>vnd.youtube</string>
+		</array>
+
 	</dict>
 </plist>

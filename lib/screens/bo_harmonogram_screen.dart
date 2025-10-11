@@ -8,8 +8,8 @@ import 'package:mediapark/models/bo_harmonogram.dart';
 import 'package:mediapark/services/bo_service.dart';
 import 'package:intl/intl.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:mediapark/helpers/html_helper.dart';
 import 'package:mediapark/style/app_style.dart';
+import 'package:mediapark/widgets/webview_page.dart';
 
 class BOHarmonogramScreen extends StatefulWidget {
   final int idInstytucji;
@@ -28,10 +28,19 @@ class _BOHarmonogramScreenState extends State<BOHarmonogramScreen> {
     _future = BOService(institutionId: widget.idInstytucji).fetchHarmonogram();
   }
 
-  DateTime _parse(String s) =>
-      DateFormat(
-        "dd.MM.yyyy",
-      ).parse(s.replaceAll(RegExp(r"[^\d.]"), ""), true).toLocal();
+  DateTime _parse(String s) {
+    // Obsługuje formaty: "2025-03-01 00:00:00", "2025-05-01", "2025-10-03 10:30:00"
+    try {
+      if (s.contains(":")) {
+        return DateFormat("yyyy-MM-dd HH:mm:ss").parse(s, true).toLocal();
+      } else {
+        return DateFormat("yyyy-MM-dd").parse(s, true).toLocal();
+      }
+    } catch (_) {
+      return DateTime.now();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -84,51 +93,38 @@ class _BOHarmonogramScreenState extends State<BOHarmonogramScreen> {
                   }
 
                   final harmonogram = snap.data!;
-                  final stages =
-                      harmonogram.phases.map((p) {
-                        // tutaj czyścimy tytuł z HTML‑a
-                        final name = cleanHtmlString(p.name);
-                        final start = _parse(p.start);
-                        final rawEnd = p.end.isEmpty ? null : _parse(p.end);
-                        PhaseType typeForRawKey(String key) {
-                          switch (key) {
-                            case 'promo_name':
-                              return PhaseType.promo;
-                            case 'add_projects_name':
-                              return PhaseType.addProjects;
-                            case 'verification_projects_name':
-                              return PhaseType.verification;
-                            case 'choosing_projects_for_voting_name':
-                              return PhaseType.choosing;
-                            case 'voting_for_projects_name':
-                              return PhaseType.voting;
-                            case 'voting_results_verification_name':
-                              return PhaseType.resultsVerification;
-                            case 'voting_results_name':
-                              return PhaseType.officialResults;
-                            default:
-                              return PhaseType.unknown;
-                          }
-                        }
+                  final phases = harmonogram.phases;
+                  final stages = phases.asMap().entries.map((entry) {
+                    final p = entry.value;
+                    
+                    final name = p.name;
+                    final start = _parse(p.dateFrom);
+                    final end = _parse(p.dateTo);
+                    
+                    return _Stage(
+                      type: PhaseType.unknown, // Nie potrzebujemy już typu, używamy danych z API
+                      title: name,
+                      start: start,
+                      endDisplay: end,
+                      phase: p,
+                    );
+                  }).toList();
 
-                        final type = typeForRawKey(p.key);
-                        return _Stage(
-                          type: type,
-                          title: name,
-                          start: start,
-                          endDisplay: rawEnd ?? DateTime(2100),
-                        );
-                      }).toList();
-
-                  final now = DateTime.now();
-                  int activeIndex = stages.indexWhere(
-                    (s) => now.isAfter(s.start) && now.isBefore(s.endLogic),
-                  );
+                  // Znajdź aktywną fazę bezpośrednio z API
+                  int activeIndex = phases.indexWhere((p) => p.isActive);
+                  
+                  // Jeśli API nie wskazuje aktywnej fazy, użyj logiki dat
                   if (activeIndex < 0) {
-                    activeIndex =
-                        now.isBefore(stages.first.start)
-                            ? 0
-                            : stages.length - 1;
+                    final now = DateTime.now();
+                    activeIndex = stages.indexWhere(
+                      (s) => now.isAfter(s.start) && now.isBefore(s.endLogic),
+                    );
+                    if (activeIndex < 0) {
+                      activeIndex =
+                          now.isBefore(stages.first.start)
+                              ? 0
+                              : stages.length - 1;
+                    }
                   }
 
                   return Timeline.tileBuilder(
@@ -165,13 +161,19 @@ class _BOHarmonogramScreenState extends State<BOHarmonogramScreen> {
                             child:
                                 i == activeIndex
                                     ? _buildActiveContent(s)
-                                    : Text(
-                                      s.title,
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w600,
+                                    : Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(
+                                            s.title,
+                                            style: GoogleFonts.poppins(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          )
+                                        ],
                                       ),
-                                    ),
                           ),
                         );
                       },
@@ -228,7 +230,7 @@ class _BOHarmonogramScreenState extends State<BOHarmonogramScreen> {
                           indent: type == ConnectorType.start ? 8.h : 0,
                           endIndent: type == ConnectorType.end ? 8.h : 0,
                           color: AppColors.divider,
-                          gapColor: Colors.white.withOpacity(0),
+                          gapColor: Colors.white.withValues(alpha: 0),
                         );
                       },
                     ),
@@ -243,66 +245,16 @@ class _BOHarmonogramScreenState extends State<BOHarmonogramScreen> {
   }
 
   Widget _buildActiveContent(_Stage s) {
-    switch (s.type) {
-      case PhaseType.promo:
-        return _ActiveStageCard(
-          stage: s,
-          showVoteButton: false,
-          showProjectsButton: false,
-        );
-      case PhaseType.addProjects:
-        return _ActiveStageCard(
-          stage: s,
-          showVoteButton: false,
-          showProjectsButton: false,
-        );
-      case PhaseType.verification:
-        return _ActiveStageCard(
-          stage: s,
-          showAddProjectButton: false,
-          showVoteButton: false,
-          showProjectsButton: false,
-        );
-      case PhaseType.choosing:
-        return _ActiveStageCard(
-          stage: s,
-          showAddProjectButton: false,
-          showVoteButton: false,
-          showProjectsButton: false,
-        );
-      case PhaseType.voting:
-        return _ActiveStageCard(
-          stage: s,
-          showAddProjectButton: false,
-          showProjectsButton: false,
-        );
-      case PhaseType.resultsVerification:
-        return _ActiveStageCard(
-          stage: s,
-          showAddProjectButton: false,
-          showVoteButton: false,
-          showProjectsButton: false,
-        );
-      case PhaseType.officialResults:
-        return _ActiveStageCard(
-          stage: s,
-          showAddProjectButton: false,
-          showVoteButton: false,
-          showCountdown: false,
-          showEnd: false,
-          showStart: false,
-        );
-      case PhaseType.unknown:
-        return _ActiveStageCard(
-          stage: s,
-          showAddProjectButton: false,
-          showCountdown: false,
-          showVoteButton: false,
-        );
-      default:
-        // standardowy pasek z odliczaniem i przyciskiem „Głosuj”
-        return _ActiveStageCard(stage: s, showAddProjectButton: false);
-    }
+    // Używamy bezpośrednio danych z API zamiast przełączania po typu
+    return _ActiveStageCard(
+      stage: s,
+      showStart: true,
+      showEnd: true,
+      showCountdown: s.phase.showCounter == true,
+      showVoteButton: s.phase.actionUrl?.isNotEmpty == true,
+      showAddProjectButton: false, // Przycisk będzie obsługiwany przez actionUrl
+      showProjectsButton: false,   // Przycisk będzie obsługiwany przez actionUrl
+    );
   }
 }
 
@@ -321,11 +273,13 @@ class _Stage {
   final PhaseType type;
   final String title;
   final DateTime start, endDisplay, endLogic;
+  final Phase phase;
   _Stage({
     required this.type,
     required this.title,
     required this.start,
     required this.endDisplay,
+    required this.phase,
   }) : endLogic = endDisplay.add(const Duration(days: 1));
 }
 
@@ -350,7 +304,10 @@ class _ActiveStageCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext c) {
-    final df = DateFormat('dd.MM.yyyy');
+    
+    // Użyjemy nowych pól z API dla aktywnej karty
+    final phase = stage.phase;
+    
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
@@ -365,55 +322,24 @@ class _ActiveStageCard extends StatelessWidget {
         ),
         const Divider(thickness: 1, color: AppColors.primaryLight),
         SizedBox(height: 16.h),
-        // ---- start ----
-        if (showStart)
-          Text.rich(
-            TextSpan(
-              children: [
-                TextSpan(
-                  text: 'start: ',
-                  style: GoogleFonts.poppins(
-                    fontSize: 12.sp,
-                    fontWeight: FontWeight.w400,
-                  ),
-                ),
-                TextSpan(
-                  text: df.format(stage.start),
-                  style: GoogleFonts.poppins(
-                    fontSize: 12.sp,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        // ---- koniec ----
-        if (showEnd)
-          Text.rich(
-            TextSpan(
-              children: [
-                TextSpan(
-                  text: 'koniec: ',
-                  style: GoogleFonts.poppins(
-                    fontSize: 12.sp,
-                    fontWeight: FontWeight.w400,
-                  ),
-                ),
-                TextSpan(
-                  text: df.format(stage.endDisplay),
-                  style: GoogleFonts.poppins(
-                    fontSize: 12.sp,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        SizedBox(height: 16.h),
-        // ---- odliczanie ----
-        if (showCountdown) ...[
+        
+        // Pokazujemy opis daty z API
+        if (phase.date.isNotEmpty)
           Text(
-            "POZOSTAŁO:",
+            phase.date,
+            style: GoogleFonts.poppins(
+              fontSize: 14.sp,
+              fontWeight: FontWeight.w500,
+              color: Colors.grey[700],
+            ),
+          ),
+        if (phase.date.isNotEmpty)
+          SizedBox(height: 16.h),
+        
+        // ---- odliczanie (jeśli ma być pokazane) ----
+        if (showCountdown && phase.showCounter == true) ...[
+          Text(
+            phase.counterText.isNotEmpty ? phase.counterText.toUpperCase() : "POZOSTAŁO:",
             style: GoogleFonts.poppins(
               fontSize: 12.sp,
               fontWeight: FontWeight.w800,
@@ -442,48 +368,20 @@ class _ActiveStageCard extends StatelessWidget {
             const Divider(thickness: 1, color: AppColors.primaryLight),
           SizedBox(height: 12.h),
         ],
-        // ---- przycisk ----
-        if (showVoteButton)
-          ElevatedButton(
-            onPressed: () {
-              // TODO zagłosuj
-            },
-            style: ElevatedButton.styleFrom(
-              minimumSize: Size.fromHeight(50.h),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(30),
-              ),
-              backgroundColor: AppColors.blackMedium,
-            ),
-            child: Text("Zagłosuj", style: TextStyle(color: Colors.white)),
-          ),
-        if (showAddProjectButton)
-          ElevatedButton(
-            onPressed: () {
-              // TODO zgłoś projekt
-            },
-            style: ElevatedButton.styleFrom(
-              minimumSize: Size.fromHeight(50.h),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(30),
-              ),
-              backgroundColor: AppColors.blackMedium,
-            ),
-            child: Text("Zgłoś projekt", style: TextStyle(color: Colors.white)),
-          ),
-        if (showProjectsButton)
+        
+        // ---- przyciski akcji (jeśli API udostępnia) ----
+        if (phase.actionUrl?.isNotEmpty == true && phase.actionUrlAnchor?.isNotEmpty == true) ...[
           ElevatedButton(
             onPressed: () {
               Navigator.of(c).push(
                 CupertinoPageRoute(
-                  builder:
-                      (_) => BoWynikiGlosowaniaScreen(
-                        institutionId: stage.type.index,
-                      ),
+                  builder: (_) => WebViewPage(
+                    url: phase.actionUrl!,
+                    title: phase.actionUrlAnchor!,
+                  ),
                 ),
               );
             },
-
             style: ElevatedButton.styleFrom(
               minimumSize: Size.fromHeight(50.h),
               shape: RoundedRectangleBorder(
@@ -492,10 +390,65 @@ class _ActiveStageCard extends StatelessWidget {
               backgroundColor: AppColors.blackMedium,
             ),
             child: Text(
-              "Zobacz wyniki głosowania",
+              phase.actionUrlAnchor!,
               style: TextStyle(color: Colors.white),
             ),
           ),
+        ] else ...[
+          // Domyślne przyciski
+          if (showVoteButton)
+            ElevatedButton(
+              onPressed: () {
+                // TODO zagłosuj
+              },
+              style: ElevatedButton.styleFrom(
+                minimumSize: Size.fromHeight(50.h),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                backgroundColor: AppColors.blackMedium,
+              ),
+              child: Text("Zagłosuj", style: TextStyle(color: Colors.white)),
+            ),
+          if (showAddProjectButton)
+            ElevatedButton(
+              onPressed: () {
+                // TODO zgłoś projekt
+              },
+              style: ElevatedButton.styleFrom(
+                minimumSize: Size.fromHeight(50.h),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                backgroundColor: AppColors.blackMedium,
+              ),
+              child: Text("Zgłoś projekt", style: TextStyle(color: Colors.white)),
+            ),
+          if (showProjectsButton)
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(c).push(
+                  CupertinoPageRoute(
+                    builder:
+                        (_) => BoWynikiGlosowaniaScreen(
+                          institutionId: stage.type.index,
+                        ),
+                  ),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                minimumSize: Size.fromHeight(50.h),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                backgroundColor: AppColors.blackMedium,
+              ),
+              child: Text(
+                "Zobacz wyniki głosowania",
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+        ],
       ],
     );
   }
