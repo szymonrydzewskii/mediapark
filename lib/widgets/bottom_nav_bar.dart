@@ -177,7 +177,7 @@ class _BottomNavBarState extends State<BottomNavBar>
         key: ValueKey(aktywnaGmina.id),
         wybraneSamorzady: {aktywnaGmina},
       ),
-      const NotificationsScreen(),
+      // const NotificationsScreen(),
       const SettingsScreen(),
     ];
 
@@ -190,7 +190,7 @@ class _BottomNavBarState extends State<BottomNavBar>
       body: pages[selectedIndex],
       bottomNavigationBar: SafeArea(
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
+          padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 15.h),
           child: Container(
             key: _navBoxKey,
             decoration: BoxDecoration(
@@ -224,6 +224,7 @@ class _BottomNavBarState extends State<BottomNavBar>
                 );
 
                 return GNav(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   backgroundColor: Colors.transparent,
                   tabBackgroundColor: AppColors.blackLight,
                   gap: 8.w,
@@ -246,21 +247,32 @@ class _BottomNavBarState extends State<BottomNavBar>
                   tabs: [
                     // HOME
                     GButton(
-                      icon: Icons.home,
+                      haptic: true,
+                      icon:
+                          Icons
+                              .home, // wymagane dla GNav animacji (nawet jeśli nadpisane ikoną)
+                      text:
+                          selectedIndex == 0
+                              ? (aktywnaGmina.nazwa.length > 24
+                                  ? '${aktywnaGmina.nazwa.substring(0, 24)}…'
+                                  : aktywnaGmina.nazwa)
+                              : '',
+                      onPressed: () {
+                        if (selectedIndex == 0) {
+                          _toggleMenu();
+                        } else {
+                          _onItemTapped(0);
+                        }
+                      },
+                      iconColor: Colors.white,
+                      iconActiveColor: Colors.white,
+                      iconSize: 22.sp,
                       leading:
                           selectedIndex == 0
-                              ? AnimatedContainer(
-                                duration: const Duration(milliseconds: 220),
-                                curve: Curves.easeOutCubic,
-                                // >>> tu robimy go SZERSZYM gdy aktywny <<<
-                                constraints: BoxConstraints(
-                                  maxWidth: activeMaxWidth, // szerszy limit
-                                  minWidth:
-                                      baseMaxTabWidth *
-                                      0.85, // opcjonalnie: ładniejsza animacja
-                                ),
+                              ? Padding(
+                                padding: EdgeInsets.only(right: 6.w),
                                 child: Row(
-                                  mainAxisSize: MainAxisSize.max,
+                                  mainAxisSize: MainAxisSize.min,
                                   children: [
                                     SizedBox(
                                       width: 24.w,
@@ -277,35 +289,6 @@ class _BottomNavBarState extends State<BottomNavBar>
                                         ),
                                       ),
                                     ),
-                                    SizedBox(width: 8.w),
-                                    Expanded(
-                                      child: Text(
-                                        // label jak wcześniej skracany
-                                        (aktywnaGmina.nazwa.length > 14)
-                                            ? '${aktywnaGmina.nazwa.substring(0, 14)}…'
-                                            : aktywnaGmina.nazwa,
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                        softWrap: false,
-                                        style: GoogleFonts.poppins(
-                                          fontSize: 13.sp,
-                                          fontWeight: FontWeight.w700,
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                    ),
-                                    SizedBox(width: 6.w),
-                                    AnimatedRotation(
-                                      turns: _isMenuOpen ? 0.5 : 0,
-                                      duration: const Duration(
-                                        milliseconds: 200,
-                                      ),
-                                      child: Icon(
-                                        Icons.keyboard_arrow_down,
-                                        color: Colors.white,
-                                        size: 18.sp,
-                                      ),
-                                    ),
                                   ],
                                 ),
                               )
@@ -314,25 +297,36 @@ class _BottomNavBarState extends State<BottomNavBar>
                                 width: 22.w,
                                 height: 22.h,
                               ),
-                      text: '',
-                      onPressed: () {
-                        if (selectedIndex == 0) {
-                          _toggleMenu();
-                        } else {
-                          _onItemTapped(0);
-                        }
-                      },
                     ),
+
+                    // GButton(
+                    //   icon: Icons.home,
+                    //   text:
+                    //       selectedIndex == 0
+                    //           ? (aktywnaGmina.nazwa.length > 24
+                    //               ? '${aktywnaGmina.nazwa.substring(0, 24)}…'
+                    //               : aktywnaGmina.nazwa)
+                    //           : '',
+                    //   onPressed: () {
+                    //     if (selectedIndex == 0) {
+                    //       _toggleMenu();
+                    //     } else {
+                    //       _onItemTapped(0);
+                    //     }
+                    //   },
+                    // ),
+
+                    // GButton(
+                    //   icon: Icons.notifications,
+                    //   leading: SvgPicture.asset(
+                    //     'assets/icons/powiadomienia.svg',
+                    //     width: 22.w,
+                    //     height: 22.h,
+                    //   ),
+                    //   text: 'Powiadomienia',
+                    // ),
                     GButton(
-                      icon: Icons.notifications,
-                      leading: SvgPicture.asset(
-                        'assets/icons/powiadomienia.svg',
-                        width: 22.w,
-                        height: 22.h,
-                      ),
-                      text: 'Powiadomienia',
-                    ),
-                    GButton(
+                      haptic: true,
                       icon: Icons.settings,
                       leading: SvgPicture.asset(
                         'assets/icons/settings.svg',

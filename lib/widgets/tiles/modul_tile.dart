@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mediapark/models/samorzad.dart';
 
 import 'package:mediapark/models/samorzad_details.dart';
 import 'package:mediapark/screens/bo_harmonogram_screen.dart';
@@ -16,9 +17,10 @@ import 'package:mediapark/helpers/url_launcher_helper.dart';
 
 class ModulTile extends StatelessWidget {
   final SamorzadModule modul;
-  final SamorzadSzczegoly samorzad;
+  final SamorzadSzczegoly samorzadSzczegoly;
+  final Samorzad samorzad;
 
-  const ModulTile({super.key, required this.modul, required this.samorzad});
+  const ModulTile({super.key, required this.modul, required this.samorzadSzczegoly, required this.samorzad});
 
   // ===== Helpers =====
 
@@ -87,7 +89,7 @@ class ModulTile extends StatelessWidget {
 
     // Routy dla ekranów natywnych
     final routes = <String, Widget Function()>{
-      'budzet-obywatelski': () => BOHarmonogramScreen(idInstytucji: samorzad.idBoInstitution),
+      'budzet-obywatelski': () => BOHarmonogramScreen(idInstytucji: samorzadSzczegoly.idBoInstitution, idSamorzadu: samorzad.id,),
       'konsultacje-spoleczne': () => KonsultacjeScreen(idInstytucji: '$instId'),
       'ogloszenia': () => OgloszeniaScreen(idInstytucji: '$instId'),
       'kalendarz-wydarzen': () => KalendarzWydarzenScreen(idInstytucji: instId),

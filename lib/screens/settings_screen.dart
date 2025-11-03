@@ -5,7 +5,10 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:mediapark/style/app_style.dart';
 import 'package:mediapark/helpers/preferences_helper.dart';
+import 'package:mediapark/widgets/webview_page.dart';
 import 'o_aplikacji_screen.dart';
+import 'package:mediapark/models/samorzad_details.dart';
+import 'package:mediapark/services/cached_samorzad_details_service.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -17,11 +20,26 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   bool pushEnabled = false;
   bool _isLoading = true;
+  SamorzadSzczegoly? _szczegoly;
+
+  Future<void> _loadSamorzadSzczegoly() async {
+    final wybrane = await PreferencesHelper.getSelectedSamorzady();
+    if (wybrane.isNotEmpty) {
+      final szczegoly = await CachedSamorzadDetailsService()
+          .fetchSzczegolyInstytucji(wybrane.first);
+      if (mounted) {
+        setState(() {
+          _szczegoly = szczegoly;
+        });
+      }
+    }
+  }
 
   @override
   void initState() {
     super.initState();
     _loadPushPreference();
+    _loadSamorzadSzczegoly();
   }
 
   /// Wczytuje zapisane ustawienie powiadomień PUSH z SharedPreferences
@@ -59,9 +77,48 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               ),
               SizedBox(height: 30.h),
-              _buildTile("Regulamin", onTap: () {}),
-              _buildTile("Polityka prywatności", onTap: () {}),
-              _buildTile("Deklaracja dostępności", onTap: () {}),
+              _buildTile(
+                "Regulamin",
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder:
+                          (_) => WebViewPage(
+                            title: "Regulamin",
+                            url: _regulaminUrl,
+                          ),
+                    ),
+                  );
+                },
+              ),
+              _buildTile(
+                "Polityka prywatności",
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder:
+                          (_) => WebViewPage(
+                            title: "Polityka prywatności",
+                            url: _politykaUrl,
+                          ),
+                    ),
+                  );
+                },
+              ),
+              _buildTile(
+                "Deklaracja dostępności",
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder:
+                          (_) => WebViewPage(
+                            title: "Deklaracja dostępności",
+                            url: _deklaracjaUrl,
+                          ),
+                    ),
+                  );
+                },
+              ),
               _buildTile(
                 "O aplikacji",
                 onTap: () {
@@ -156,6 +213,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ),
     );
   }
+
+  String get _regulaminUrl =>
+      _szczegoly?.regulationsLink?.isNotEmpty == true
+          ? _szczegoly!.regulationsLink!
+          : 'https://wdialogu.pl/aplikacja/regulamin';
+
+  String get _politykaUrl =>
+      _szczegoly?.privacyPolicyLink?.isNotEmpty == true
+          ? _szczegoly!.privacyPolicyLink!
+          : 'https://wdialogu.pl/aplikacja/polityka-prywatnosci';
+
+  String get _deklaracjaUrl =>
+      _szczegoly?.accessibilityDeclarationLink?.isNotEmpty == true
+          ? _szczegoly!.accessibilityDeclarationLink!
+          : 'https://wdialogu.pl/aplikacja/deklaracja-dostepnosci';
 
   Widget _buildTile(String title, {VoidCallback? onTap}) {
     return Padding(

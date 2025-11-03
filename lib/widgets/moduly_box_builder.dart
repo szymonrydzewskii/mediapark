@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mediapark/models/samorzad.dart';
 import 'package:mediapark/models/samorzad_details.dart';
 import 'package:mediapark/widgets/tiles/modul_tile.dart';
 import 'package:mediapark/widgets/tiles/more_tile.dart';
@@ -11,6 +12,7 @@ List<Widget> buildModulyBoxy(
   SamorzadSzczegoly aktywnySamorzad,
   List<SamorzadModule> modules,
   Set<String> animowaneModuly,
+  Samorzad samorzad
 ) {
   final zwykle =
       modules.where((m) => !externalAliases.contains(m.alias)).toList();
@@ -30,7 +32,8 @@ List<Widget> buildModulyBoxy(
           child: ModulTile(
             key: ValueKey(modul.alias),
             modul: modul,
-            samorzad: aktywnySamorzad,
+            samorzadSzczegoly: aktywnySamorzad,
+            samorzad: samorzad,
           ),
         );
       }).toList();

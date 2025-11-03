@@ -148,7 +148,7 @@ class _OgloszeniaDetailsScreenState extends State<OgloszeniaDetailsScreen> {
 
                     // Data dodania
                     Text(
-                      "Dodane ${_formatDate(_details?.datetime ?? widget.ogloszenie.datetime)}",
+                      _formatDate(_details?.datetime ?? widget.ogloszenie.datetime),
                       style: GoogleFonts.poppins(
                         fontSize: 12.sp,
                         color: AppColors.blackLight,
@@ -464,12 +464,36 @@ class _OgloszeniaDetailsScreenState extends State<OgloszeniaDetailsScreen> {
   String _formatDate(String datetime) {
     try {
       final dt = DateTime.parse(datetime);
-      final diff = DateTime.now().difference(dt);
-      if (diff.inDays >= 1) return "${diff.inDays} dni temu";
-      if (diff.inHours >= 1) return "${diff.inHours} godzin temu";
-      return "dzisiaj";
+      final now = DateTime.now();
+      final diff = now.difference(dt);
+
+      // jeśli różnica jest mniejsza niż 1 dzień
+      if (diff.inDays < 1) {
+        if (diff.inHours >= 1) {
+          return "Dodane ${diff.inHours} ${diff.inHours == 1 ? 'godzinę' : 'godziny'} temu";
+        } else {
+          return "Dodane dzisiaj";
+        }
+      }
+
+      // jeśli różnica dni < 14 dni — pokazuj relatywnie
+      if (diff.inDays <= 14) {
+        return "Dodane ${diff.inDays} ${_pluralizeDays(diff.inDays)} temu";
+      }
+
+      // powyżej 14 dni — pokazuj datę
+      final formatted =
+          "${dt.day.toString().padLeft(2, '0')}.${dt.month.toString().padLeft(2, '0')}.${dt.year}";
+      return "Dodane $formatted";
     } catch (_) {
-      return datetime;
+      return "Dodane $datetime";
     }
+  }
+
+  /// pomocnicza funkcja do odmiany słowa „dzień”
+  String _pluralizeDays(int days) {
+    if (days == 1) return "dzień";
+    if (days >= 2 && days <= 4) return "dni";
+    return "dni";
   }
 }

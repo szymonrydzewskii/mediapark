@@ -6,7 +6,10 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mediapark/services/image_cache_service.dart';
 import 'package:mediapark/services/hive_data_cache.dart';
 
+
+
 void main() async {
+  
   WidgetsFlutterBinding.ensureInitialized();
   await ImageCacheService.init();
   await Hive.initFlutter();

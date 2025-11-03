@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:mediapark/style/app_style.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class WebViewPage extends StatefulWidget {
@@ -27,7 +30,20 @@ class _WebViewPageState extends State<WebViewPage> {
     return Scaffold(
       appBar: AppBar(
         // forceMaterialTransparency: true,
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.primary,
+        leading: Transform.translate(
+          offset: Offset(8.w, 0.h),
+          child: IconButton(
+            icon: SvgPicture.asset(
+              'assets/icons/back_button.svg',
+              width: 40.w,
+              height: 40.w,
+            ),
+            onPressed: () {
+              Navigator.of(context).maybePop();
+            },
+          ),
+        ),
       ),
       body: WebViewWidget(controller: _controller),
     );

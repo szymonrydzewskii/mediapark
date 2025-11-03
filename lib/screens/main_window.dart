@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mediapark/animations/fade_in_up.dart';
 import 'package:mediapark/animations/slide_fade_route.dart';
+import 'package:mediapark/helpers/haptics.dart';
 import 'package:mediapark/models/samorzad.dart';
 import 'package:mediapark/models/samorzad_details.dart';
 import 'package:mediapark/screens/settings_screen.dart';
@@ -96,10 +97,12 @@ class _MainWindowState extends State<MainWindow>
   }
 
   void onSettingsClick() {
+    Haptics.medium();
     Navigator.of(context).push(slideFadeRouteTo(const SettingsScreen()));
   }
 
   void onHerbClick(Samorzad samorzad) async {
+    Haptics.medium();
     final municipalityId = samorzad.id.toString();
 
     if (_previousMunicipalityId != null &&
@@ -238,7 +241,8 @@ class _MainWindowState extends State<MainWindow>
                                     child: ModulTile(
                                       key: ValueKey('${modul.alias}_fadeout'),
                                       modul: modul,
-                                      samorzad: szczegolyInstytucji!,
+                                      samorzadSzczegoly: szczegolyInstytucji!,
+                                      samorzad: aktywnySamorzad!,
                                     ),
                                   );
                                 }),
@@ -270,7 +274,8 @@ class _MainWindowState extends State<MainWindow>
                                           child: ModulTile(
                                             key: ValueKey(modul.alias),
                                             modul: modul,
-                                            samorzad: szczegolyInstytucji!,
+                                            samorzadSzczegoly: szczegolyInstytucji!,
+                                            samorzad: aktywnySamorzad!,
                                           ),
                                         )
                                         : AnimatedOpacity(
@@ -281,7 +286,8 @@ class _MainWindowState extends State<MainWindow>
                                           child: ModulTile(
                                             key: ValueKey(modul.alias),
                                             modul: modul,
-                                            samorzad: szczegolyInstytucji!,
+                                            samorzadSzczegoly: szczegolyInstytucji!,
+                                            samorzad: aktywnySamorzad!,
                                           ),
                                         ),
                               );

@@ -40,17 +40,20 @@ class _OgloszeniaScreenState extends State<OgloszeniaScreen> {
     });
 
     // Ensure global data is loaded in background
-    _globalService.loadMunicipalityData(widget.idInstytucji).then((_) {
-      if (mounted) {
-        setState(() {
-          _kategorie = _globalService.kategorie;
-          _kategorieMap = {for (var k in _kategorie) k.id: k.name};
-          _ogloszenia = _globalService.ogloszenia;
+    _globalService
+        .loadMunicipalityData(widget.idInstytucji)
+        .then((_) {
+          if (mounted) {
+            setState(() {
+              _kategorie = _globalService.kategorie;
+              _kategorieMap = {for (var k in _kategorie) k.id: k.name};
+              _ogloszenia = _globalService.ogloszenia;
+            });
+          }
+        })
+        .catchError((e) {
+          print('Background loading error in OgloszeniaScreen: $e');
         });
-      }
-    }).catchError((e) {
-      print('Background loading error in OgloszeniaScreen: $e');
-    });
   }
 
   void _filtruj(int? id) {
@@ -103,21 +106,24 @@ class _OgloszeniaScreenState extends State<OgloszeniaScreen> {
           Expanded(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: _isLoading
-                  ? const Center(child: CircularProgressIndicator())
-                  : _ogloszenia.isEmpty
+              child:
+                  _isLoading
+                      ? const Center(child: CircularProgressIndicator())
+                      : _ogloszenia.isEmpty
                       ? const Center(child: Text('Brak ogłoszeń'))
                       : ListView.builder(
-                          itemCount: _ogloszenia.length,
-                          itemBuilder: (context, index) {
-                            final o = _ogloszenia[index];
-                            final hasValidImage = _globalService.isImageValid(o.mainPhoto);
+                        itemCount: _ogloszenia.length,
+                        itemBuilder: (context, index) {
+                          final o = _ogloszenia[index];
+                          final hasValidImage = _globalService.isImageValid(
+                            o.mainPhoto,
+                          );
 
-                            return hasValidImage
-                                ? _buildOgloszenieTileWithImage(o)
-                                : _buildOgloszenieTileWithoutImage(o);
-                          },
-                        ),
+                          return hasValidImage
+                              ? _buildOgloszenieTileWithImage(o)
+                              : _buildOgloszenieTileWithoutImage(o);
+                        },
+                      ),
             ),
           ),
 
@@ -254,7 +260,7 @@ class _OgloszeniaScreenState extends State<OgloszeniaScreen> {
                             style: GoogleFonts.poppins(
                               fontSize: 12.sp,
                               color: Colors.black,
-                              fontWeight: FontWeight.w400
+                              fontWeight: FontWeight.w400,
                             ),
                           ),
                           TextSpan(
@@ -329,7 +335,10 @@ class _OgloszeniaScreenState extends State<OgloszeniaScreen> {
                 child: Text(
                   _globalService.getOgloszenieContent(o.id),
                   textAlign: TextAlign.left,
-                  style: GoogleFonts.poppins(fontSize: 14.sp, fontWeight: FontWeight.w400),
+                  style: GoogleFonts.poppins(
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w400,
+                  ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -343,7 +352,7 @@ class _OgloszeniaScreenState extends State<OgloszeniaScreen> {
                       style: GoogleFonts.poppins(
                         fontSize: 12.sp,
                         color: Colors.black,
-                        fontWeight: FontWeight.w400
+                        fontWeight: FontWeight.w400,
                       ),
                     ),
                     TextSpan(
@@ -355,6 +364,45 @@ class _OgloszeniaScreenState extends State<OgloszeniaScreen> {
                       ),
                     ),
                   ],
+                ),
+              ),
+              SizedBox(height: 12.h),
+              Divider(thickness: 1, color: AppColors.divider),
+              SizedBox(height: 12.h),
+              Center(
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder:
+                            (_) => OgloszeniaDetailsScreen(
+                              ogloszenie: o,
+                              idInstytucji: widget.idInstytucji,
+                            ),
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primaryLight,
+                    foregroundColor: Colors.black,
+                    elevation: 0,
+                    side: BorderSide(color: Color(0xFFACD2DD)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(40.r),
+                    ),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 42.h,
+                      vertical: 20.w,
+                    ),
+                  ),
+                  child: Text(
+                    'Więcej',
+                    style: GoogleFonts.poppins(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14.sp,
+                    ),
+                  ),
                 ),
               ),
               SizedBox(height: 12.h),
@@ -376,7 +424,10 @@ class _OgloszeniaScreenState extends State<OgloszeniaScreen> {
         ),
         child: Text(
           label,
-          style: GoogleFonts.poppins(fontSize: 12.sp, fontWeight: FontWeight.w600),
+          style: GoogleFonts.poppins(
+            fontSize: 12.sp,
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ),
     );
@@ -390,9 +441,11 @@ class _OgloszeniaScreenState extends State<OgloszeniaScreen> {
       if (diff.inDays == 7) {
         return "tydzień temu";
       } else if (diff.inDays > 7) {
-        return dt.day.toString().padLeft(2, '0') + '.' +
-               dt.month.toString().padLeft(2, '0') + '.' +
-               dt.year.toString();
+        return dt.day.toString().padLeft(2, '0') +
+            '.' +
+            dt.month.toString().padLeft(2, '0') +
+            '.' +
+            dt.year.toString();
       } else if (diff.inDays >= 1) {
         return "${diff.inDays} dni temu";
       } else if (diff.inHours >= 1) {

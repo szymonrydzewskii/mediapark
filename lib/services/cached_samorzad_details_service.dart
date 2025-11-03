@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../models/samorzad_details.dart';
 import 'hive_data_cache.dart';
@@ -7,7 +8,8 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 class CachedSamorzadDetailsService {
   static const String _baseUrl = 'https://api.wdialogu.pl/v1';
 
-  static String _getCacheKey(String samorzadId) => 'samorzad_details_$samorzadId';
+  static String _getCacheKey(String samorzadId) =>
+      'samorzad_details_$samorzadId';
 
   Future<SamorzadSzczegoly> fetchSzczegolyInstytucji(
     String id, {
@@ -46,7 +48,7 @@ class CachedSamorzadDetailsService {
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = json.decode(response.body);
         final szczegoly = SamorzadSzczegoly.fromJson(data);
-
+        
         // Zapisz w cache surowe dane JSON
         await HiveDataCache.setObject(cacheKey, data);
 
