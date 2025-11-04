@@ -4,8 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:mediapark/services/image_cache_service.dart';
 import 'cached_network_image_widget.dart';
 import 'package:mediapark/style/app_style.dart';
+import 'package:http/http.dart' as http;
 
 class AdaptiveAssetImage extends StatefulWidget {
   final String basePath; // e.g. 'assets/icons/my_icon'
@@ -82,20 +84,174 @@ class _AdaptiveAssetImageState extends State<AdaptiveAssetImage> {
   }
 }
 
-class AdaptiveNetworkImage extends StatelessWidget {
+class AdaptiveNetworkImage extends StatefulWidget {
   final String url;
   final double width;
   final double height;
 
   const AdaptiveNetworkImage({
-    super.key,
+    super.key, // ✅ Key jest kluczowy
     required this.url,
     this.width = 40,
     this.height = 40,
   });
 
   @override
+  State<AdaptiveNetworkImage> createState() => _AdaptiveNetworkImageState();
+}
+
+class _AdaptiveNetworkImageState extends State<AdaptiveNetworkImage> {
+  bool _isLoading = true;
+  bool _hasError = false;
+  Uint8List? _imageBytes;
+  String? _currentUrl; // ✅ Śledź aktualny URL
+
+  @override
+  void initState() {
+    super.initState();
+    _currentUrl = widget.url;
+    _loadImage();
+  }
+
+  @override
+  void didUpdateWidget(AdaptiveNetworkImage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // ✅ KRYTYCZNE: Jeśli URL się zmienił, resetuj stan i załaduj nowy obraz
+    if (oldWidget.url != widget.url) {
+      setState(() {
+        _currentUrl = widget.url;
+        _isLoading = true;
+        _hasError = false;
+        _imageBytes = null;
+      });
+      _loadImage();
+    }
+  }
+
+  Future<void> _loadImage() async {
+    final urlToLoad = widget.url; // ✅ Zapisz URL przed async
+
+    if (urlToLoad.isEmpty) {
+      if (mounted) {
+        setState(() {
+          _hasError = true;
+          _isLoading = false;
+        });
+      }
+      return;
+    }
+
+    try {
+      // Sprawdź cache
+      final cached = await ImageCacheService.getImage(urlToLoad);
+
+      // ✅ Sprawdź czy widget nie zmienił URL w międzyczasie
+      if (!mounted || _currentUrl != urlToLoad) return;
+
+      if (cached != null) {
+        setState(() {
+          _imageBytes = cached;
+          _isLoading = false;
+        });
+        return;
+      }
+
+      // Pobierz z sieci
+      final response = await http
+          .get(Uri.parse(urlToLoad))
+          .timeout(const Duration(seconds: 10));
+
+      // ✅ Ponownie sprawdź czy URL się nie zmienił
+      if (!mounted || _currentUrl != urlToLoad) return;
+
+      if (response.statusCode == 200) {
+        final bytes = response.bodyBytes;
+
+        // Zapisz w cache w tle
+        ImageCacheService.cacheImage(urlToLoad, bytes).catchError((_) {});
+
+        if (mounted && _currentUrl == urlToLoad) {
+          setState(() {
+            _imageBytes = bytes;
+            _isLoading = false;
+          });
+        }
+      } else {
+        if (mounted && _currentUrl == urlToLoad) {
+          setState(() {
+            _hasError = true;
+            _isLoading = false;
+          });
+        }
+      }
+    } catch (e) {
+      if (mounted && _currentUrl == urlToLoad) {
+        setState(() {
+          _hasError = true;
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return CachedNetworkImageWidget(url: url, width: width, height: height);
+    if (_isLoading) {
+      return SizedBox(
+        width: widget.width.w,
+        height: widget.height.h,
+        child: Center(
+          child: SizedBox(
+            width: min(widget.width.w, widget.height.h) * 0.6,
+            height: min(widget.width.w, widget.height.h) * 0.6,
+            child: CircularProgressIndicator(
+              strokeWidth: 2.r,
+              color: AppColors.primary,
+            ),
+          ),
+        ),
+      );
+    }
+
+    if (_hasError || _imageBytes == null) {
+      return Container(
+        width: widget.width.w,
+        height: widget.height.h,
+        decoration: BoxDecoration(
+          color: AppColors.primaryLight.withOpacity(0.3),
+          borderRadius: BorderRadius.circular(4.r),
+        ),
+        child: Icon(
+          Icons.broken_image_outlined,
+          size: min(widget.width.w, widget.height.h) * 0.6,
+          color: AppColors.blackLight,
+        ),
+      );
+    }
+
+    // SVG
+    if (widget.url.toLowerCase().endsWith('.svg')) {
+      return SvgPicture.memory(
+        _imageBytes!,
+        width: widget.width.w,
+        height: widget.height.h,
+        fit: BoxFit.contain,
+      );
+    }
+
+    // PNG/JPG
+    return Image.memory(
+      _imageBytes!,
+      width: widget.width.w,
+      height: widget.height.h,
+      fit: BoxFit.contain,
+      errorBuilder: (context, error, stackTrace) {
+        return Icon(
+          Icons.broken_image_outlined,
+          size: min(widget.width.w, widget.height.h),
+          color: AppColors.blackLight,
+        );
+      },
+    );
   }
 }

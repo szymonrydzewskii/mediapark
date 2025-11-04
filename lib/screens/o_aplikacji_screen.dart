@@ -5,6 +5,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mediapark/widgets/adaptive_asset_image.dart';
 import 'package:mediapark/style/app_style.dart';
 import 'package:mediapark/widgets/webview_page.dart';
+import 'dart:convert';
+import 'package:package_info_plus/package_info_plus.dart';
+import 'package:http/http.dart' as http;
 
 class OAplikacjiScreen extends StatefulWidget {
   const OAplikacjiScreen({super.key});
@@ -15,6 +18,53 @@ class OAplikacjiScreen extends StatefulWidget {
 
 class _OAplikacjiScreenState extends State<OAplikacjiScreen> {
   static const backgroundColor = AppColors.primary;
+  String? _currentVersion;
+  String? _latestVersion;
+  bool _isLatest = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadVersions();
+  }
+
+  Future<void> _loadVersions() async {
+    try {
+      final info = await PackageInfo.fromPlatform();
+      final response = await http.get(
+        Uri.parse('https://test.wdialogu.pl/app-version'),
+      );
+
+      if (response.statusCode == 200) {
+        final jsonData = json.decode(response.body) as Map<String, dynamic>;
+        final latest = jsonData['version'] as String;
+
+        setState(() {
+          _currentVersion = info.version; // np. "1.0.0"
+          _latestVersion = latest; // np. "1.0"
+          _isLatest = _compareVersions(info.version, latest);
+        });
+      }
+    } catch (_) {
+      // Obsłuż błąd, np. ignoruj
+    }
+  }
+
+  bool _compareVersions(String current, String latest) {
+    List<int> parseVer(String v) {
+      final parts = v.split('.');
+      final major = int.tryParse(parts[0]) ?? 0;
+      final minor = (parts.length > 1 ? int.tryParse(parts[1]) : null) ?? 0;
+      return [major, minor];
+    }
+
+    final curr = parseVer(current);
+    final lat = parseVer(latest);
+
+    if (curr[0] < lat[0]) return false;
+    if (curr[0] > lat[0]) return true;
+    return curr[1] >= lat[1];
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -90,14 +140,15 @@ class _OAplikacjiScreenState extends State<OAplikacjiScreen> {
                   SizedBox(height: 8.h),
                   Row(
                     children: [
-                      AdaptiveAssetImage(
-                        basePath: 'assets/icons/checked',
-                        width: 20.w,
-                        height: 20.h,
-                      ),
-                      SizedBox(width: 8.w),
+                      if (_isLatest)
+                        AdaptiveAssetImage(
+                          basePath: 'assets/icons/checked',
+                          width: 20.w,
+                          height: 20.h,
+                        ),
+                      if (_isLatest) SizedBox(width: 8.w),
                       Text(
-                        '1.0',
+                        _currentVersion ?? '...',
                         style: GoogleFonts.poppins(
                           fontSize: 16.sp,
                           fontWeight: FontWeight.w600,
@@ -106,13 +157,16 @@ class _OAplikacjiScreenState extends State<OAplikacjiScreen> {
                       ),
                     ],
                   ),
+
                   SizedBox(height: 8.h),
                   Text(
-                    'Masz najnowszą wersję',
+                    _isLatest
+                        ? 'Masz najnowszą wersję'
+                        : 'Masz starą wersję, zaktualizuj aplikację',
                     style: GoogleFonts.poppins(
                       fontSize: 16.sp,
                       fontWeight: FontWeight.w600,
-                      color: Colors.black,
+                      color: _isLatest ? Colors.black : Colors.red,
                     ),
                   ),
                 ],

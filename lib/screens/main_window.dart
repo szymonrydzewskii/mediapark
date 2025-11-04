@@ -97,12 +97,12 @@ class _MainWindowState extends State<MainWindow>
   }
 
   void onSettingsClick() {
-    Haptics.medium();
+    Haptics.tap();
     Navigator.of(context).push(slideFadeRouteTo(const SettingsScreen()));
   }
 
   void onHerbClick(Samorzad samorzad) async {
-    Haptics.medium();
+    Haptics.tap();
     final municipalityId = samorzad.id.toString();
 
     if (_previousMunicipalityId != null &&
@@ -307,7 +307,7 @@ class _MainWindowState extends State<MainWindow>
             top: kToolbarHeight + 130.h,
             left: 0,
             right: 0,
-            height: 60.h,
+            height: 50.h,
             child: IgnorePointer(
               child: Container(
                 decoration: BoxDecoration(
@@ -329,7 +329,7 @@ class _MainWindowState extends State<MainWindow>
             Positioned.fill(
               child: GestureDetector(
                 onTap: () async {
-                  Haptics.medium();
+                  Haptics.tap();
                   await _panelController.reverse();
                   setState(() => showPanel = false);
                 },
@@ -374,7 +374,7 @@ class _MainWindowState extends State<MainWindow>
                                   ),
                                   title: Text(samorzad.nazwa),
                                   onTap: () async {
-                                    Haptics.medium();
+                                    Haptics.tap();
                                     setState(() => showPanel = false);
                                     await _panelController.reverse();
                                     onHerbClick(samorzad);

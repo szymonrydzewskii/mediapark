@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mediapark/animations/slide_fade_route.dart';
 import 'package:mediapark/helpers/dashed_border_painter.dart';
+import 'package:mediapark/helpers/haptics.dart';
 import 'package:mediapark/screens/selecting_samorzad.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../widgets/adaptive_asset_image.dart';
@@ -77,7 +78,9 @@ class _WelcomeScreenState extends State<WelcomeScreen>
   }
 
   void _goToNextScreen() {
-    Navigator.of(context).pushReplacement(slideFadeRouteTo(const SelectingSamorzad()));
+    Navigator.of(
+      context,
+    ).pushReplacement(slideFadeRouteTo(const SelectingSamorzad()));
   }
 
   @override
@@ -135,7 +138,10 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                             ),
                           ),
                           GestureDetector(
-                            onTap: _goToNextScreen,
+                            onTap: () {
+                              Haptics.tap();
+                              _goToNextScreen();
+                            },
                             child: Container(
                               width: 85.w,
                               height: 85.h,
@@ -147,7 +153,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                                 child: SvgPicture.asset(
                                   'assets/icons/plus.svg',
                                   width: 80.w,
-                                  height: 80.w, 
+                                  height: 80.w,
                                 ),
                               ),
                             ),

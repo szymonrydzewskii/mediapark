@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mediapark/helpers/haptics.dart';
 import 'package:mediapark/models/samorzad_details.dart';
 import 'package:mediapark/widgets/more_links_page.dart';
 import 'package:mediapark/animations/slide_fade_route.dart';
@@ -21,6 +22,7 @@ class MoreTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () async {
+        Haptics.tap();
         await Navigator.push(
           context,
           slideFadeRouteTo(

@@ -155,7 +155,7 @@ class ModulTile extends StatelessWidget {
 
     return GestureDetector(
       onTap: () {
-        Haptics.medium();
+        Haptics.tap();
         _open(context, title);
       },
       child: SizedBox(

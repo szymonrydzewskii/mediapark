@@ -319,6 +319,8 @@ class _SelectingSamorzadState extends State<SelectingSamorzad> {
     );
   }
 
+  // lib/screens/selecting_samorzad.dart (fragment)
+
   Widget _buildScrollableListCard() {
     if (showLoader) {
       return const Center(child: CircularProgressIndicator());
@@ -340,12 +342,9 @@ class _SelectingSamorzadState extends State<SelectingSamorzad> {
       );
     }
 
-    // Masz dwa warianty: SingleChildScrollView+Column (jak w szablonie) albo ListView.
-    // Poniżej wersja zgodna z Twoim wzorcem (SingleChildScrollView + Column):
-
     return SingleChildScrollView(
       child: Padding(
-        padding: EdgeInsets.all(16.w), // wewnętrzny padding karty
+        padding: EdgeInsets.all(16.w),
         child: Column(
           children: List.generate(filtrowaneSamorzady.length, (index) {
             final samorzad = filtrowaneSamorzady[index];
@@ -354,6 +353,7 @@ class _SelectingSamorzadState extends State<SelectingSamorzad> {
             final isLast = index == filtrowaneSamorzady.length - 1;
 
             return FadeInUpWidget(
+              key: ValueKey(samorzad.id), // ✅ KRYTYCZNE: Unikalny klucz
               delay: Duration(milliseconds: 50 * index),
               child: Column(
                 children: [
@@ -366,7 +366,7 @@ class _SelectingSamorzadState extends State<SelectingSamorzad> {
                       color: Colors.white,
                       child: InkWell(
                         onTap: () {
-                          Haptics.medium();
+                          Haptics.tap();
                           onSelect(samorzad);
                         },
                         child: SizedBox(
@@ -374,14 +374,11 @@ class _SelectingSamorzadState extends State<SelectingSamorzad> {
                           child: Row(
                             children: [
                               SizedBox(width: 19.w),
-                              Container(
+                              AdaptiveNetworkImage(
+                                key: ValueKey('herb_${samorzad.id}'),
+                                url: samorzad.herb,
                                 width: 32.w,
                                 height: 32.h,
-                                child: AdaptiveNetworkImage(
-                                  url: samorzad.herb,
-                                  width: 32.w,
-                                  height: 32.h,
-                                ),
                               ),
                               SizedBox(width: 23.w),
                               Expanded(
