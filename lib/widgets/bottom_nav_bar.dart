@@ -190,7 +190,7 @@ class _BottomNavBarState extends State<BottomNavBar>
       body: pages[selectedIndex],
       bottomNavigationBar: SafeArea(
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 15.h),
+          padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 5.h),
           child: Container(
             key: _navBoxKey,
             decoration: BoxDecoration(
@@ -223,6 +223,19 @@ class _BottomNavBarState extends State<BottomNavBar>
                   constraints.maxWidth * 0.60,
                 );
 
+                final maxAvailableWidth = constraints.maxWidth;
+                final gminaName = aktywnaGmina.nazwa;
+                final isActive = selectedIndex == 0;
+
+                // Szacowana szerokość tekstu
+                final estimatedTextWidth = gminaName.length * 10.w;
+
+                // Limit: nie więcej niż 60% szerokości
+                final maxTabWidth = math.min(
+                  estimatedTextWidth + 60.w,
+                  maxAvailableWidth * 0.6,
+                );
+
                 return GNav(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   backgroundColor: Colors.transparent,
@@ -236,7 +249,7 @@ class _BottomNavBarState extends State<BottomNavBar>
                   color: Colors.white70,
                   activeColor: Colors.white,
                   iconSize: 22.sp,
-                  duration: const Duration(milliseconds: 250),
+                  duration: const Duration(milliseconds: 200),
                   selectedIndex: selectedIndex,
                   onTabChange: (i) => _onItemTapped(i),
                   textStyle: GoogleFonts.poppins(
@@ -248,17 +261,13 @@ class _BottomNavBarState extends State<BottomNavBar>
                     // HOME
                     GButton(
                       haptic: true,
-                      icon:
-                          Icons
-                              .home, // wymagane dla GNav animacji (nawet jeśli nadpisane ikoną)
+                      icon: Icons.home,
                       text:
-                          selectedIndex == 0
-                              ? (aktywnaGmina.nazwa.length > 24
-                                  ? '${aktywnaGmina.nazwa.substring(0, 24)}…'
-                                  : aktywnaGmina.nazwa)
-                              : '',
+                          isActive
+                              ? ''
+                              : '', // albo null jeśli dozwolone — ale pusty ciąg wystarczy
                       onPressed: () {
-                        if (selectedIndex == 0) {
+                        if (isActive) {
                           _toggleMenu();
                         } else {
                           _onItemTapped(0);
@@ -268,9 +277,11 @@ class _BottomNavBarState extends State<BottomNavBar>
                       iconActiveColor: Colors.white,
                       iconSize: 22.sp,
                       leading:
-                          selectedIndex == 0
-                              ? Padding(
-                                padding: EdgeInsets.only(right: 6.w),
+                          isActive
+                              ? ConstrainedBox(
+                                constraints: BoxConstraints(
+                                  maxWidth: maxTabWidth,
+                                ),
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
@@ -287,6 +298,30 @@ class _BottomNavBarState extends State<BottomNavBar>
                                           height: 24.h,
                                           width: 24.w,
                                         ),
+                                      ),
+                                    ),
+                                    SizedBox(width: 6.w),
+                                    Flexible(
+                                      child: Text(
+                                        aktywnaGmina.nazwa,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 13.sp,
+                                          fontWeight: FontWeight.w700,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                    SizedBox(width: 4.w),
+                                    AnimatedRotation(
+                                      duration: const Duration(
+                                        milliseconds: 200,
+                                      ),
+                                      turns: _isMenuOpen ? 0.5 : 0.0,
+                                      child: Icon(
+                                        Icons.keyboard_arrow_up,
+                                        color: Colors.white,
+                                        size: 20.sp,
                                       ),
                                     ),
                                   ],
@@ -330,8 +365,8 @@ class _BottomNavBarState extends State<BottomNavBar>
                       icon: Icons.settings,
                       leading: SvgPicture.asset(
                         'assets/icons/settings.svg',
-                        width: 22.w,
-                        height: 22.h,
+                        width: 24.w,
+                        height: 24.h,
                       ),
                       text: 'Ustawienia',
                     ),

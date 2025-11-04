@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mediapark/helpers/haptics.dart';
 import 'package:mediapark/models/samorzad.dart';
 
 import 'package:mediapark/models/samorzad_details.dart';
@@ -20,7 +21,12 @@ class ModulTile extends StatelessWidget {
   final SamorzadSzczegoly samorzadSzczegoly;
   final Samorzad samorzad;
 
-  const ModulTile({super.key, required this.modul, required this.samorzadSzczegoly, required this.samorzad});
+  const ModulTile({
+    super.key,
+    required this.modul,
+    required this.samorzadSzczegoly,
+    required this.samorzad,
+  });
 
   // ===== Helpers =====
 
@@ -75,7 +81,7 @@ class ModulTile extends StatelessWidget {
 
       // Otwórz w aplikacji zewnętrznej lub przeglądarce
       final launched = await UrlLauncherHelper.launchExternalUrl(modul.url);
-      
+
       if (!launched && context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -89,7 +95,11 @@ class ModulTile extends StatelessWidget {
 
     // Routy dla ekranów natywnych
     final routes = <String, Widget Function()>{
-      'budzet-obywatelski': () => BOHarmonogramScreen(idInstytucji: samorzadSzczegoly.idBoInstitution, idSamorzadu: samorzad.id,),
+      'budzet-obywatelski':
+          () => BOHarmonogramScreen(
+            idInstytucji: samorzadSzczegoly.idBoInstitution,
+            idSamorzadu: samorzad.id,
+          ),
       'konsultacje-spoleczne': () => KonsultacjeScreen(idInstytucji: '$instId'),
       'ogloszenia': () => OgloszeniaScreen(idInstytucji: '$instId'),
       'kalendarz-wydarzen': () => KalendarzWydarzenScreen(idInstytucji: instId),
@@ -144,7 +154,10 @@ class ModulTile extends StatelessWidget {
     final title = buildTitle(words);
 
     return GestureDetector(
-      onTap: () => _open(context, title),
+      onTap: () {
+        Haptics.medium();
+        _open(context, title);
+      },
       child: SizedBox(
         width: 175.w,
         height: 205.h,

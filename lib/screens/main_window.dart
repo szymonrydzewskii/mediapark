@@ -274,7 +274,8 @@ class _MainWindowState extends State<MainWindow>
                                           child: ModulTile(
                                             key: ValueKey(modul.alias),
                                             modul: modul,
-                                            samorzadSzczegoly: szczegolyInstytucji!,
+                                            samorzadSzczegoly:
+                                                szczegolyInstytucji!,
                                             samorzad: aktywnySamorzad!,
                                           ),
                                         )
@@ -286,7 +287,8 @@ class _MainWindowState extends State<MainWindow>
                                           child: ModulTile(
                                             key: ValueKey(modul.alias),
                                             modul: modul,
-                                            samorzadSzczegoly: szczegolyInstytucji!,
+                                            samorzadSzczegoly:
+                                                szczegolyInstytucji!,
                                             samorzad: aktywnySamorzad!,
                                           ),
                                         ),
@@ -301,10 +303,33 @@ class _MainWindowState extends State<MainWindow>
               ),
             ],
           ),
+          Positioned(
+            top: kToolbarHeight + 130.h,
+            left: 0,
+            right: 0,
+            height: 60.h,
+            child: IgnorePointer(
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      AppColors.primary,
+                      AppColors.primary.withValues(
+                        alpha: 0,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
           if (showPanel)
             Positioned.fill(
               child: GestureDetector(
                 onTap: () async {
+                  Haptics.medium();
                   await _panelController.reverse();
                   setState(() => showPanel = false);
                 },
@@ -349,6 +374,7 @@ class _MainWindowState extends State<MainWindow>
                                   ),
                                   title: Text(samorzad.nazwa),
                                   onTap: () async {
+                                    Haptics.medium();
                                     setState(() => showPanel = false);
                                     await _panelController.reverse();
                                     onHerbClick(samorzad);

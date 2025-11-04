@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mediapark/animations/fade_in_up.dart';
+import 'package:mediapark/helpers/haptics.dart';
 import 'package:mediapark/models/samorzad.dart';
 import 'package:mediapark/widgets/adaptive_asset_image.dart';
 import 'package:mediapark/helpers/preferences_helper.dart';
@@ -122,12 +123,15 @@ class _SelectingSamorzadState extends State<SelectingSamorzad> {
       // Preload data for all selected municipalities in background
       Future.wait([
         // Load details for all selected municipalities
-        ...wybraneObiekty.map((samorzad) =>
-          _detailsService.fetchSzczegolyInstytucji(samorzad.id).catchError((_) {})
+        ...wybraneObiekty.map(
+          (samorzad) => _detailsService
+              .fetchSzczegolyInstytucji(samorzad.id)
+              .catchError((_) {}),
         ),
         // Load module data for all selected municipalities
-        ...wybraneObiekty.map((samorzad) =>
-          _globalDataService.loadMunicipalityData(samorzad.id.toString())
+        ...wybraneObiekty.map(
+          (samorzad) =>
+              _globalDataService.loadMunicipalityData(samorzad.id.toString()),
         ),
       ]).catchError((e) {
         print('Background preloading error: $e');
@@ -361,7 +365,10 @@ class _SelectingSamorzadState extends State<SelectingSamorzad> {
                     child: Material(
                       color: Colors.white,
                       child: InkWell(
-                        onTap: () => onSelect(samorzad),
+                        onTap: () {
+                          Haptics.medium();
+                          onSelect(samorzad);
+                        },
                         child: SizedBox(
                           height: 70.h,
                           child: Row(
