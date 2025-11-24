@@ -6,34 +6,44 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
 import 'app.dart';
-// import 'firebase_options.dart'; // 👈 bardzo ważne
+// import 'firebase_options.dart'; // 👈 generowane przez flutterfire configure
 import 'package:mediapark/services/image_cache_service.dart';
 import 'package:mediapark/services/hive_data_cache.dart';
 import 'package:mediapark/services/notification_service.dart';
 
+/// Handler dla wiadomości w tle (musi być top-level function)
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  // 👇 w tle też musisz zainicjalizować Firebase tak samo
   await Firebase.initializeApp();
-  print('⏪ BG MESSAGE: ${message.messageId}');
+  print('⏪ BACKGROUND MESSAGE: ${message.messageId}');
 }
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // 🔥 główna inicjalizacja Firebase
-  await Firebase.initializeApp();
+  // 🔥 Inicjalizacja Firebase
+  await Firebase.initializeApp(
+    // options: DefaultFirebaseOptions.currentPlatform, // odkomentuj, jeśli używasz flutterfire_cli
+  );
 
-  // handler dla wiadomości w tle – musi być zarejestrowany PRZED użyciem FCM
+  // Rejestracja handlera dla wiadomości w tle
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
-  // reszta Twojej inicjalizacji
+  // Inicjalizacja innych serwisów
   await ImageCacheService.init();
   await Hive.initFlutter();
   await HiveDataCache.init();
   await dotenv.load(fileName: ".env");
 
+  // 📲 Inicjalizacja FCM
   await NotificationService().initFCM();
+
+  // Sprawdź, czy appka została otwarta z powiadomienia (terminated state)
+  final initialMessage = await FirebaseMessaging.instance.getInitialMessage();
+  if (initialMessage != null) {
+    print('🚀 APP OPENED FROM NOTIFICATION (terminated)');
+    print('Data: ${initialMessage.data}');
+  }
 
   runApp(
     ScreenUtilInit(

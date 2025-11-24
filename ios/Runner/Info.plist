@@ -69,7 +69,11 @@
 		<!-- ✅ NOWE: Opis dla użytkownika (opcjonalne, ale zalecane) -->
 		<key>NSUserNotificationsUsageDescription</key>
 		<string>Aplikacja potrzebuje dostępu do powiadomień, aby informować Cię o nowych wiadomościach i aktualnościach.</string>
-		
+		<key>UIBackgroundModes</key>
+		<array>
+			<string>fetch</string>
+			<string>remote-notification</string>
+		</array>
 		<!-- URL Schemes dla deep linking / social media -->
 		<key>LSApplicationQueriesSchemes</key>
 		<array>
