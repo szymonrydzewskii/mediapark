@@ -4,11 +4,12 @@ import '../models/samorzad.dart';
 
 Future<List<Samorzad>> loadSamorzad() async {
   const url = 'https://api.wdialogu.pl/v1/instytucje/lista';
-  final token = "SiulsrtVRSlrRZVKL1jV17tmGibpHlXMkCScv33OjJQFA2dDApVOWCUPqjXRTsxA";
-  final res = await http.get(Uri.parse(url), headers: {
-    'Authorization': 'Bearer $token',
-    'Accept': 'application/json',
-  });
+  final token =
+      "SiulsrtVRSlrRZVKL1jV17tmGibpHlXMkCScv33OjJQFA2dDApVOWCUPqjXRTsxA";
+  final res = await http.get(
+    Uri.parse(url),
+    headers: {'Authorization': 'Bearer $token', 'Accept': 'application/json'},
+  );
   if (res.statusCode == 200) {
     final data = jsonDecode(res.body) as List;
     return data.map((e) => Samorzad.fromJson(e)).toList();

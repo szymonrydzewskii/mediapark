@@ -215,18 +215,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   String get _regulaminUrl =>
-      _szczegoly?.regulationsLink?.isNotEmpty == true
-          ? _szczegoly!.regulationsLink!
+      _szczegoly?.regulationsLink.isNotEmpty == true
+          ? _szczegoly!.regulationsLink
           : 'https://wdialogu.pl/aplikacja/regulamin';
 
   String get _politykaUrl =>
-      _szczegoly?.privacyPolicyLink?.isNotEmpty == true
-          ? _szczegoly!.privacyPolicyLink!
+      _szczegoly?.privacyPolicyLink.isNotEmpty == true
+          ? _szczegoly!.privacyPolicyLink
           : 'https://wdialogu.pl/aplikacja/polityka-prywatnosci';
 
   String get _deklaracjaUrl =>
-      _szczegoly?.accessibilityDeclarationLink?.isNotEmpty == true
-          ? _szczegoly!.accessibilityDeclarationLink!
+      _szczegoly?.accessibilityDeclarationLink.isNotEmpty == true
+          ? _szczegoly!.accessibilityDeclarationLink
           : 'https://wdialogu.pl/aplikacja/deklaracja-dostepnosci';
 
   Widget _buildTile(String title, {VoidCallback? onTap}) {

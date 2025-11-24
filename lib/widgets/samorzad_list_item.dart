@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../models/samorzad.dart';
 import 'adaptive_asset_image.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:mediapark/style/app_style.dart';
 
 class SamorzadListItem extends StatelessWidget {
   final Samorzad samorzad;
@@ -25,7 +24,7 @@ class SamorzadListItem extends StatelessWidget {
         borderRadius: BorderRadius.circular(10.r),
         child: ListTile(
           onTap: onTap,
-          leading: Container(
+          leading: SizedBox(
             width: 40.w,
             height: 40.h,
             child: AdaptiveNetworkImage(
@@ -36,17 +35,10 @@ class SamorzadListItem extends StatelessWidget {
           ),
           title: Text(
             samorzad.nazwa,
-            style: TextStyle(
-              fontSize: 18.sp,
-              fontWeight: FontWeight.w500,
-            ),
+            style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w500),
           ),
-          trailing: isSelected
-              ? const Icon(
-                  Icons.check,
-                  color: Colors.green,
-                )
-              : null,
+          trailing:
+              isSelected ? const Icon(Icons.check, color: Colors.green) : null,
         ),
       ),
     );

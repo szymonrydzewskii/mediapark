@@ -24,20 +24,20 @@ class WydarzenieListItem {
   factory WydarzenieListItem.fromJson(Map<String, dynamic> j) {
     final bool isAllDay = (j['is_event_all_day'] ?? 0) == 1;
 
-    DateTime _combine(String date, String? time) {
+    DateTime combine(String date, String? time) {
       final d = DateFormat('yyyy-MM-dd').parse(date, true).toLocal();
       if (time == null || time.isEmpty) return DateTime(d.year, d.month, d.day);
       final t = DateFormat('HH:mm').parse(time, true).toLocal();
       return DateTime(d.year, d.month, d.day, t.hour, t.minute);
     }
 
-    DateTime start = _combine(
+    DateTime start = combine(
       j['event_start_date'] ?? '',
       j['event_start_time'],
     );
     DateTime? end;
     if ((j['event_end_date'] ?? '').toString().isNotEmpty) {
-      end = _combine(j['event_end_date'], j['event_end_time']);
+      end = combine(j['event_end_date'], j['event_end_time']);
       // sanity fix — niektóre testowe dane mają koniec < start
       if (end.isBefore(start)) end = start;
     }
@@ -86,20 +86,20 @@ class WydarzenieDetails {
   factory WydarzenieDetails.fromJson(Map<String, dynamic> j) {
     final bool isAllDay = (j['is_event_all_day'] ?? 0) == 1;
 
-    DateTime _combine(String date, String? time) {
+    DateTime combine(String date, String? time) {
       final d = DateFormat('yyyy-MM-dd').parse(date, true).toLocal();
       if (time == null || time.isEmpty) return DateTime(d.year, d.month, d.day);
       final t = DateFormat('HH:mm').parse(time, true).toLocal();
       return DateTime(d.year, d.month, d.day, t.hour, t.minute);
     }
 
-    DateTime start = _combine(
+    DateTime start = combine(
       j['event_start_date'] ?? '',
       j['event_start_time'],
     );
     DateTime? end;
     if ((j['event_end_date'] ?? '').toString().isNotEmpty) {
-      end = _combine(j['event_end_date'], j['event_end_time']);
+      end = combine(j['event_end_date'], j['event_end_time']);
       if (end.isBefore(start)) end = start;
     }
 

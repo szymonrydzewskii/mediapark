@@ -38,7 +38,7 @@ class MoreLinksPage extends StatelessWidget {
 
       // Otwórz w aplikacji zewnętrznej lub przeglądarce
       final launched = await UrlLauncherHelper.launchExternalUrl(modul.url);
-      
+
       if (!launched && context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -62,12 +62,13 @@ class MoreLinksPage extends StatelessWidget {
   }
 
   String _buildTitle(String alias) {
-    final words = alias
-        .replaceAll('-', ' ')
-        .split(' ')
-        .where((w) => w.trim().isNotEmpty)
-        .map((w) => w[0].toUpperCase() + w.substring(1).toLowerCase())
-        .toList();
+    final words =
+        alias
+            .replaceAll('-', ' ')
+            .split(' ')
+            .where((w) => w.trim().isNotEmpty)
+            .map((w) => w[0].toUpperCase() + w.substring(1).toLowerCase())
+            .toList();
     return words.join(' ');
   }
 

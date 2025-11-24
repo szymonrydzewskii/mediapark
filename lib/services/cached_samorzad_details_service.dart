@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../models/samorzad_details.dart';
 import 'hive_data_cache.dart';
@@ -48,7 +47,7 @@ class CachedSamorzadDetailsService {
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = json.decode(response.body);
         final szczegoly = SamorzadSzczegoly.fromJson(data);
-        
+
         // Zapisz w cache surowe dane JSON
         await HiveDataCache.setObject(cacheKey, data);
 

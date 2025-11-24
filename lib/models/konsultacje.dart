@@ -36,8 +36,8 @@ class Konsultacje {
       description: json['description'] ?? '',
       categoryName: json['category_name'] ?? '',
       categoryAlias: json['category_alias'] ?? '',
-      photoUrl: json['photo_url']?.toString(),   // <-- nullable
-      pollUrl: json['poll_url']?.toString(),     // <-- nullable
+      photoUrl: json['photo_url']?.toString(), // <-- nullable
+      pollUrl: json['poll_url']?.toString(), // <-- nullable
       startDate: json['date_of_consultation_start_formatted'] ?? '',
       endDate: json['date_of_consultation_end_formatted'] ?? '',
       status: json['status_name'] ?? '',

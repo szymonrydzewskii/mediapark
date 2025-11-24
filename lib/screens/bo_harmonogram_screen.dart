@@ -2,7 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:mediapark/models/samorzad.dart';
 import 'package:mediapark/screens/bo_wyniki_glosowania_screen.dart';
 import 'package:timelines_plus/timelines_plus.dart';
 import 'package:mediapark/models/bo_harmonogram.dart';
@@ -442,7 +441,7 @@ class _ActiveStageCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext c) {
-    String _iconAssetForPhase(String? actionType) {
+    String iconAssetForPhase(String? actionType) {
       if (actionType == null || actionType.trim().isEmpty) {
         return 'assets/icons/list.svg';
       }
@@ -456,7 +455,7 @@ class _ActiveStageCard extends StatelessWidget {
         Padding(
           padding: EdgeInsets.only(left: 2.w),
           child: SvgPicture.asset(
-            _iconAssetForPhase(phase.actionType),
+            iconAssetForPhase(phase.actionType),
             width: 32.w,
             height: 32.w,
           ),

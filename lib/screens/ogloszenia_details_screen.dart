@@ -148,7 +148,9 @@ class _OgloszeniaDetailsScreenState extends State<OgloszeniaDetailsScreen> {
 
                     // Data dodania
                     Text(
-                      _formatDate(_details?.datetime ?? widget.ogloszenie.datetime),
+                      _formatDate(
+                        _details?.datetime ?? widget.ogloszenie.datetime,
+                      ),
                       style: GoogleFonts.poppins(
                         fontSize: 12.sp,
                         color: AppColors.blackLight,
@@ -216,37 +218,35 @@ class _OgloszeniaDetailsScreenState extends State<OgloszeniaDetailsScreen> {
                         ),
                       ),
                       SizedBox(height: 8.h),
-                      ..._details!.otherFiles
-                          .map(
-                            (file) => Container(
-                              margin: EdgeInsets.only(bottom: 8.h),
-                              padding: EdgeInsets.all(12.w),
-                              decoration: BoxDecoration(
-                                color: AppColors.primaryMedium,
-                                borderRadius: BorderRadius.circular(8.r),
+                      ..._details!.otherFiles.map(
+                        (file) => Container(
+                          margin: EdgeInsets.only(bottom: 8.h),
+                          padding: EdgeInsets.all(12.w),
+                          decoration: BoxDecoration(
+                            color: AppColors.primaryMedium,
+                            borderRadius: BorderRadius.circular(8.r),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                file.description,
+                                style: GoogleFonts.poppins(
+                                  fontSize: 14.sp,
+                                  fontWeight: FontWeight.w500,
+                                ),
                               ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    file.description,
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 14.sp,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                  Text(
-                                    file.filename,
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 12.sp,
-                                      color: Colors.blue,
-                                    ),
-                                  ),
-                                ],
+                              Text(
+                                file.filename,
+                                style: GoogleFonts.poppins(
+                                  fontSize: 12.sp,
+                                  color: Colors.blue,
+                                ),
                               ),
-                            ),
-                          )
-                          .toList(),
+                            ],
+                          ),
+                        ),
+                      ),
                     ],
                   ],
                 ),

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1084260084550",
+    "project_id": "wdialogu-3ad85",
+    "storage_bucket": "wdialogu-3ad85.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1084260084550:android:7dc3d53dcb06a05113d347",
+        "android_client_info": {
+          "package_name": "pl.mediapark.wdialogu"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyABozvQvQzxrj-KlWO8CvVIieaBjkwNK8E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

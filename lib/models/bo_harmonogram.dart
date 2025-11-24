@@ -1,11 +1,11 @@
-
 class BOHarmonogram {
   final List<Phase> phases;
 
   BOHarmonogram({required this.phases});
 
   factory BOHarmonogram.fromJson(List<dynamic> jsonList) {
-    final phases = jsonList.map((e) => Phase.fromJson(e as Map<String, dynamic>)).toList();
+    final phases =
+        jsonList.map((e) => Phase.fromJson(e as Map<String, dynamic>)).toList();
     return BOHarmonogram(phases: phases);
   }
 }

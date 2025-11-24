@@ -40,10 +40,7 @@ class _OfflineScreenWrapperState extends State<OfflineScreenWrapper> {
     final results = await _connectivity.checkConnectivity();
 
     final isDisconnected =
-        results is List<ConnectivityResult>
-            ? results.isEmpty ||
-                results.every((r) => r == ConnectivityResult.none)
-            : results == ConnectivityResult.none;
+        results.isEmpty || results.every((r) => r == ConnectivityResult.none);
 
     if (mounted) {
       setState(() {

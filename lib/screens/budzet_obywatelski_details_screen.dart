@@ -98,18 +98,20 @@ class BudzetObywatelskiDetailsScreen extends StatelessWidget {
                       if (details.additionalDataValue is List)
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          children: (details.additionalDataValue as List)
-                              .map<Widget>((item) {
-                            final label = item['label'] ?? '';
-                            final value = item['value'] ?? '';
-                            return Padding(
-                              padding: EdgeInsets.only(bottom: 4.h),
-                              child: Text(
-                                '${_stripHtml(label.toString())}: ${_stripHtml(value.toString())}',
-                                style: TextStyle(fontSize: 14.sp),
-                              ),
-                            );
-                          }).toList(),
+                          children:
+                              (details.additionalDataValue as List).map<
+                                Widget
+                              >((item) {
+                                final label = item['label'] ?? '';
+                                final value = item['value'] ?? '';
+                                return Padding(
+                                  padding: EdgeInsets.only(bottom: 4.h),
+                                  child: Text(
+                                    '${_stripHtml(label.toString())}: ${_stripHtml(value.toString())}',
+                                    style: TextStyle(fontSize: 14.sp),
+                                  ),
+                                );
+                              }).toList(),
                         )
                       else if (details.additionalDataValue is Map)
                         Padding(
@@ -142,7 +144,10 @@ class BudzetObywatelskiDetailsScreen extends StatelessWidget {
       padding: EdgeInsets.only(bottom: 4.h),
       child: Row(
         children: [
-          Text(label, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14.sp)),
+          Text(
+            label,
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14.sp),
+          ),
           SizedBox(width: 4.w),
           Expanded(
             child: Text(

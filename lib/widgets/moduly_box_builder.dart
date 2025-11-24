@@ -12,7 +12,7 @@ List<Widget> buildModulyBoxy(
   SamorzadSzczegoly aktywnySamorzad,
   List<SamorzadModule> modules,
   Set<String> animowaneModuly,
-  Samorzad samorzad
+  Samorzad samorzad,
 ) {
   final zwykle =
       modules.where((m) => !externalAliases.contains(m.alias)).toList();

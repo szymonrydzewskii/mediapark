@@ -21,10 +21,14 @@ PageRouteBuilder<T> slideFadeRouteTo<T>(Widget page) {
         position: slide,
         child: AnimatedBuilder(
           animation: animation,
-          builder: (context, child) => Opacity(
-            opacity: animation.status == AnimationStatus.reverse ? 1.0 : fade.value,
-            child: child,
-          ),
+          builder:
+              (context, child) => Opacity(
+                opacity:
+                    animation.status == AnimationStatus.reverse
+                        ? 1.0
+                        : fade.value,
+                child: child,
+              ),
           child: child,
         ),
       );

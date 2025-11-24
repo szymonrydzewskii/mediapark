@@ -47,6 +47,30 @@
 		<true/>
 		<key>UIStatusBarHidden</key>
 		<false/>
+		
+		<!-- ✅ PUSH Notifications - Background Modes -->
+		<key>UIBackgroundModes</key>
+		<array>
+			<string>fetch</string>
+			<string>remote-notification</string>
+		</array>
+		
+		<!-- ✅ NOWE: Uprawnienia dla notyfikacji -->
+		<key>UIUserNotificationSettings</key>
+		<dict>
+			<key>UIUserNotificationTypeAlert</key>
+			<true/>
+			<key>UIUserNotificationTypeBadge</key>
+			<true/>
+			<key>UIUserNotificationTypeSound</key>
+			<true/>
+		</dict>
+		
+		<!-- ✅ NOWE: Opis dla użytkownika (opcjonalne, ale zalecane) -->
+		<key>NSUserNotificationsUsageDescription</key>
+		<string>Aplikacja potrzebuje dostępu do powiadomień, aby informować Cię o nowych wiadomościach i aktualnościach.</string>
+		
+		<!-- URL Schemes dla deep linking / social media -->
 		<key>LSApplicationQueriesSchemes</key>
 		<array>
 			<!-- Facebook -->
@@ -66,6 +90,5 @@
 			<string>youtube</string>
 			<string>vnd.youtube</string>
 		</array>
-
 	</dict>
 </plist>

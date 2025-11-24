@@ -85,7 +85,9 @@ class KonsultacjeDetailsPage extends StatelessWidget {
             SizedBox(height: 20.h),
 
             // Zdjęcie jeśli dostępne
-            if (globalService.isKonsultacjaImageValid(konsultacja.photoUrl)) ...[
+            if (globalService.isKonsultacjaImageValid(
+              konsultacja.photoUrl,
+            )) ...[
               ClipRRect(
                 borderRadius: BorderRadius.circular(16.r),
                 child: Image.network(

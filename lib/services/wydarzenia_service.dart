@@ -26,11 +26,15 @@ class WydarzeniaService {
     }
     final json = jsonDecode(res.body) as Map<String, dynamic>;
     final list = (json['list'] as List<dynamic>? ?? []);
-    return list.map((e) => WydarzenieListItem.fromJson(e as Map<String, dynamic>)).toList();
+    return list
+        .map((e) => WydarzenieListItem.fromJson(e as Map<String, dynamic>))
+        .toList();
   }
 
   /// Jeżeli chcesz zassać wszystkie strony:
-  Future<List<WydarzenieListItem>> fetchWszystkieStrony({int startPage = 1}) async {
+  Future<List<WydarzenieListItem>> fetchWszystkieStrony({
+    int startPage = 1,
+  }) async {
     int page = startPage;
     final acc = <WydarzenieListItem>[];
     while (true) {
@@ -41,11 +45,15 @@ class WydarzeniaService {
       }
       final json = jsonDecode(res.body) as Map<String, dynamic>;
       final list = (json['list'] as List<dynamic>? ?? []);
-      acc.addAll(list.map((e) => WydarzenieListItem.fromJson(e as Map<String, dynamic>)));
+      acc.addAll(
+        list.map((e) => WydarzenieListItem.fromJson(e as Map<String, dynamic>)),
+      );
 
       final pagination = (json['pagination'] as Map<String, dynamic>?);
-      final hasNext = pagination?['has_next'] == true ||
-          (pagination?['current_page'] ?? 1) < (pagination?['total_pages'] ?? 1);
+      final hasNext =
+          pagination?['has_next'] == true ||
+          (pagination?['current_page'] ?? 1) <
+              (pagination?['total_pages'] ?? 1);
       if (!hasNext) break;
       page++;
     }

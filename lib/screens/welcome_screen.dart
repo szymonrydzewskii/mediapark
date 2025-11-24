@@ -176,10 +176,11 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                   scale: 1.8,
                   child: SizedBox(
                     width: 1.sw,
-                    child: AdaptiveAssetImage(
-                      basePath: 'assets/icons/city',
+                    child: SvgPicture.asset(
+                      'assets/icons/city.svg', // albo SvgPicture.asset dla svg
                       width: 1.sw,
                       height: 520.h,
+                      fit: BoxFit.contain,
                     ),
                   ),
                 ),

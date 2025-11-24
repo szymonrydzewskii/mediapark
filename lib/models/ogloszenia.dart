@@ -69,9 +69,16 @@ class OgloszeniaDetails {
       title: json['title'],
       content: json['content'],
       datetime: json['datetime_of_add'],
-      mapPoints: json['map_points']?.isNotEmpty == true ? json['map_points'] : null,
-      mapPolylines: json['map_polylines']?.isNotEmpty == true ? json['map_polylines'] : null,
-      mapPolygons: json['map_polygons']?.isNotEmpty == true ? json['map_polygons'] : null,
+      mapPoints:
+          json['map_points']?.isNotEmpty == true ? json['map_points'] : null,
+      mapPolylines:
+          json['map_polylines']?.isNotEmpty == true
+              ? json['map_polylines']
+              : null,
+      mapPolygons:
+          json['map_polygons']?.isNotEmpty == true
+              ? json['map_polygons']
+              : null,
       gallery: galleryList.map((e) => GalleryFile.fromJson(e)).toList(),
       otherFiles: otherList.map((e) => OtherFile.fromJson(e)).toList(),
     );

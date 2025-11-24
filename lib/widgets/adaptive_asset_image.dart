@@ -1,16 +1,21 @@
-import 'dart:convert';
 import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:mediapark/services/image_cache_service.dart';
-import 'cached_network_image_widget.dart';
-import 'package:mediapark/style/app_style.dart';
 import 'package:http/http.dart' as http;
 
+import 'package:mediapark/services/image_cache_service.dart';
+import 'package:mediapark/style/app_style.dart';
+
+/// ----------------------
+///  ASSET (lokalne pliki)
+/// ----------------------
 class AdaptiveAssetImage extends StatefulWidget {
-  final String basePath; // e.g. 'assets/icons/my_icon'
+  /// Bazowa ścieżka bez rozszerzenia:
+  /// np. 'assets/icons/logo_wdialogu'
+  final String basePath;
   final double width;
   final double height;
 
@@ -26,21 +31,23 @@ class AdaptiveAssetImage extends StatefulWidget {
 }
 
 class _AdaptiveAssetImageState extends State<AdaptiveAssetImage> {
-  static Future<Map<String, dynamic>>? _manifest;
+  // Cache manifestu, żeby nie wczytywać go za każdym razem
+  static Future<AssetManifest>? _manifest;
   late Future<Widget> _loader;
 
   @override
   void initState() {
     super.initState();
-    _manifest ??= rootBundle
-        .loadString('AssetManifest.json')
-        .then((s) => json.decode(s) as Map<String, dynamic>);
 
-    _loader = _manifest!.then((map) {
+    // NOWE API – zamiast AssetManifest.json
+    _manifest ??= AssetManifest.loadFromAssetBundle(rootBundle);
+
+    _loader = _manifest!.then((manifest) {
+      final assets = manifest.listAssets(); // lista wszystkich assetów
       final svgKey = '${widget.basePath}.svg';
       final pngKey = '${widget.basePath}.png';
 
-      if (map.containsKey(svgKey)) {
+      if (assets.contains(svgKey)) {
         return SvgPicture.asset(
           svgKey,
           width: widget.width.w,
@@ -48,7 +55,7 @@ class _AdaptiveAssetImageState extends State<AdaptiveAssetImage> {
           fit: BoxFit.contain,
           alignment: Alignment.center,
         );
-      } else if (map.containsKey(pngKey)) {
+      } else if (assets.contains(pngKey)) {
         return Image.asset(
           pngKey,
           width: widget.width.w,
@@ -57,6 +64,7 @@ class _AdaptiveAssetImageState extends State<AdaptiveAssetImage> {
           alignment: Alignment.center,
         );
       } else {
+        // Jeśli nic nie znaleziono – pokaż ikonkę błędu
         return Icon(
           Icons.error,
           size: min(widget.width.w, widget.height.h),
@@ -71,26 +79,44 @@ class _AdaptiveAssetImageState extends State<AdaptiveAssetImage> {
     return FutureBuilder<Widget>(
       future: _loader,
       builder: (context, snapshot) {
-        if (snapshot.connectionState != ConnectionState.done) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
           return SizedBox(
             width: widget.width.w,
             height: widget.height.h,
             child: Center(child: CircularProgressIndicator(strokeWidth: 2.r)),
           );
         }
+
+        if (snapshot.hasError) {
+          // debugPrint('AdaptiveAssetImage error: ${snapshot.error}');
+          return Icon(
+            Icons.error,
+            size: min(widget.width.w, widget.height.h),
+            color: Colors.red,
+          );
+        }
+
+        if (!snapshot.hasData) {
+          // Bezpieczny fallback – pusty box zamiast crasha
+          return SizedBox(width: widget.width.w, height: widget.height.h);
+        }
+
         return snapshot.data!;
       },
     );
   }
 }
 
+/// ----------------------
+///  NETWORK (z URL)
+/// ----------------------
 class AdaptiveNetworkImage extends StatefulWidget {
   final String url;
   final double width;
   final double height;
 
   const AdaptiveNetworkImage({
-    super.key, // ✅ Key jest kluczowy
+    super.key,
     required this.url,
     this.width = 40,
     this.height = 40,
@@ -104,7 +130,7 @@ class _AdaptiveNetworkImageState extends State<AdaptiveNetworkImage> {
   bool _isLoading = true;
   bool _hasError = false;
   Uint8List? _imageBytes;
-  String? _currentUrl; // ✅ Śledź aktualny URL
+  String? _currentUrl;
 
   @override
   void initState() {
@@ -116,7 +142,6 @@ class _AdaptiveNetworkImageState extends State<AdaptiveNetworkImage> {
   @override
   void didUpdateWidget(AdaptiveNetworkImage oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // ✅ KRYTYCZNE: Jeśli URL się zmienił, resetuj stan i załaduj nowy obraz
     if (oldWidget.url != widget.url) {
       setState(() {
         _currentUrl = widget.url;
@@ -129,7 +154,7 @@ class _AdaptiveNetworkImageState extends State<AdaptiveNetworkImage> {
   }
 
   Future<void> _loadImage() async {
-    final urlToLoad = widget.url; // ✅ Zapisz URL przed async
+    final urlToLoad = widget.url;
 
     if (urlToLoad.isEmpty) {
       if (mounted) {
@@ -142,10 +167,8 @@ class _AdaptiveNetworkImageState extends State<AdaptiveNetworkImage> {
     }
 
     try {
-      // Sprawdź cache
       final cached = await ImageCacheService.getImage(urlToLoad);
 
-      // ✅ Sprawdź czy widget nie zmienił URL w międzyczasie
       if (!mounted || _currentUrl != urlToLoad) return;
 
       if (cached != null) {
@@ -156,18 +179,15 @@ class _AdaptiveNetworkImageState extends State<AdaptiveNetworkImage> {
         return;
       }
 
-      // Pobierz z sieci
       final response = await http
           .get(Uri.parse(urlToLoad))
           .timeout(const Duration(seconds: 10));
 
-      // ✅ Ponownie sprawdź czy URL się nie zmienił
       if (!mounted || _currentUrl != urlToLoad) return;
 
       if (response.statusCode == 200) {
         final bytes = response.bodyBytes;
 
-        // Zapisz w cache w tle
         ImageCacheService.cacheImage(urlToLoad, bytes).catchError((_) {});
 
         if (mounted && _currentUrl == urlToLoad) {

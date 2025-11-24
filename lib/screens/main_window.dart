@@ -316,9 +316,7 @@ class _MainWindowState extends State<MainWindow>
                     end: Alignment.bottomCenter,
                     colors: [
                       AppColors.primary,
-                      AppColors.primary.withValues(
-                        alpha: 0,
-                      ),
+                      AppColors.primary.withValues(alpha: 0),
                     ],
                   ),
                 ),

@@ -5,7 +5,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:mediapark/screens/main_window.dart';
-import 'package:mediapark/screens/notifications_screen.dart';
 import 'package:mediapark/screens/settings_screen.dart';
 import 'package:mediapark/screens/selecting_samorzad.dart';
 import 'package:mediapark/models/samorzad.dart';

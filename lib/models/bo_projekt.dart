@@ -3,11 +3,7 @@ class BOProjekt {
   final String name;
   final String? cost;
 
-  BOProjekt({
-    required this.id,
-    required this.name,
-    this.cost,
-  });
+  BOProjekt({required this.id, required this.name, this.cost});
 
   factory BOProjekt.fromJson(Map<String, dynamic> json) {
     return BOProjekt(

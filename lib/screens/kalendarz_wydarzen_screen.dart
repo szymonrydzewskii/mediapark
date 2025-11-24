@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:intl/intl.dart';
 import 'package:mediapark/screens/wydarzenia_dnia_screen.dart';
 import 'package:mediapark/style/app_style.dart';
 import 'package:mediapark/style/date_utils.dart';
@@ -115,8 +114,8 @@ class _KalendarzWydarzenScreenState extends State<KalendarzWydarzenScreen> {
     final eventEnd = event.end != null ? _normalize(event.end!) : eventStart;
 
     return normalizedDay.isAtSameMomentAs(eventStart) ||
-           normalizedDay.isAtSameMomentAs(eventEnd) ||
-           (normalizedDay.isAfter(eventStart) && normalizedDay.isBefore(eventEnd));
+        normalizedDay.isAtSameMomentAs(eventEnd) ||
+        (normalizedDay.isAfter(eventStart) && normalizedDay.isBefore(eventEnd));
   }
 
   List<WydarzenieListItem> _getEventsForDay(DateTime day) =>
@@ -448,8 +447,7 @@ class _KalendarzWydarzenScreenState extends State<KalendarzWydarzenScreen> {
     if (isToday && hasEvents) {
       bg = AppColors.secondary;
     } else if (hasEvents) {
-      bg =
-          d.isBefore(today) ? AppColors.primaryLight : AppColors.secondary;
+      bg = d.isBefore(today) ? AppColors.primaryLight : AppColors.secondary;
     }
 
     return SizedBox(
@@ -465,8 +463,7 @@ class _KalendarzWydarzenScreenState extends State<KalendarzWydarzenScreen> {
         decoration: BoxDecoration(
           color: bg,
           borderRadius: BorderRadius.circular(_cellRadius.r),
-          border:
-              isSelected ? Border.all(color: AppColors.blackMedium) : null,
+          border: isSelected ? Border.all(color: AppColors.blackMedium) : null,
         ),
         child: Center(
           child: Text(
@@ -516,7 +513,8 @@ class _KalendarzWydarzenScreenState extends State<KalendarzWydarzenScreen> {
 
     final bool isToday = eventDay == today;
     final bool isCurrentlyActive = _isEventActiveOnDay(e, today);
-    final Color cardBg = (isToday || isCurrentlyActive) ? Colors.white : AppColors.primaryLight;
+    final Color cardBg =
+        (isToday || isCurrentlyActive) ? Colors.white : AppColors.primaryLight;
 
     return InkWell(
       onTap: () => _openDetailsBottomSheet(context, e),
@@ -581,7 +579,10 @@ class _KalendarzWydarzenScreenState extends State<KalendarzWydarzenScreen> {
                       style: GoogleFonts.poppins(
                         fontSize: 12.sp,
                         fontWeight: FontWeight.w700,
-                        color: (isToday || isCurrentlyActive) ? Colors.white : Colors.black,
+                        color:
+                            (isToday || isCurrentlyActive)
+                                ? Colors.white
+                                : Colors.black,
                       ),
                     ),
                   ),

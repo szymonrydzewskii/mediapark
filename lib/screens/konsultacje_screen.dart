@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -46,15 +45,18 @@ class _KonsultacjeScreenState extends State<KonsultacjeScreen> {
     });
 
     // Ensure global data is loaded in background
-    _globalService.loadMunicipalityData(widget.idInstytucji).then((_) {
-      if (mounted) {
-        setState(() {
-          _konsultacjeData = _globalService.konsultacje;
+    _globalService
+        .loadMunicipalityData(widget.idInstytucji)
+        .then((_) {
+          if (mounted) {
+            setState(() {
+              _konsultacjeData = _globalService.konsultacje;
+            });
+          }
+        })
+        .catchError((e) {
+          print('Background loading error in KonsultacjeScreen: $e');
         });
-      }
-    }).catchError((e) {
-      print('Background loading error in KonsultacjeScreen: $e');
-    });
   }
 
   @override
@@ -97,10 +99,13 @@ class _KonsultacjeScreenState extends State<KonsultacjeScreen> {
             _buildCategoryChips(),
             SizedBox(height: 12.h),
             Expanded(
-              child: _isLoading
-                  ? const Center(child: CircularProgressIndicator())
-                  : _konsultacjeData.isEmpty
-                      ? const Center(child: Text('Wystąpił błąd pobierania danych'))
+              child:
+                  _isLoading
+                      ? const Center(child: CircularProgressIndicator())
+                      : _konsultacjeData.isEmpty
+                      ? const Center(
+                        child: Text('Wystąpił błąd pobierania danych'),
+                      )
                       : _buildKonsultacjeList(),
             ),
           ],
@@ -179,10 +184,7 @@ class _KonsultacjeScreenState extends State<KonsultacjeScreen> {
                 borderRadius: BorderRadius.circular(10.r),
                 child: AspectRatio(
                   aspectRatio: 3 / 2,
-                  child: Image.network(
-                    k.photoUrl!,
-                    fit: BoxFit.cover,
-                  ),
+                  child: Image.network(k.photoUrl!, fit: BoxFit.cover),
                 ),
               ),
 
@@ -331,5 +333,3 @@ Widget _buildTag(String label) {
     ),
   );
 }
-
-

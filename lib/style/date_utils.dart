@@ -9,9 +9,7 @@ class AppDateUtils {
       if (diff.inDays == 7) {
         return "tydzień temu";
       } else if (diff.inDays > 7) {
-        return dt.day.toString().padLeft(2, '0') + '.' +
-               dt.month.toString().padLeft(2, '0') + '.' +
-               dt.year.toString();
+        return '${dt.day.toString().padLeft(2, '0')}.${dt.month.toString().padLeft(2, '0')}.${dt.year}';
       } else if (diff.inDays >= 1) {
         return "${diff.inDays} dni temu";
       } else if (diff.inHours >= 1) {
@@ -66,9 +64,9 @@ class AppDateUtils {
   }
 
   static DateTime parseDate(String s) {
-    return DateFormat("dd.MM.yyyy")
-        .parse(s.replaceAll(RegExp(r"[^\d.]"), ""), true)
-        .toLocal();
+    return DateFormat(
+      "dd.MM.yyyy",
+    ).parse(s.replaceAll(RegExp(r"[^\d.]"), ""), true).toLocal();
   }
 
   static String formatDateDdMmYyyy(DateTime date) {

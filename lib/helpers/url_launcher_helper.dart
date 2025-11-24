@@ -35,10 +35,7 @@ class UrlLauncherHelper {
     } catch (e) {
       // Fallback: try platform default (browser)
       try {
-        final launched = await launchUrl(
-          uri,
-          mode: LaunchMode.platformDefault,
-        );
+        final launched = await launchUrl(uri, mode: LaunchMode.platformDefault);
         return launched;
       } catch (e2) {
         return false;

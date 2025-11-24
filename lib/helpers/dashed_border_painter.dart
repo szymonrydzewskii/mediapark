@@ -12,16 +12,17 @@ class DashedBorderPainter extends CustomPainter {
     double? strokeWidth,
     double? gap,
     double? dashLength,
-  })  : strokeWidth = (strokeWidth ?? 1).w,
-        gap = (gap ?? 20).w,
-        dashLength = (dashLength ?? 20).w;
+  }) : strokeWidth = (strokeWidth ?? 1).w,
+       gap = (gap ?? 20).w,
+       dashLength = (dashLength ?? 20).w;
 
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color
-      ..strokeWidth = strokeWidth
-      ..style = PaintingStyle.stroke;
+    final paint =
+        Paint()
+          ..color = color
+          ..strokeWidth = strokeWidth
+          ..style = PaintingStyle.stroke;
 
     final rect = Rect.fromLTWH(0, 0, size.width, size.height);
     final path = Path()..addOval(rect);
