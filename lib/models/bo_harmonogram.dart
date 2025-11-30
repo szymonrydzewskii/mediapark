@@ -18,6 +18,7 @@ class Phase {
   final bool isActive;
   final String? actionType;
   final String? actionUrlAnchor;
+  final String? alias;
   final String? actionUrl;
   final bool showCounter;
   final String counterText;
@@ -30,6 +31,7 @@ class Phase {
     required this.isActive,
     required this.actionType,
     required this.actionUrlAnchor,
+    required this.alias,
     required this.actionUrl,
     required this.showCounter,
     required this.counterText,
@@ -44,6 +46,7 @@ class Phase {
       isActive: json['is_active'] ?? false,
       actionType: json['action_type'],
       actionUrlAnchor: json['action_url_anchor'],
+      alias: json['alias'] ?? '',
       actionUrl: json['action_url'],
       showCounter: json['show_counter'] ?? false,
       counterText: json['counter_text'] ?? '',

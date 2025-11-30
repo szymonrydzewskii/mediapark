@@ -2,64 +2,43 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 
 class NotificationService {
-  final FirebaseMessaging _msgService = FirebaseMessaging.instance;
+  final FirebaseMessaging msgService = FirebaseMessaging.instance;
 
   Future<void> initFCM() async {
-    try {
-      // 1. Poproś o uprawnienia (krytyczne na iOS)
-      final settings = await _msgService.requestPermission(
-        alert: true,
-        badge: true,
-        sound: true,
-        provisional: false, // iOS 12+: "ciche" pozwolenie
-      );
+    final settings = await msgService.requestPermission(
+      alert: true,
+      badge: true,
+      sound: true,
+    );
+    print('🔔 Notification permission: ${settings.authorizationStatus}');
 
-      print('🔔 Authorization status: ${settings.authorizationStatus.name}');
+    final token = await msgService.getToken();
+    print("📱 FCM TOKEN: $token");
 
-      // 2. Sprawdź, czy użytkownik pozwolił
-      if (settings.authorizationStatus == AuthorizationStatus.denied) {
-        print('⛔ Użytkownik odrzucił powiadomienia');
-        return;
-      }
+    // Subskrypcja topicu
+    await msgService.subscribeToTopic("jst_10");
+    print("✅ Subskrybowano topic jst_10");
 
-      // 3. Pobierz token FCM (na iOS wymaga APNs token)
-      final token = await _msgService.getToken();
-      if (token == null) {
-        print('❌ Nie udało się pobrać FCM tokenu (sprawdź APNs)');
-        return;
-      }
-      print("📱 FCM TOKEN: $token");
-
-      // 4. Subskrypcja topicu
-      await _msgService.subscribeToTopic("jst_10");
-      print("✅ Subskrybowano topic: jst_10");
-
-      // 5. Handlery wiadomości
-      _setupMessageHandlers();
-    } catch (e) {
-      print('❌ Błąd inicjalizacji FCM: $e');
-    }
-  }
-
-  void _setupMessageHandlers() {
-    // Foreground
+    // 1. Wiadomość gdy apka jest na ekranie
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      print('📩 FOREGROUND MESSAGE');
-      _logMessage(message);
+      print('📩 ON_MESSAGE (foreground)');
+      print(
+        'notification: ${message.notification?.title} / ${message.notification?.body}',
+      );
+      print('data: ${message.data}');
     });
 
-    // Opened from background
+    // 2. Użytkownik kliknął powiadomienie (appka w tle)
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      print('📲 OPENED FROM BACKGROUND');
-      _logMessage(message);
+      print('📲 ON_MESSAGE_OPENED_APP');
+      print('data: ${message.data}');
     });
 
-    // Opened from terminated state (sprawdź w main())
-  }
-
-  void _logMessage(RemoteMessage message) {
-    print('Title: ${message.notification?.title}');
-    print('Body: ${message.notification?.body}');
-    print('Data: ${message.data}');
+    // 3. Appka była ubita i została otwarta z powiadomienia
+    final initialMessage = await msgService.getInitialMessage();
+    if (initialMessage != null) {
+      print('🚀 INITIAL_MESSAGE');
+      print('data: ${initialMessage.data}');
+    }
   }
 }

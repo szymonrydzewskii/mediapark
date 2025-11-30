@@ -441,11 +441,11 @@ class _ActiveStageCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext c) {
-    String iconAssetForPhase(String? actionType) {
-      if (actionType == null || actionType.trim().isEmpty) {
+    String iconAssetForPhase(String? alias) {
+      if (alias == null || alias.trim().isEmpty) {
         return 'assets/icons/list.svg';
       }
-      return 'assets/icons/${actionType.trim().toLowerCase()}.svg';
+      return 'assets/icons/${alias.trim().toLowerCase()}.svg';
     }
 
     final phase = stage.phase;
