@@ -4,6 +4,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 import 'app.dart';
 // import 'firebase_options.dart'; // 👈 bardzo ważne
@@ -18,29 +19,32 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   print('⏪ BG MESSAGE: ${message.messageId}');
 }
 
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  // 🔥 główna inicjalizacja Firebase
+  await initializeDateFormatting('pl_PL', null);
   await Firebase.initializeApp();
 
-  // handler dla wiadomości w tle – musi być zarejestrowany PRZED użyciem FCM
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
-  // reszta Twojej inicjalizacji
   await ImageCacheService.init();
   await Hive.initFlutter();
   await HiveDataCache.init();
   await dotenv.load(fileName: ".env");
 
-  await NotificationService().initFCM();
+  final notificationService = NotificationService(navigatorKey: navigatorKey);
 
   runApp(
     ScreenUtilInit(
       designSize: const Size(427, 952),
       minTextAdapt: true,
       splitScreenMode: true,
-      builder: (context, child) => const MyApp(),
+      builder:
+          (context, child) => MyApp(
+            navigatorKey: navigatorKey,
+            notificationService: notificationService,
+          ),
     ),
   );
 }

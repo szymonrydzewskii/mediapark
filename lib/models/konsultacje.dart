@@ -8,6 +8,7 @@ class Konsultacje {
   final String categoryAlias;
   final String? photoUrl;
   final String? pollUrl;
+  final int idPoll;
   final String startDate;
   final String endDate;
   final String status;
@@ -22,6 +23,7 @@ class Konsultacje {
     required this.categoryAlias,
     required this.photoUrl,
     required this.pollUrl,
+    required this.idPoll,
     required this.startDate,
     required this.endDate,
     required this.status,
@@ -36,8 +38,9 @@ class Konsultacje {
       description: json['description'] ?? '',
       categoryName: json['category_name'] ?? '',
       categoryAlias: json['category_alias'] ?? '',
-      photoUrl: json['photo_url']?.toString(), // <-- nullable
-      pollUrl: json['poll_url']?.toString(), // <-- nullable
+      photoUrl: json['photo_url']?.toString(),
+      pollUrl: json['poll_url']?.toString(),
+      idPoll: json['id_poll'] ?? 0,
       startDate: json['date_of_consultation_start_formatted'] ?? '',
       endDate: json['date_of_consultation_end_formatted'] ?? '',
       status: json['status_name'] ?? '',

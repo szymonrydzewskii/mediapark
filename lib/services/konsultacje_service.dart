@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:mediapark/models/konsultacje_details.dart';
 import '../models/konsultacje.dart';
 
 class KonsultacjeService {
@@ -29,5 +30,24 @@ class KonsultacjeService {
     } else {
       throw Exception('Nie udało się pobrać konsultacji');
     }
+  }
+
+  Future<KonsultacjeDetails> fetchSzczegoly({
+    required String idInstytucji,
+    required int idKonsultacji,
+  }) async {
+    final url =
+        'https://test.wdialogu.pl/v1/i/$idInstytucji/konsultacje/szczegoly/$idKonsultacji';
+
+    final res = await http.get(Uri.parse(url));
+
+    if (res.statusCode == 200) {
+      final data = json.decode(res.body) as Map<String, dynamic>;
+      return KonsultacjeDetails.fromJson(data);
+    }
+
+    throw Exception(
+      'Nie udało się pobrać szczegółów konsultacji: ${res.statusCode} - ${res.body}',
+    );
   }
 }

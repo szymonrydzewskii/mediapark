@@ -12,6 +12,7 @@ import 'package:mediapark/services/global_data_service.dart';
 import 'package:mediapark/screens/selecting_samorzad.dart';
 import 'dart:math';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mediapark/widgets/illustration_empty_state.dart';
 import 'package:mediapark/widgets/tiles/modul_tile.dart';
 import 'package:mediapark/style/app_style.dart';
 
@@ -28,15 +29,20 @@ class _MainWindowState extends State<MainWindow>
     with SingleTickerProviderStateMixin {
   final _detailsService = CachedSamorzadDetailsService();
   final _globalDataService = GlobalDataService();
+
   late final AnimationController _panelController;
   late final Animation<double> _panelAnimation;
+
   Samorzad? aktywnySamorzad;
   bool showPanel = false;
   SamorzadSzczegoly? szczegolyInstytucji;
   bool loadingSzczegoly = false;
+
   static const backgroundColor = AppColors.primary;
+
   Set<String> animowaneModuly = {};
   static Set<String> globalAnimatedModules = {};
+
   bool _isFirstLoad = true;
   bool _isAnimatingOut = false;
   bool _isAnimatingIn = false;
@@ -132,21 +138,29 @@ class _MainWindowState extends State<MainWindow>
       }
     });
 
-    Future.wait([
-      _detailsService
-          .fetchSzczegolyInstytucji(samorzad.id)
-          .then((szczegoly) {
-            if (mounted && aktywnySamorzad?.id == samorzad.id) {
-              setState(() {
-                szczegolyInstytucji = szczegoly;
-              });
-            }
-          })
-          .catchError((_) {}),
-      _globalDataService.loadMunicipalityData(municipalityId),
-    ]).catchError((e) {
-      print('Background loading error: $e');
-    });
+    // ✅ bezpieczne Future.wait (bez crashy)
+    () async {
+      try {
+        await Future.wait([
+          _detailsService
+              .fetchSzczegolyInstytucji(samorzad.id)
+              .then((szczegoly) {
+                if (mounted && aktywnySamorzad?.id == samorzad.id) {
+                  setState(() {
+                    szczegolyInstytucji = szczegoly;
+                  });
+                }
+              })
+              .catchError((_) {}),
+
+          _globalDataService
+              .loadMunicipalityData(municipalityId)
+              .catchError((_) {}),
+        ]);
+      } catch (e) {
+        debugPrint('Background loading error: $e');
+      }
+    }();
   }
 
   void otworzWybieranie(BuildContext context) {
@@ -206,13 +220,7 @@ class _MainWindowState extends State<MainWindow>
                   child: AnimatedSwitcher(
                     duration: const Duration(milliseconds: 300),
                     child: SingleChildScrollView(
-                      // POPRAWKA: Dodany padding na dole, aby ostatnie kafelki nie były zasłonięte przez bottom navigation bar
-                      padding: EdgeInsets.fromLTRB(
-                        16.w,
-                        20.h,
-                        16.w,
-                        120.h, // Zwiększony padding z 100.h na 120.h, aby zapewnić wystarczający margines
-                      ),
+                      padding: EdgeInsets.fromLTRB(16.w, 20.h, 16.w, 120.h),
                       child: LayoutBuilder(
                         builder: (context, constraints) {
                           const columns = 2;
@@ -224,7 +232,24 @@ class _MainWindowState extends State<MainWindow>
                           final mods = szczegolyInstytucji?.modules ?? [];
 
                           if (mods.isEmpty) {
-                            return const SizedBox();
+                            return FutureBuilder<void>(
+                              future: Future.delayed(
+                                const Duration(seconds: 1),
+                              ),
+                              builder: (context, snapshot) {
+                                if (snapshot.connectionState !=
+                                    ConnectionState.done) {
+                                  return const Center(
+                                    child: CircularProgressIndicator(),
+                                  );
+                                }
+
+                                return IllustrationEmptyState(
+                                  mainText: "Brak aktywnych modułów...",
+                                  secondaryText: "Zajrzyj do nas jutro",
+                                );
+                              },
+                            );
                           }
 
                           if (_isAnimatingOut) {

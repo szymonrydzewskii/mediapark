@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mediapark/screens/bo_wyniki_glosowania_screen.dart';
+import 'package:mediapark/widgets/illustration_empty_state.dart';
 import 'package:timelines_plus/timelines_plus.dart';
 import 'package:mediapark/models/bo_harmonogram.dart';
 import 'package:mediapark/services/bo_service.dart';
@@ -33,6 +34,7 @@ class _BOHarmonogramScreenState extends State<BOHarmonogramScreen> {
   @override
   void initState() {
     super.initState();
+    print('BOHarmonogramScreen idInstytucji = ${widget.idInstytucji}');
     _harmonogramFuture =
         BOService(institutionId: widget.idInstytucji).fetchHarmonogram();
     _szczegolyFuture = CachedSamorzadDetailsService().fetchSzczegolyInstytucji(
@@ -110,7 +112,12 @@ class _BOHarmonogramScreenState extends State<BOHarmonogramScreen> {
                   }
                   if (snap.hasError || !snap.hasData) {
                     return Center(
-                      child: Text("Błąd: ${snap.error ?? 'brak danych'}"),
+                      child: IllustrationEmptyState(
+                        mainText: "Przepraszamy, wystąpił\nchwilowy problem.",
+                        secondaryText: "Już nad nim pracujemy.",
+                        assetPath: "assets/icons/network-error.svg",
+                        type: 2,
+                      ),
                     );
                   }
 
@@ -385,6 +392,7 @@ class _BOHarmonogramScreenState extends State<BOHarmonogramScreen> {
   Widget _buildActiveContent(_Stage s) {
     return _ActiveStageCard(
       stage: s,
+      institutionId: widget.idInstytucji,
       showStart: true,
       showEnd: true,
       showCountdown: s.phase.showCounter == true,
@@ -422,6 +430,7 @@ class _Stage {
 
 class _ActiveStageCard extends StatelessWidget {
   final _Stage stage;
+  final int institutionId;
   final bool showStart;
   final bool showEnd;
   final bool showCountdown;
@@ -431,6 +440,7 @@ class _ActiveStageCard extends StatelessWidget {
 
   const _ActiveStageCard({
     required this.stage,
+    required this.institutionId,
     this.showStart = true,
     this.showEnd = true,
     this.showCountdown = true,
@@ -455,7 +465,7 @@ class _ActiveStageCard extends StatelessWidget {
         Padding(
           padding: EdgeInsets.only(left: 2.w),
           child: SvgPicture.asset(
-            iconAssetForPhase(phase.actionType),
+            iconAssetForPhase(phase.alias),
             width: 32.w,
             height: 32.w,
           ),
@@ -588,7 +598,7 @@ class _ActiveStageCard extends StatelessWidget {
                         CupertinoPageRoute(
                           builder:
                               (_) => BoWynikiGlosowaniaScreen(
-                                institutionId: stage.type.index,
+                                institutionId: institutionId,
                               ),
                         ),
                       );

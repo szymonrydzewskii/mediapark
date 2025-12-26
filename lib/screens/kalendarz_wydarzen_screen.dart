@@ -8,6 +8,7 @@ import 'package:mediapark/screens/wydarzenia_dnia_screen.dart';
 import 'package:mediapark/style/app_style.dart';
 import 'package:mediapark/style/date_utils.dart';
 import 'package:mediapark/style/text_styles.dart';
+import 'package:mediapark/widgets/illustration_empty_state.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:mediapark/models/wydarzenia_models.dart';
 import 'package:mediapark/services/wydarzenia_service.dart';
@@ -16,7 +17,12 @@ import 'kalendarz_wydarzen_details_screen.dart';
 
 class KalendarzWydarzenScreen extends StatefulWidget {
   final int idInstytucji;
-  const KalendarzWydarzenScreen({super.key, required this.idInstytucji});
+  final int? initialAnnouncementId;
+  const KalendarzWydarzenScreen({
+    super.key,
+    required this.idInstytucji,
+    this.initialAnnouncementId,
+  });
 
   @override
   State<KalendarzWydarzenScreen> createState() =>
@@ -97,10 +103,7 @@ class _KalendarzWydarzenScreenState extends State<KalendarzWydarzenScreen> {
       (_, events) => events.sort((a, b) => a.start.compareTo(b.start)),
     );
 
-    _upcoming =
-        upcomingEvents.isEmpty
-            ? List<WydarzenieListItem>.from(_allEvents)
-            : upcomingEvents;
+    _upcoming = upcomingEvents;
     _upcoming.sort((a, b) => a.start.compareTo(b.start));
 
     if (mounted) setState(() {});
@@ -220,22 +223,25 @@ class _KalendarzWydarzenScreenState extends State<KalendarzWydarzenScreen> {
         sliver: SliverToBoxAdapter(child: _calendarDivider()),
       ),
 
-      // Nagłówek
-      SliverPadding(
-        padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 40.h),
-        sliver: SliverToBoxAdapter(
-          child: Text(
-            'Nadchodzące\nwydarzenia',
-            style: AppTextStyles.withColor(
-              AppTextStyles.withSize(AppTextStyles.heading1, 28),
-              Colors.black,
+      // Jeśli SĄ nadchodzące wydarzenia → nagłówek + lista
+      if (_upcoming.isNotEmpty) ...[
+        SliverPadding(
+          padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 40.h),
+          sliver: SliverToBoxAdapter(
+            child: Text(
+              'Nadchodzące\nwydarzenia',
+              style: AppTextStyles.withColor(
+                AppTextStyles.withSize(AppTextStyles.heading1, 28),
+                Colors.black,
+              ),
             ),
           ),
         ),
-      ),
-
-      // Lista wydarzeń
-      _upcoming.isEmpty ? _buildEmptySliver() : _buildEventsList(),
+        _buildEventsList(),
+      ]
+      // Jeśli NIE MA nadchodzących → tylko empty state na resztę ekranu
+      else
+        _buildEmptySliver(),
     ],
   );
 
@@ -479,10 +485,14 @@ class _KalendarzWydarzenScreenState extends State<KalendarzWydarzenScreen> {
     );
   }
 
-  Widget _buildEmptySliver() => SliverPadding(
-    padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-    sliver: SliverToBoxAdapter(
-      child: _emptyCard('Brak nadchodzących wydarzeń'),
+  Widget _buildEmptySliver() => SliverFillRemaining(
+    hasScrollBody: false,
+    child: Padding(
+      padding: EdgeInsets.symmetric(horizontal: 16.w),
+      child: IllustrationEmptyState(
+        mainText: 'Brak nadchodzących\nwydarzeń',
+        secondaryText: 'Zajrzyj do nas jutro',
+      ),
     ),
   );
 

@@ -1,25 +1,47 @@
 // lib/models/samorzad_details.dart
 
+int _toInt(dynamic v, {int def = 0}) {
+  if (v == null) return def;
+  if (v is int) return v;
+  if (v is num) return v.toInt();
+  return int.tryParse(v.toString()) ?? def;
+}
+
+double _toDouble(dynamic v, {double def = 0.0}) {
+  if (v == null) return def;
+  if (v is double) return v;
+  if (v is num) return v.toDouble();
+  return double.tryParse(v.toString()) ?? def;
+}
+
+String _toStr(dynamic v, {String def = ''}) => v?.toString() ?? def;
+
 class SamorzadModule {
   final String type;
   final String url;
   final String alias;
-  final String
-  idInstytucji; // może być pusty string, jeśli nie wstrzykniesz go niżej
+
+  /// Jeśli potrzebujesz, może być null/"" – bo w modules w API tego nie ma
+  final String? idInstytucji;
 
   SamorzadModule({
     required this.type,
     required this.url,
     required this.alias,
-    required this.idInstytucji,
+    this.idInstytucji,
   });
 
-  factory SamorzadModule.fromJson(Map<String, dynamic> json) => SamorzadModule(
-    type: (json['type'] ?? '').toString(),
-    url: (json['url'] ?? '').toString(),
-    alias: (json['alias'] ?? '').toString(),
-    idInstytucji: (json['id_bo_institution'] ?? '').toString(),
-  );
+  factory SamorzadModule.fromJson(
+    Map<String, dynamic> json, {
+    String? parentId,
+  }) {
+    return SamorzadModule(
+      type: _toStr(json['type']),
+      url: _toStr(json['url']),
+      alias: _toStr(json['alias']),
+      idInstytucji: parentId ?? _toStr(json['id_bo_institution']),
+    );
+  }
 }
 
 class SamorzadSzczegoly {
@@ -34,7 +56,6 @@ class SamorzadSzczegoly {
   final List<SamorzadModule> modules;
   final int idBoInstitution;
 
-  // NOWE POLA:
   final String regulationsLink;
   final String privacyPolicyLink;
   final String accessibilityDeclarationLink;
@@ -56,28 +77,31 @@ class SamorzadSzczegoly {
   });
 
   factory SamorzadSzczegoly.fromJson(Map<String, dynamic> json) {
-    final modulesJson =
+    final parentIdStr = _toStr(json['id_bo_institution']);
+    final modulesList =
         (json['modules'] as List? ?? const [])
             .map((e) => Map<String, dynamic>.from(e as Map))
             .toList();
 
     return SamorzadSzczegoly(
-      name: (json['name'] ?? '').toString(),
-      address: (json['address'] ?? '').toString(),
-      phone: (json['phone'] ?? '').toString(),
-      email: (json['email'] ?? '').toString(),
-      mapLat: (json['map_lat'] ?? 0).toDouble(),
-      mapLng: (json['map_lng'] ?? 0).toDouble(),
-      mapZoom: (json['map_zoom'] ?? 12) as int,
-      logo: (json['logo'] ?? '').toString(),
-      modules: modulesJson.map(SamorzadModule.fromJson).toList(),
-      idBoInstitution: (json['id_bo_institution'] ?? 0) as int,
-
-      // Mapowanie nowych pól:
-      regulationsLink: (json['regulations_link'] ?? '').toString(),
-      privacyPolicyLink: (json['privacy_policy_link'] ?? '').toString(),
-      accessibilityDeclarationLink:
-          (json['accessibility_declaration_link'] ?? '').toString(),
+      name: _toStr(json['name']),
+      address: _toStr(json['address']),
+      phone: _toStr(json['phone']),
+      email: _toStr(json['email']),
+      mapLat: _toDouble(json['map_lat']),
+      mapLng: _toDouble(json['map_lng']),
+      mapZoom: _toInt(json['map_zoom'], def: 12),
+      logo: _toStr(json['logo']),
+      idBoInstitution: _toInt(json['id_bo_institution']),
+      modules:
+          modulesList
+              .map((m) => SamorzadModule.fromJson(m, parentId: parentIdStr))
+              .toList(),
+      regulationsLink: _toStr(json['regulations_link']),
+      privacyPolicyLink: _toStr(json['privacy_policy_link']),
+      accessibilityDeclarationLink: _toStr(
+        json['accessibility_declaration_link'],
+      ),
     );
   }
 }

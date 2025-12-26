@@ -1,10 +1,11 @@
 import 'dart:async';
+import 'package:http/http.dart' as http;
+
 import '../models/ogloszenia.dart';
 import '../models/konsultacje.dart';
-import 'ogloszenia_service.dart';
-import 'konsultacje_service.dart';
 import 'image_cache_service.dart';
-import 'package:http/http.dart' as http;
+import 'konsultacje_service.dart';
+import 'ogloszenia_service.dart';
 
 class GlobalDataService {
   static final GlobalDataService _instance = GlobalDataService._internal();
@@ -61,14 +62,13 @@ class GlobalDataService {
     _loadingController.add(true);
 
     try {
-      await Future.wait([
-        _loadOgloszeniaData(municipalityId),
-        _loadKonsultacjeData(municipalityId),
-        // TODO: Add other modules here
-        // _loadBudzetObywatelskiData(municipalityId),
-      ]);
+      await _loadOgloszeniaData(
+        municipalityId,
+      ); // jeśli padnie -> poleci wyjątek
+      await _loadKonsultacjeData(municipalityId); // łapie błędy w środku
     } catch (e) {
       print('Error loading municipality data: $e');
+      rethrow;
     } finally {
       _isLoading = false;
       _loadingController.add(false);
@@ -86,42 +86,38 @@ class GlobalDataService {
         final dateA = DateTime.parse(a.datetime);
         final dateB = DateTime.parse(b.datetime);
         return dateB.compareTo(dateA);
-      } catch (e) {
+      } catch (_) {
         return 0;
       }
     });
 
     _cachedOgloszenia = ogloszenia;
     _cachedKategorie = kategorie;
-    _cachedOgloszeniaDetails = {};
-    _cachedImageValidity = {};
+    _cachedOgloszeniaDetails = <int, OgloszeniaDetails>{};
+    _cachedImageValidity = <String, bool>{};
 
-    final futures = <Future>[];
+    final futures = <Future<void>>[];
 
     for (final o in ogloszenia) {
-      // Load details
-      futures.add(
-        service
-            .fetchSzczegoly(o.id)
-            .then((details) {
-              _cachedOgloszeniaDetails![o.id] = details;
-            })
-            .catchError((e) {
-              print('Error loading details for ${o.id}: $e');
-            }),
-      );
+      // ✅ Load details (bez catchError -> async/try/catch)
+      futures.add(() async {
+        try {
+          final details = await service.fetchSzczegoly(o.id);
+          _cachedOgloszeniaDetails![o.id] = details;
+        } catch (e) {
+          print('Error loading details for ${o.id}: $e');
+        }
+      }());
 
-      // ✅ ZMIANA: Pobierz i cachuj obraz zamiast tylko walidować
-      if (o.mainPhoto != null && o.mainPhoto!.isNotEmpty) {
-        futures.add(
-          _precacheImage(o.mainPhoto!)
-              .then((isValid) {
-                _cachedImageValidity![o.mainPhoto!] = isValid;
-              })
-              .catchError((e) {
-                _cachedImageValidity![o.mainPhoto!] = false;
-              }),
-        );
+      // ✅ Pobierz i cachuj obraz
+      final photo = o.mainPhoto?.trim();
+      if (photo != null && photo.isNotEmpty) {
+        futures.add(() async {
+          final ok = await _precacheImage(
+            photo,
+          ); // _precacheImage i tak łapie błędy
+          _cachedImageValidity![photo] = ok;
+        }());
       }
     }
 
@@ -132,24 +128,23 @@ class GlobalDataService {
     try {
       final service = KonsultacjeService();
       final konsultacjeData = await service.fetchKonsultacje();
-      _cachedKonsultacje = konsultacjeData;
-      _cachedKonsultacjeImageValidity = {};
 
-      final futures = <Future>[];
+      _cachedKonsultacje = konsultacjeData;
+      _cachedKonsultacjeImageValidity = <String, bool>{};
+
+      final futures = <Future<void>>[];
+
       for (final categoryList in konsultacjeData.values) {
         for (final k in categoryList) {
-          if (k.photoUrl != null && k.photoUrl!.isNotEmpty) {
-            // ✅ ZMIANA: Użyj _precacheImage zamiast _checkImageValidity
-            futures.add(
-              _precacheImage(k.photoUrl!)
-                  .then((isValid) {
-                    _cachedKonsultacjeImageValidity![k.photoUrl!] = isValid;
-                  })
-                  .catchError((e) {
-                    _cachedKonsultacjeImageValidity![k.photoUrl!] = false;
-                  }),
-            );
-          }
+          final url = k.photoUrl?.trim();
+          if (url == null || url.isEmpty) continue;
+
+          futures.add(() async {
+            final ok = await _precacheImage(
+              url,
+            ); // _precacheImage i tak łapie błędy
+            _cachedKonsultacjeImageValidity![url] = ok;
+          }());
         }
       }
 
@@ -157,27 +152,26 @@ class GlobalDataService {
     } catch (e) {
       print('Error loading konsultacje data: $e');
       _cachedKonsultacje = {'active': [], 'planned': [], 'finished': []};
-      _cachedKonsultacjeImageValidity = {};
+      _cachedKonsultacjeImageValidity = <String, bool>{};
     }
   }
 
-  // ✅ NOWA METODA: Pobiera i cachuje obraz w tle
+  // ✅ Pobiera i cachuje obraz w tle
   Future<bool> _precacheImage(String imageUrl) async {
     try {
       // Sprawdź czy już jest w cache
       final cached = await ImageCacheService.getImage(imageUrl);
-      if (cached != null) {
-        return true; // Już w cache, wszystko OK
-      }
+      if (cached != null) return true;
 
       // Pobierz z sieci
       final response = await http
           .get(Uri.parse(imageUrl))
           .timeout(const Duration(seconds: 10));
 
-      if (response.statusCode == 200 &&
-          response.headers['content-type']?.startsWith('image/') == true) {
-        // Zapisz w cache
+      final isImg =
+          response.headers['content-type']?.startsWith('image/') == true;
+
+      if (response.statusCode == 200 && isImg) {
         await ImageCacheService.cacheImage(imageUrl, response.bodyBytes);
         return true;
       }
@@ -200,14 +194,13 @@ class GlobalDataService {
           _cachedOgloszenia!.where((o) => o.idCategory == categoryId).toList();
     }
 
-    // Sort filtered results from newest to oldest
     filtered.sort((a, b) {
       try {
         final dateA = DateTime.parse(a.datetime);
         final dateB = DateTime.parse(b.datetime);
         return dateB.compareTo(dateA); // newest first
-      } catch (e) {
-        return 0; // keep original order if parsing fails
+      } catch (_) {
+        return 0;
       }
     });
 
@@ -220,7 +213,6 @@ class GlobalDataService {
       return details.content.replaceAll(RegExp(r'<[^>]*>'), '');
     }
 
-    // Fallback to intro
     final ogloszenie = _cachedOgloszenia?.firstWhere(
       (o) => o.id == ogloszenieId,
       orElse: () => throw StateError('Ogloszenie not found'),
@@ -229,8 +221,9 @@ class GlobalDataService {
   }
 
   bool isImageValid(String? imageUrl) {
-    if (imageUrl == null || imageUrl.isEmpty) return false;
-    return _cachedImageValidity?[imageUrl] ?? false;
+    final url = imageUrl?.trim();
+    if (url == null || url.isEmpty) return false;
+    return _cachedImageValidity?[url] ?? false;
   }
 
   String getCategoryName(int categoryId) {
@@ -242,8 +235,9 @@ class GlobalDataService {
   }
 
   bool isKonsultacjaImageValid(String? imageUrl) {
-    if (imageUrl == null || imageUrl.isEmpty) return false;
-    return _cachedKonsultacjeImageValidity?[imageUrl] ?? false;
+    final url = imageUrl?.trim();
+    if (url == null || url.isEmpty) return false;
+    return _cachedKonsultacjeImageValidity?[url] ?? false;
   }
 
   void _clearCache() {
@@ -253,6 +247,39 @@ class GlobalDataService {
     _cachedImageValidity = null;
     _cachedKonsultacje = null;
     _cachedKonsultacjeImageValidity = null;
+  }
+
+  // ----------------- HELPERY DO SZUKANIA PO ID -----------------
+
+  Ogloszenia? getOgloszenieById(int id) {
+    if (_cachedOgloszenia == null) return null;
+    try {
+      return _cachedOgloszenia!.firstWhere((o) => o.id == id);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Konsultacje? getKonsultacjaById(int id) {
+    if (_cachedKonsultacje == null) return null;
+    try {
+      return _cachedKonsultacje!.values
+          .expand((list) => list)
+          .firstWhere((k) => k.id == id);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Konsultacje? getKonsultacjaByPollId(int idPoll) {
+    if (_cachedKonsultacje == null) return null;
+    try {
+      return _cachedKonsultacje!.values
+          .expand((list) => list)
+          .firstWhere((k) => k.idPoll == idPoll);
+    } catch (_) {
+      return null;
+    }
   }
 
   void dispose() {

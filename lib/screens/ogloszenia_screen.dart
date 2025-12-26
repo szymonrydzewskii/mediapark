@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:mediapark/models/ogloszenia.dart';
 import 'package:mediapark/screens/ogloszenia_details_screen.dart';
 import 'package:mediapark/services/global_data_service.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mediapark/style/app_style.dart';
+import 'package:mediapark/widgets/common_widgets.dart';
+import 'package:mediapark/widgets/illustration_empty_state.dart'; // <-- NOWY IMPORT
 
 class OgloszeniaScreen extends StatefulWidget {
   final String idInstytucji;
@@ -23,6 +24,7 @@ class _OgloszeniaScreenState extends State<OgloszeniaScreen> {
   Map<int, String> _kategorieMap = {};
   int? _wybranaKategoria;
   bool _isLoading = true;
+  String? _error;
 
   @override
   void initState() {
@@ -31,404 +33,210 @@ class _OgloszeniaScreenState extends State<OgloszeniaScreen> {
   }
 
   Future<void> _loadData() async {
-    // Show data immediately if available, otherwise show what we have
     setState(() {
+      _error = null;
+
+      // wczytaj cache jeśli jest
       _kategorie = _globalService.kategorie;
       _kategorieMap = {for (var k in _kategorie) k.id: k.name};
       _ogloszenia = _globalService.ogloszenia;
-      _isLoading = false; // Always show UI immediately
+
+      // ✅ klucz: dopóki nie wiemy co z API, traktuj jako loading
+      _isLoading = true;
     });
 
-    // Ensure global data is loaded in background
-    _globalService
-        .loadMunicipalityData(widget.idInstytucji)
-        .then((_) {
-          if (mounted) {
-            setState(() {
-              _kategorie = _globalService.kategorie;
-              _kategorieMap = {for (var k in _kategorie) k.id: k.name};
-              _ogloszenia = _globalService.ogloszenia;
-            });
-          }
-        })
-        .catchError((e) {
-          print('Background loading error in OgloszeniaScreen: $e');
-        });
+    try {
+      await _globalService.loadMunicipalityData(widget.idInstytucji);
+
+      if (!mounted) return;
+      setState(() {
+        _error = null;
+        _kategorie = _globalService.kategorie;
+        _kategorieMap = {for (var k in _kategorie) k.id: k.name};
+        _ogloszenia = _globalService.ogloszenia;
+        _isLoading = false; // ✅ koniec
+      });
+    } catch (e) {
+      debugPrint('Background loading error in OgloszeniaScreen: $e');
+
+      if (!mounted) return;
+      setState(() {
+        _error = e.toString();
+        _wybranaKategoria = null;
+        _kategorie = [];
+        _kategorieMap = {};
+        _ogloszenia = [];
+        _isLoading = false; // ✅ koniec
+      });
+    }
   }
 
-  void _filtruj(int? id) {
+  void _filtruj(dynamic id) {
     setState(() {
-      _wybranaKategoria = id;
-      _ogloszenia = _globalService.getOgloszeniaByCategory(id);
+      _wybranaKategoria = id as int?;
+      _ogloszenia = _globalService.getOgloszeniaByCategory(_wybranaKategoria);
     });
   }
+
+  List<ChipCategory> get _chipCategories => [
+    const ChipCategory(label: "Najnowsze", value: null),
+    ..._kategorie.map((k) => ChipCategory(label: k.name, value: k.id)),
+  ];
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.primary,
-      appBar: AppBar(
-        forceMaterialTransparency: true,
-        backgroundColor: AppColors.primary,
-        elevation: 0,
-        foregroundColor: Colors.black,
-        leading: Transform.translate(
-          offset: Offset(8.w, 0),
-          child: IconButton(
-            icon: SvgPicture.asset(
-              'assets/icons/back_button.svg',
-              width: 40.w,
-              height: 40.w,
-            ),
-            onPressed: () {
-              Navigator.of(context).maybePop();
-            },
-          ),
-        ),
-      ),
-      body: Column(
+    final hasError = _error != null;
+    final hideChips = hasError || _isLoading;
+
+    return ListScreenLayoutWithPhoto(
+      title: "Ogłoszenia",
+
+      // ✅ na błędzie nie pokazuj chipów
+      categoryBar:
+          hideChips
+              ? const SizedBox.shrink()
+              : CategoryChipBar(
+                categories: _chipCategories,
+                selectedValue: _wybranaKategoria,
+                onSelected: _filtruj,
+              ),
+
+      isLoading: _isLoading,
+
+      // ✅ nie pozwól, żeby layout wszedł w "empty" przy błędzie (bo chcesz custom widget)
+      isEmpty: !_isLoading && !hasError && _ogloszenia.isEmpty,
+
+      mainEmptyMessage: 'Brak ogłoszeń\nw tej okolicy',
+      secondEmptyMessage: 'Zajrzyj do nas jutro',
+
+      // ✅ zawartość: na błędzie pokaż IllustrationEmptyState
+      listContent:
+          hasError
+              ? Center(
+                child: IllustrationEmptyState(
+                  mainText: "Przepraszamy, wystąpił chwilowy problem.",
+                  secondaryText: "Już nad nim pracujemy.",
+                  assetPath: "assets/icons/network-error.svg",
+                  type: 2,
+                ),
+              )
+              : ListView.builder(
+                itemCount: _ogloszenia.length,
+                itemBuilder: (context, index) {
+                  final o = _ogloszenia[index];
+                  return _buildOgloszenieTile(o);
+                },
+              ),
+    );
+  }
+
+  Widget _buildOgloszenieTile(Ogloszenia o) {
+    // final hasValidImage = _globalService.isImageValid(o.photoUrl);
+    final hasCategory =
+        o.idCategory != null && _kategorieMap.containsKey(o.idCategory);
+
+    final url = o.photoUrl?.trim();
+    final hasValidImage = url != null && url.isNotEmpty;
+
+    return BaseListCard(
+      onTap: () => _navigateToDetails(o),
+      padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 18.h),
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(height: 8),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Text(
-              "Ogłoszenia",
-              style: GoogleFonts.poppins(
-                fontSize: 28.sp,
-                fontWeight: FontWeight.bold,
+          if (hasValidImage) ...[
+            ClipRRect(
+              borderRadius: BorderRadius.circular(10.r),
+              child: AspectRatio(
+                aspectRatio: 3 / 2,
+                child: Image.network(
+                  o.photoUrl!,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+                ),
               ),
             ),
-          ),
-          const SizedBox(height: 12),
-          _buildKategorieChips(),
-          const SizedBox(height: 12),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child:
-                  _isLoading
-                      ? const Center(child: CircularProgressIndicator())
-                      : _ogloszenia.isEmpty
-                      ? const Center(child: Text('Brak ogłoszeń'))
-                      : ListView.builder(
-                        itemCount: _ogloszenia.length,
-                        itemBuilder: (context, index) {
-                          final o = _ogloszenia[index];
-                          final hasValidImage = _globalService.isImageValid(
-                            o.mainPhoto,
-                          );
+            SizedBox(height: 24.h),
+          ],
 
-                          return hasValidImage
-                              ? _buildOgloszenieTileWithImage(o)
-                              : _buildOgloszenieTileWithoutImage(o);
-                        },
-                      ),
+          if (hasCategory) ...[
+            CategoryTag(label: _kategorieMap[o.idCategory!]!),
+            SizedBox(height: 16.h),
+          ],
+
+          Text(
+            o.title,
+            style: GoogleFonts.poppins(
+              fontWeight: FontWeight.w700,
+              fontSize: 17.sp,
+              color: Colors.black,
             ),
           ),
 
-          // PRZYCISK POKAZ WIECEJ
+          SizedBox(height: 12.h),
 
-          // const SizedBox(height: 10),
-          // Center(
-          //   child: ElevatedButton(
-          //     style: ElevatedButton.styleFrom(
-          //       backgroundColor: Color(0xFF1D1F1F),
-          //       foregroundColor: Colors.white,
-          //       shape: RoundedRectangleBorder(
-          //         borderRadius: BorderRadius.circular(25),
-          //       ),
-          //     ),
-          //     onPressed: () {}, // TODO: Pokaż więcej
-          //     child: const Padding(
-          //       padding: EdgeInsets.symmetric(vertical: 10, horizontal: 24),
-          //       child: Text("Pokaż więcej"),
-          //     ),
-          //   ),
-          // ),
-          // const SizedBox(height: 16),
+          // możesz użyć intro zamiast getOgloszenieContent (zależnie co chcesz pokazać)
+          Text(
+            o.intro,
+            style: GoogleFonts.poppins(
+              fontSize: 14.sp,
+              fontWeight: FontWeight.w400,
+            ),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+
+          SizedBox(height: 16.h),
+          _buildDateInfo(o.datetime),
+          SizedBox(height: 16.h),
+          Divider(thickness: 1, color: AppColors.divider),
+          SizedBox(height: 16.h),
+
+          Center(
+            child: CardActionButton(
+              label: 'Więcej',
+              onPressed: () => _navigateToDetails(o),
+            ),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildKategorieChips() {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Padding(
-        padding: EdgeInsets.only(left: 16.w, right: 16.w),
-        child: Row(
-          children: [
-            _buildChip("Najnowsze", null),
-            ..._kategorie.map((k) => _buildChip(k.name, k.id)),
-          ],
-        ),
+  Widget _buildDateInfo(String datetime) {
+    return RichText(
+      text: TextSpan(
+        children: [
+          TextSpan(
+            text: "dodane ",
+            style: GoogleFonts.poppins(
+              fontSize: 12.sp,
+              color: Colors.black,
+              fontWeight: FontWeight.w400,
+            ),
+          ),
+          TextSpan(
+            text: _czasDodania(datetime),
+            style: GoogleFonts.poppins(
+              fontSize: 12.sp,
+              color: Colors.black,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildChip(String label, int? id) {
-    final isSelected = _wybranaKategoria == id;
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4),
-      child: ChoiceChip(
-        showCheckmark: false,
-        label: Text(
-          label,
-          style: GoogleFonts.poppins(
-            fontSize: 14.sp,
-            color: Colors.black,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        selected: isSelected,
-        selectedColor: AppColors.primary,
-        backgroundColor: AppColors.primaryMedium,
-        onSelected: (_) => _filtruj(id),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(999),
-          side: BorderSide(color: AppColors.primaryMedium, width: 2.w),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildOgloszenieTileWithImage(Ogloszenia o) {
-    return InkWell(
-      splashColor: Colors.transparent,
-      highlightColor: Colors.transparent,
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder:
-                (_) => OgloszeniaDetailsScreen(
-                  ogloszenie: o,
-                  idInstytucji: widget.idInstytucji,
-                ),
-          ),
-        );
-      },
-      borderRadius: BorderRadius.circular(25),
-      child: Card(
-        color: AppColors.primaryLight,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
-        elevation: 0,
-        margin: const EdgeInsets.symmetric(vertical: 8),
-        child: Padding(
-          padding: EdgeInsets.fromLTRB(22.w, 12.h, 12.w, 12.h),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: Image.network(
-                  o.mainPhoto!,
-                  width: 80,
-                  height: 80,
-                  fit: BoxFit.cover,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    if (o.idCategory != null &&
-                        _kategorieMap.containsKey(o.idCategory)) ...[
-                      SizedBox(height: 12.h),
-                      _buildTag(_kategorieMap[o.idCategory]!),
-                      SizedBox(height: 12.h),
-                    ],
-                    Padding(
-                      padding: EdgeInsets.only(right: 12.w),
-                      child: Text(
-                        o.title,
-                        textAlign: TextAlign.left,
-                        style: GoogleFonts.poppins(
-                          fontWeight: FontWeight.w700,
-                          fontSize: 20.sp,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    RichText(
-                      text: TextSpan(
-                        children: [
-                          TextSpan(
-                            text: "dodane ",
-                            style: GoogleFonts.poppins(
-                              fontSize: 12.sp,
-                              color: Colors.black,
-                              fontWeight: FontWeight.w400,
-                            ),
-                          ),
-                          TextSpan(
-                            text: _czasDodania(o.datetime),
-                            style: GoogleFonts.poppins(
-                              fontSize: 12.sp,
-                              color: Colors.black,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(height: 12.h),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildOgloszenieTileWithoutImage(Ogloszenia o) {
-    return InkWell(
-      splashColor: Colors.transparent,
-      highlightColor: Colors.transparent,
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder:
-                (_) => OgloszeniaDetailsScreen(
-                  ogloszenie: o,
-                  idInstytucji: widget.idInstytucji,
-                ),
-          ),
-        );
-      },
-      borderRadius: BorderRadius.circular(25),
-      child: Card(
-        color: AppColors.primaryLight,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
-        elevation: 0,
-        margin: const EdgeInsets.symmetric(vertical: 8),
-        child: Padding(
-          padding: EdgeInsets.fromLTRB(22.w, 12.h, 12.w, 12.h),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (o.idCategory != null &&
-                  _kategorieMap.containsKey(o.idCategory)) ...[
-                SizedBox(height: 12.h),
-                _buildTag(_kategorieMap[o.idCategory]!),
-                SizedBox(height: 12.h),
-              ],
-              Padding(
-                padding: EdgeInsets.only(right: 30.w),
-                child: Text(
-                  o.title,
-                  textAlign: TextAlign.left,
-                  style: GoogleFonts.poppins(
-                    fontWeight: FontWeight.w700,
-                    fontSize: 20.sp,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 4),
-              Padding(
-                padding: EdgeInsets.only(right: 60.w),
-                child: Text(
-                  _globalService.getOgloszenieContent(o.id),
-                  textAlign: TextAlign.left,
-                  style: GoogleFonts.poppins(
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.w400,
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              SizedBox(height: 24.h),
-              RichText(
-                text: TextSpan(
-                  children: [
-                    TextSpan(
-                      text: "dodane ",
-                      style: GoogleFonts.poppins(
-                        fontSize: 12.sp,
-                        color: Colors.black,
-                        fontWeight: FontWeight.w400,
-                      ),
-                    ),
-                    TextSpan(
-                      text: _czasDodania(o.datetime),
-                      style: GoogleFonts.poppins(
-                        fontSize: 12.sp,
-                        color: Colors.black,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(height: 12.h),
-              Divider(thickness: 1, color: AppColors.divider),
-              SizedBox(height: 12.h),
-              Center(
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder:
-                            (_) => OgloszeniaDetailsScreen(
-                              ogloszenie: o,
-                              idInstytucji: widget.idInstytucji,
-                            ),
-                      ),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primaryLight,
-                    foregroundColor: Colors.black,
-                    elevation: 0,
-                    side: BorderSide(color: Color(0xFFACD2DD)),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(40.r),
-                    ),
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 42.h,
-                      vertical: 20.w,
-                    ),
-                  ),
-                  child: Text(
-                    'Więcej',
-                    style: GoogleFonts.poppins(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14.sp,
-                    ),
-                  ),
-                ),
-              ),
-              SizedBox(height: 12.h),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTag(String label) {
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
-        decoration: BoxDecoration(
-          color: AppColors.primaryMedium,
-          borderRadius: BorderRadius.circular(999),
-        ),
-        child: Text(
-          label,
-          style: GoogleFonts.poppins(
-            fontSize: 12.sp,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
+  void _navigateToDetails(Ogloszenia o) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder:
+            (_) => OgloszeniaDetailsScreen(
+              ogloszenie: o,
+              idInstytucji: widget.idInstytucji,
+            ),
       ),
     );
   }
@@ -438,16 +246,12 @@ class _OgloszeniaScreenState extends State<OgloszeniaScreen> {
       final dt = DateTime.parse(datetime);
       final diff = DateTime.now().difference(dt);
 
-      if (diff.inDays == 7) {
-        return "tydzień temu";
-      } else if (diff.inDays > 7) {
+      if (diff.inDays == 7) return "tydzień temu";
+      if (diff.inDays > 7) {
         return '${dt.day.toString().padLeft(2, '0')}.${dt.month.toString().padLeft(2, '0')}.${dt.year}';
-      } else if (diff.inDays >= 1) {
-        return "${diff.inDays} dni temu";
-      } else if (diff.inHours >= 1) {
-        return "${diff.inHours} godzin temu";
       }
-
+      if (diff.inDays >= 1) return "${diff.inDays} dni temu";
+      if (diff.inHours >= 1) return "${diff.inHours} godzin temu";
       return "dzisiaj";
     } catch (_) {
       return datetime;
